@@ -1,0 +1,19 @@
+banner:
+  location: classpath:static/banner.txt
+  
+server:
+  port: 8761  
+
+spring:  
+  application:
+    name: eureka-server
+  
+# Configure this Discovery Server
+eureka:
+  instance:
+#    hostname: localhost
+    lease-renewal-interval-in-seconds: 1
+  client:     
+    registerWithEureka: false
+    fetchRegistry: false
+

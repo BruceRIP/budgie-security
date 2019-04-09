@@ -1,0 +1,19 @@
+banner:
+  location: static/banner.txt
+
+server:
+  port: 5550
+ 
+spring:
+  application:
+     name: cloud-config-server  # Service registers under this name
+
+# Discovery Server Access
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://budgie.billers:8761/eureka/
+  instance:
+    hostname: budgie.billers
+    instance-id: ${spring.application.name}:${server.port}
+    

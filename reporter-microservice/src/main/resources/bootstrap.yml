@@ -1,0 +1,8 @@
+# Cuando se actualiza el valor de la propiedad desde el servidor de configuracion es necesario ejecutar el servicio de /refresh
+spring:
+  cloud:
+   config:
+      uri: http://budgie.billers:5550            
+  profiles:
+    active:
+    - development       

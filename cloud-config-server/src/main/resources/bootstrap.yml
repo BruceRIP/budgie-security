@@ -1,0 +1,23 @@
+#Cuando se actualiza el valor de la propiedad es necesario ejecutar el servicio de /refresh
+#para saber las propiedades que se tiene en git es necesario ejecutar el servicio http://localhost:5550/<application-name>/<profiles-active>
+#https://www.devglan.com/spring-cloud/encrypt-decrypt-cloud-config-properties
+# Es requerido llamar al servicio http://localhost:5550/encrypt de tipo POST y poner en el body el mensaje que se desea encriptar
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: '{cipher}32ddd173831d5f339c01be03fd7d3ecbdbcd7f6fbcba25c532592ea71c27831fe15ce27a913c4fc27c6c20e3f5ddc347171753ebcc4b057052f1af8a590851dfd97abe8e5c306176967dc092898d6c08'
+          username: '{cipher}ee2f496733f83d6c630421bdab10077ca4955710d201efbb67208c72893c10d4'
+          password: '{cipher}6aeed98d1a4aa98815c3f300dd3088bd7e3c5b37857f61b0751685952886f4117891bedab177be136f78d1704bc8ae7a'                                
+        bootstrap: true
+  profiles:
+    active:
+    - development
+    - test
+management:
+  security:
+    enabled: false
+encrypt:
+  key: 81L13RSP3RQT0
+    

@@ -1,0 +1,29 @@
+banner:
+  location: classpath:static/banner.txt
+
+# Por defecto se llamara PACKAGES-MICROSERVICE 
+# Spring properties
+spring:
+  application:
+     name: packages-microservice  # Service registers under this name
+
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: PackagesDB
+#
+#  jpa:
+#    show-sql: true
+#    
+## Discovery Server Access
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:8761/eureka/
+#  instance:
+#    instance-id: ${spring.application.name}:${server.port}      
+
+#          
+#server:
+#  port: 3011   

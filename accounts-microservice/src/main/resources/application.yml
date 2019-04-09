@@ -1,0 +1,6 @@
+banner:
+  location: classpath:static/banner.txt
+
+spring:
+  application:
+     name: accounts-microservice  # Service registers under this name
