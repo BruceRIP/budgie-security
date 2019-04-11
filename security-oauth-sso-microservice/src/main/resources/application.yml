@@ -1,0 +1,15 @@
+banner:
+  location: classpath:static/banner.txt
+        
+spring:
+  application:
+     name: security-oauth-sso-microservice  # Service registers under this name
+  
+logging:
+  level:
+    org.springframework:
+      security: DEBUG
+
+server:  
+  context-path: /sso-server
+  

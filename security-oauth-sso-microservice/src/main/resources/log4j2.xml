@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>   
+<Appenders>  
+  <Console name="console-log" target="SYSTEM_OUT">
+    <PatternLayout>
+    	<pattern>%d{DATE}-%-5level %x %c{1} - %m%n</pattern>
+    </PatternLayout>
+  </Console>       
+  <RollingFile name="trace" fileName="logs/security-oauth-sso-microservice/trace.log"
+  		filePattern="logs/security-oauth-sso-microservice/backup/trace-%d{yyyy-MM-dd}.log">
+  	<PatternLayout>
+    	<pattern>%d{DATE}-%-5level %x %c{1} - %m%n</pattern>
+    </PatternLayout>
+    <Policies>
+    	<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+    </Policies>
+  </RollingFile>  
+</Appenders>
+
+<Loggers>
+
+	<AsyncLogger name="mx.budgie.security.sso" level="TRACE" additivity="false">
+    	<appender-ref ref="trace" />
+        <appender-ref ref="console-log"/>
+    </AsyncLogger>   
+</Loggers>
+</Configuration>
