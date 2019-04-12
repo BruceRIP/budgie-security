@@ -27,7 +27,7 @@
 		<jasper.reports.version>6.4.0</jasper.reports.version>
 		<log4j2.disruptor.version>3.3.0</log4j2.disruptor.version>
 		<billers.core.repository.version>1.0-RELEASE</billers.core.repository.version>
-		<billers.commons.version>0.2-ALPHA</billers.commons.version>
+		<budgie.commons.version>0.2-ALPHA</budgie.commons.version>
 		<apache.velocity.version>1.6.4</apache.velocity.version>
 		<apache.velocity.tools.version>2.0</apache.velocity.tools.version>
 	</properties>
@@ -49,7 +49,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-activemq</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -63,13 +62,11 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-config-client</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
 			<version>${jasper.reports.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
@@ -87,16 +84,15 @@
 			<artifactId>disruptor</artifactId>
 			<version>${log4j2.disruptor.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>mx.budgie.billers.core.mongo</groupId>
 			<artifactId>billers-core-repository</artifactId>
 			<version>${billers.core.repository.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>mx.budgie.billers.commons</groupId>
-			<artifactId>billers-commons</artifactId>
-			<version>${billers.commons.version}</version>
+			<groupId>mx.budgie.commons</groupId>
+			<artifactId>budgie-commons</artifactId>
+			<version>${budgie.commons.version}</version>
 		</dependency>
 		<!-- velocity -->
 		<dependency>

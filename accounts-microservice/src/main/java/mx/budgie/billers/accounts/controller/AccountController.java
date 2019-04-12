@@ -46,6 +46,10 @@ import mx.budgie.billers.accounts.service.ClientAuthService;
 import mx.budgie.billers.accounts.vo.AccountRequestVO;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.ClientAuthVO;
+import mx.budgie.billers.accounts.vo.PackageVO;
+import mx.budgie.commons.client.EndpointClient;
+import mx.budgie.commons.exception.EndpointException;
+import mx.budgie.commons.utils.CommonsUtil;
 
 /**
  * @company Budgie Software Technologies
@@ -129,7 +133,7 @@ public class AccountController {
 	@Value(AccountsConstants.ACCOUNTS_KEY_DEFAULT)
 	private String keyDefault;
 	@Value("${package.recover.by.id}")
-	private String url_get_package_by_id;
+	private String packageEndpoint;
 	@Value(AccountsConstants.ACCOUNT_DEFAULT_PACKAGE)
 	private String defaultPackage;
 	@Value(AccountsConstants.ACCOUNT_HTTP_BASIC_AUTH_ENABLED)
@@ -170,8 +174,7 @@ public class AccountController {
 						buildResponseMessage(Integer.valueOf(accountsCode03), accountsMSG03, accountsDesc03),
 						HttpStatus.OK);
 			}
-			LOGGER.info("Validating that the account was not previously created with nickname [{}]",
-					account.getNickname());
+			LOGGER.info("Validating that the account was not previously created with nickname [{}]",account.getNickname());
 			AccountVO auxAcc = accountService.findAccountByNickname(account.getNickname());
 			if (null != auxAcc && account.getPassword().equals(auxAcc.getPassword()) && needValidateNickname) {
 				status = false;
@@ -184,8 +187,20 @@ public class AccountController {
 			if (!needValidateNickname) {
 				account.setNickname(account.getEmail());
 			}
+			
+			PackageVO packageVO = null;
+			try {
+				ResponseEntity<PackageVO> responsePackage = new EndpointClient(String.format("%s", packageEndpoint))
+														.putHeaders(CommonsUtil.createHead())
+														.requestParameters(defaultPackage)
+														.callGET(PackageVO.class);	
+				packageVO = responsePackage.getBody();
+			} catch(EndpointException e) {
+				LOGGER.error("Endpoint package is failed: {}", e);
+			}
+			
 			LOGGER.info("Creating account for Biller User: [{}]", account.getEmail());
-			AccountVO accountVO = accountService.createAccount(account, clientAuthentication, null);
+			AccountVO accountVO = accountService.createAccount(account, clientAuthentication, packageVO);
 			if (null == accountVO) {
 				LOGGER.error("Error while create account");
 				status = false;

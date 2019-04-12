@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import mx.budgie.billers.commons.response.ResponseMessage;
 import mx.budgie.billers.reporter.email.EmailSender;
 import mx.budgie.billers.reporter.exception.BillersEmailException;
 import mx.budgie.billers.reporter.vo.EmailSenderVO;
+import mx.budgie.commons.response.ResponseMessage;
 
 /**
  * @author bruno.rivera

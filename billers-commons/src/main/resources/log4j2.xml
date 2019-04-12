@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>   
+<Appenders>  
+  <Console name="console-log" target="SYSTEM_OUT">
+    <PatternLayout>
+    	<pattern>%d{DATE}-%-5level %c{1} - %m%n</pattern>
+    </PatternLayout>
+  </Console>  
+</Appenders>
+
+<Loggers>
+
+	<AsyncLogger name="mx.budgie.billers" level="TRACE" additivity="false">    
+        <appender-ref ref="console-log"/>        
+    </AsyncLogger>
+    <AsyncRoot level="INFO" additivity="false">    	
+        <appender-ref ref="console-log"/>
+    </AsyncRoot>
+
+    </Loggers>
+</Configuration>
