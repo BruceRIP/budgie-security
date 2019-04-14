@@ -18,28 +18,12 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 @EnableResourceServer
 public class ResourceServerSSO extends ResourceServerConfigurerAdapter {
 	
-//	@Autowired
-//	private AuthenticationEntryPoint customAuthenticationEntryPoint;
 	@Value("${budgie.billers.context.resourceId}")
 	private String resourceId;
-//	@Value("${budgie.billers.context.path.authorize.resources}")
-//	private String[] authorizeResources;
 	
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) {
 		resources.resourceId(resourceId).stateless(false);
 	}
-//
-//	@Override
-//	public void configure(HttpSecurity http) throws Exception {
-//		http.anonymous().disable().csrf().disable().requestMatchers()
-//    	.antMatchers(authorizeResources)
-//    	.and()
-//    	.authorizeRequests()
-//    	.anyRequest()
-//    	.authenticated()
-//    	.and()
-//    	.formLogin()
-//    	.permitAll();
-//	}
+
 }
