@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -195,4 +196,13 @@ public class CommonsUtil {
 		String data = amount + orderNumber + merchantCode +  currency + transactionType + pan + formKey;
 		return generateSignature(data, DigestAlgorithms.SHA_1);
 	}
+	public static synchronized String generateID() {        
+    	char[] ch = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
+        char[] c = new char[20];
+        SecureRandom random = new SecureRandom();
+        for (int i = 0; i < 20; i++) {
+          c[i] = ch[random.nextInt(ch.length)];
+        }
+        return new String(c);
+    }
 }
