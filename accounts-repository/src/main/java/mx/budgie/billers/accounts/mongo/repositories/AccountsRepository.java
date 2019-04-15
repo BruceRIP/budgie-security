@@ -1,10 +1,10 @@
 package mx.budgie.billers.accounts.mongo.repositories;
 
-import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
-import mx.budgie.billers.accounts.mongo.documents.AccountAuthorizationDocument;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
+import mx.budgie.billers.accounts.mongo.documents.AccountAuthorizationDocument;
 
 /**
  * Created by brucewayne on 6/25/17.
@@ -18,12 +18,10 @@ public interface AccountsRepository extends MongoRepository<AccountAuthorization
 	
 	public abstract AccountAuthorizationDocument findByEmail(final String email);
 	
-//	public abstract AccountAuthorizationDocument findByTokensAuthenticationTokenAuth(final String tokenAuth);
-//	
-//	public abstract AccountAuthorizationDocument findByTokensAuthenticationRefreshTokenAuth(final String refreshTokenAuth);
-	
 	@Override
 	public <S extends AccountAuthorizationDocument> S save(S entity);
 	
 	public abstract void deleteByEmail(final String email);
+	
+	public abstract AccountAuthorizationDocument findByActivationCode(final String accountHash);
 }

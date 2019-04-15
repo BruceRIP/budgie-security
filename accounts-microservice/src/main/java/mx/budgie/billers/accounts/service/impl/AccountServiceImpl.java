@@ -99,10 +99,13 @@ public class AccountServiceImpl implements AccountService{
 			accountAdmin.setPackageExpirationDate(cal.getTime());
 			accountAdmin.setDatePurchasedPackage(Date.from(Instant.now()));
 		}
-		long incre = sequenceDao.getAccountSequenceNext();
+		Long incre = sequenceDao.getAccountSequenceNext();
 		String billerID = AESCrypt.buildHashValue(account.getNickname() + incre, DigestAlgorithms.SHA_1);
+		accountDocument.setId(incre);
 		accountDocument.setBillerID(billerID);
 		accountAdmin.setBillerID(billerID);
+		accountAdmin.setId(incre);
+		accountDocument.setActivationCode(AESCrypt.buildHashValue(accountAdmin.toString()));
 		LOGGER.info("Creating account for [: '" + billerID + "'] and Nickname ['" + account.getNickname() + "']");
 		AccountAuthorizationDocument saveDocument = accountRepository.insert(accountDocument);
 		accountAdminRepository.save(accountAdmin);
@@ -165,6 +168,15 @@ public class AccountServiceImpl implements AccountService{
 	public void deleteAccount(final String email) {
 		LOGGER.info("Removing account by email [{}]", email);
 		accountRepository.deleteByEmail(email);
+	}
+
+	@Override
+	public AccountVO findAccountToActivate(final String accountReference) {
+		AccountAuthorizationDocument documet = accountRepository.findByActivationCode(accountReference);
+		if(documet != null) {
+			return accountBuilder.buildSourceFromDocument(documet);
+		}
+		return null;
 	}
 	
 }

@@ -3,7 +3,10 @@
  */
 package mx.budgie.billers.reporter.email;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -26,6 +29,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.MethodInvocationException;
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +58,8 @@ public class EmailSender{
 	private String port;
 	@Value("${billers.core.smtp.bcc}")
 	private String bcc;	
+	@Value("${billers.default.home}")
+	private String deafultHome;
 	
 	public void send(EmailSenderVO emailSender) throws BillersEmailException{		
 		try {
@@ -64,7 +72,7 @@ public class EmailSender{
 			LOGGER.info("Setting body part message");
 			Multipart multipart = new MimeMultipart("related");
 			BodyPart messageBodyPart = new MimeBodyPart();
-			messageBodyPart.setContent(configTemplate(emailSender.getTemplateType(), emailSender.getMessage(), emailSender.getLink()), "text/html");
+			messageBodyPart.setContent(configTemplate(emailSender.getTemplateType(), emailSender.getMessage(), emailSender.getCustom()), "text/html");
 			LOGGER.info("Attaching file");			
 //			DataSource source = new FileDataSource(transmitter.getFileXML().getAbsolutePath());
 //			messageBodyPart.setDataHandler(new DataHandler(source));
@@ -79,15 +87,12 @@ public class EmailSender{
 			LOGGER.info("Sending message");
 			// Send message
 			Transport.send(message);
-			LOGGER.info("Message sended");
+			LOGGER.info("Message was sent");
 			/*LOGGER.info("Removing file");
 			transmitter.getFileXML().delete();
 			transmitter.getFilePDF().delete();
 			LOGGER.info("File was removed");	*/
-		} catch (MessagingException e) {
-			LOGGER.error("Error ocurred: {}", e);
-			throw new BillersEmailException(99, e.getMessage(), e.getMessage());
-		} catch (Exception e) {
+		} catch (MessagingException | BillersEmailException e) {
 			LOGGER.error("Error ocurred: {}", e);
 			throw new BillersEmailException(99, e.getMessage(), e.getMessage());
 		}
@@ -117,18 +122,19 @@ public class EmailSender{
 	 * Configure template
 	 * @param templateType
 	 * @param message
-	 * @param link
+	 * @param action
 	 * @return
 	 * @throws Exception
 	 */
-	protected String configTemplate(EmailTemplateType templateType, String message, String link) throws Exception {
-		VelocityContext context = new VelocityContext();
-		context.put("action", (link == null || link.isEmpty()) ? "https://www.google.com": link);
+	protected String configTemplate(EmailTemplateType templateType, String message, final Map<String, String> additional) throws BillersEmailException {
+		VelocityContext context = new VelocityContext();		
 		context.put("message", message);
-		context.put("fname", "Zubayer");
-		context.put("lname", "Ahamed");
-		context.put("proprietor", "coderslab.com");
-		return buildingMerge(context, templateType, message);		
+		if(additional != null && !additional.isEmpty()) {
+			for (Entry<String, String> entry : additional.entrySet()) {		        		        
+				context.put(entry.getKey(), entry.getValue());
+		    }
+		}
+		return buildingMerge(context, templateType);		
 	}
 	
 	/**
@@ -137,15 +143,22 @@ public class EmailSender{
 	 * @return
 	 * @throws Exception
 	 */
-	private Template getTemplateType(EmailTemplateType templateType) throws Exception {		 
+	private Template getTemplateType(EmailTemplateType templateType) throws BillersEmailException {		 
 		VelocityEngine ve = new VelocityEngine();
-		ve.init();
-		switch (templateType) {
-		case ACTIVATE_ACCOUNT:
-			return ve.getTemplate("src/main/resources/static/email-templates/activate-account.vm", "UTF8");			
-		default:
-			LOGGER.warn("You must setting email template");
-			throw new Exception("Email template must be present");
+		try {
+			ve.init();
+			switch (templateType) {
+			case ACTIVATE_ACCOUNT:
+				return ve.getTemplate("src/main/resources/static/email-templates/activate-account.vm", "UTF8");			
+			case OTHER:
+				return ve.getTemplate("src/main/resources/static/email-templates/other.vm", "UTF8");
+			default:
+				LOGGER.warn("You must setting email template");
+				throw new BillersEmailException("Email template must be present");
+			}
+		} catch (Exception e) {
+			LOGGER.error(e);
+			throw new BillersEmailException(e.getMessage());
 		}
 	}
 	
@@ -157,11 +170,16 @@ public class EmailSender{
 	 * @return
 	 * @throws Exception
 	 */
-	private String buildingMerge(VelocityContext context, EmailTemplateType templateType, String message) throws Exception {
+	private String buildingMerge(VelocityContext context, EmailTemplateType templateType) throws BillersEmailException {
 		Template template = getTemplateType(templateType);
 		StringWriter out = new StringWriter();
-		template.merge(context, out);
-		return out.toString();
+		try {
+			template.merge(context, out);
+			return out.toString();
+		} catch (ResourceNotFoundException | ParseErrorException | MethodInvocationException | IOException e) {
+			LOGGER.error(e);
+			throw new BillersEmailException(e.getMessage());
+		}
 	}
 	
 	public void addAttachment(Multipart multipart, String pathFilename, String filename) {

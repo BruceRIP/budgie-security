@@ -54,10 +54,13 @@ public class OauthClientDetailsDocument implements Serializable{
 	private int accessTokenValidity;
 	// Periodo de validez del token de refresh, cuando expira el token de acceso es necesario enviar el refresh token para generar uno nuevo (Milisegundos)
 	private int refreshTokenValidity;
-	private Map<String, Object> additionalInformation;
+	// Indica si lo debe aprovar automaticamente o si debe preguntar primero antes de autorizar
 	private boolean autoApprove;
 	// Guarda los token generados para el cliente por el Servidor de Autorizacion
 	private TokenAuthentication tokenAuthentication;
+
+	private Map<String, Object> additionalInformation;
+	
 	public long getId() {
 		return id;
 	}

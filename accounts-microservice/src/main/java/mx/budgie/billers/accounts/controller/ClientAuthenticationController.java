@@ -32,7 +32,7 @@ import mx.budgie.billers.accounts.constants.AccountsConstants;
 import mx.budgie.billers.accounts.loggers.LoggerTransaction;
 import mx.budgie.billers.accounts.response.ResponseMessage;
 import mx.budgie.billers.accounts.service.ClientAuthService;
-import mx.budgie.billers.accounts.vo.ClientAuthVO;
+import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 import mx.budgie.billers.accounts.vo.TokensResponse;
 
 /**
@@ -115,9 +115,9 @@ public class ClientAuthenticationController {
 		try{			
 			ThreadContext.push(Long.toString(transactionId));									
 			LOGGER.info("Looking for client with Name '{}'", clientId);
-			ClientAuthVO client = oauthClientAuthService.findClientByClientId(clientId);
+			ClientAuthenticationVO client = oauthClientAuthService.findClientByClientId(clientId);
 			if(null != client){
-				LOGGER.info("Client was found with email '{}'", client.getClientEmail());
+				LOGGER.info("Client was found with email '{}'", client.getClientId());
 				return client;
 			}
 		return new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04);
@@ -151,7 +151,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Update tokens of a client", notes = "it is necessary to provide the client information")
 	@PutMapping(value= AccountPaths.CLIENT_UPDATE, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage updateClient(final @RequestBody ClientAuthVO client, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseMessage updateClient(final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -160,11 +160,11 @@ public class ClientAuthenticationController {
 		try{			
 			ThreadContext.push(Long.toString(transactionId));			
 			LOGGER.info("Updating client '{}' ", client.getClientId());
-//			ClientAuthVO clientVO = clientAuthService.updateClient(client);
-//			if(null != clientVO){
-//				return clientVO;
-//			}
-			return new ResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666);
+			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(client);
+			if(null != clientVO){
+				return clientVO;
+			}
+			return new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04);
 		}finally{
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_UPDATE", flag, message);
 			ThreadContext.clearStack();

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import mx.budgie.billers.accounts.builder.ClientAuthenticationBuilder;
 import mx.budgie.billers.accounts.constants.AccountsConstants;
 import mx.budgie.billers.accounts.mongo.dao.SequenceDao;
 import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
@@ -23,7 +24,7 @@ import mx.budgie.billers.accounts.mongo.repositories.OauthClientDetailsRepositor
 import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
 import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
 import mx.budgie.billers.accounts.service.ClientAuthService;
-import mx.budgie.billers.accounts.vo.ClientAuthVO;
+import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 import mx.budgie.billers.accounts.vo.TokensResponse;
 
 /**
@@ -37,6 +38,8 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			
 	@Autowired
 	private OauthClientDetailsRepository oauthClientDetailsRepository;
+	@Autowired
+	private ClientAuthenticationBuilder clientAuthenticationBuilder;
 	@Autowired
 	private SequenceDao sequenceDao;	
 	@Value(AccountsConstants.ACCOUNTS_KEY_DEFAULT)
@@ -104,19 +107,19 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	}
 
 	@Override
-	public ClientAuthVO findClientByClientId(final String clientId) {
+	public ClientAuthenticationVO findClientByClientId(final String clientId) {
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientId);
 		if(oauthClientDocument != null) {
-			ClientAuthVO vo = new ClientAuthVO();
+			ClientAuthenticationVO vo = new ClientAuthenticationVO();
 			vo.setClientId(oauthClientDocument.getClientId());
 			vo.setClientSecret(oauthClientDocument.getClientSecret());
-			vo.setAccessTokenValiditySeconds(oauthClientDocument.getAccessTokenValidity());
+			vo.setAccessTokenValidity(oauthClientDocument.getAccessTokenValidity());
 			vo.setAdditionalInformation(oauthClientDocument.getAdditionalInformation());
 			vo.setAuthorities(oauthClientDocument.getAuthorities());
-			vo.setAuthorizedGrantTypes(oauthClientDocument.getAuthorizationGrantTypes());
-			vo.setRefreshTokenValiditySeconds(oauthClientDocument.getRefreshTokenValidity());
-			vo.setRegisteredRedirectUri(oauthClientDocument.getRedirectUris());
-			vo.setResourcesId(oauthClientDocument.getResourceIds());
+			vo.setAuthorizationGrantTypes(oauthClientDocument.getAuthorizationGrantTypes());
+			vo.setRefreshTokenValidity(oauthClientDocument.getRefreshTokenValidity());
+			vo.setRedirectUris(oauthClientDocument.getRedirectUris());
+			vo.setResourceIds(oauthClientDocument.getResourceIds());
 			vo.setScope(oauthClientDocument.getScope());
 			return vo;
 		}
@@ -137,7 +140,13 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	}
 
 	@Override
-	public ClientAuthVO updateClient(ClientAuthVO clientVO) {
+	public ClientAuthenticationVO updateClient(ClientAuthenticationVO clientVO) {
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientVO.getClientId());
+		if(oauthClientDocument != null) {
+			oauthClientDocument = clientAuthenticationBuilder.buildDocumentFromSource(oauthClientDocument, clientVO);
+			oauthClientDetailsRepository.save(oauthClientDocument);
+			return clientAuthenticationBuilder.buildSourceFromDocument(oauthClientDocument);
+		}
 		return null;
 	}
 

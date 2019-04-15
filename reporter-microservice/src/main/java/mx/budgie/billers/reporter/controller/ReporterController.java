@@ -41,7 +41,7 @@ public class ReporterController {
 		try {
 			ThreadContext.push(Long.toString(transactionId));
 			emailSender.send(sender);
-			return new ResponseMessage(200, "Hello World ");
+			return new ResponseMessage(200, "Message was sent");
 		} catch (BillersEmailException e) {
 			LOGGER.error("Error {}", e);
 			return new ResponseMessage(500, e.getMessage());

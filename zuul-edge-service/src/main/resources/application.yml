@@ -12,20 +12,22 @@ spring:
 eureka:
   client:
     serviceUrl:
-      #defaultZone: http://localhost:8761/eureka/
       defaultZone: http://budgie.billers:8761/eureka/
   instance:
-    #hostname: localhost
     hostname: budgie.billers
     instance-id: ${spring.application.name}:${server.port}        
   
-# Todas las peticiones que lleguen con /billers se derivan al endpoint del servicio cuyo indentificador se registro en eureka
+# Todas las peticiones que lleguen con /oauth-server o /sso-server/ se derivan al endpoint del servicio cuyo indentificador se registro en eureka
 zuul:   
   routes:
-    billers:
+    oauth-server:
       sensitiveHeaders:
-      path: /**
+      path: /oauth-server/**
       service-id: SECURITY-OAUTH-MICROSERVICE      
+      strip-prefix: true
+    sso-server:  
+      path: /sso-server/**      
+      service-id: SECURITY-OAUTH-SSO-MICROSERVICE
       strip-prefix: true
   ribbon-isolation-strategy: THREAD
 

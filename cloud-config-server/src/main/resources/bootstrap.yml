@@ -7,7 +7,7 @@ spring:
     config:
       server:
         git:
-          uri: '{cipher}32ddd173831d5f339c01be03fd7d3ecbdbcd7f6fbcba25c532592ea71c27831fe15ce27a913c4fc27c6c20e3f5ddc347171753ebcc4b057052f1af8a590851dfd97abe8e5c306176967dc092898d6c08'
+          uri: https://gitlab.com/budgie-security/cloud-config-properties.git
           username: '{cipher}ee2f496733f83d6c630421bdab10077ca4955710d201efbb67208c72893c10d4'
           password: '{cipher}6aeed98d1a4aa98815c3f300dd3088bd7e3c5b37857f61b0751685952886f4117891bedab177be136f78d1704bc8ae7a'                                
         bootstrap: true

@@ -25,9 +25,8 @@ public class AccountRequestVO extends ResponseMessage{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@JsonIgnore
-//	@NotEmpty
-//	@NotNull(message = "Nickname cannot be null")
+	@NotEmpty
+	@NotNull(message = "Nickname cannot be null")
 	private String nickname;
 	@NotEmpty
 	@NotNull(message = "Email cannot be null")

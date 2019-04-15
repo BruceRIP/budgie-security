@@ -4,6 +4,7 @@
 package mx.budgie.billers.reporter.vo;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,8 +28,8 @@ public class EmailSenderVO implements Serializable{
 	private String message;
 	private String subject;
 	@NotNull
-	private EmailTemplateType templateType;	
-	private String link;
+	private EmailTemplateType templateType;		
+	private Map<String, String> custom;
 	
 	public String getFrom() {
 		return from;
@@ -66,12 +67,11 @@ public class EmailSenderVO implements Serializable{
 	public void setTemplateType(EmailTemplateType templateType) {
 		this.templateType = templateType;
 	}
-	public String getLink() {
-		return link;
+	public Map<String, String> getCustom() {
+		return custom;
 	}
-	public void setLink(String link) {
-		this.link = link;
-	}
-	
+	public void setCustom(Map<String, String> custom) {
+		this.custom = custom;
+	}	
 	
 }

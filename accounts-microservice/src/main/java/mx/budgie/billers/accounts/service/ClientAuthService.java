@@ -4,7 +4,7 @@
 package mx.budgie.billers.accounts.service;
 
 import mx.budgie.billers.accounts.vo.TokensResponse;
-import mx.budgie.billers.accounts.vo.ClientAuthVO;
+import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 
 /**
  * @company Budgie Software
@@ -15,11 +15,11 @@ public interface ClientAuthService {
 
 	public TokensResponse saveClient(final String clientName);
 	
-	public ClientAuthVO findClientByClientId(final String name);
+	public ClientAuthenticationVO findClientByClientId(final String name);
 	
 	public boolean deleteClientByName(final String name);
 	
-	public ClientAuthVO updateClient(final ClientAuthVO clientVO);
+	public ClientAuthenticationVO updateClient(final ClientAuthenticationVO clientVO);
 	
 	public boolean validateAuthenticationClient(final String username, final String password);
 	

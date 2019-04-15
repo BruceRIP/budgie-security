@@ -9,5 +9,6 @@ package mx.budgie.billers.reporter.vo;
  */
 public enum EmailTemplateType {
 
-	ACTIVATE_ACCOUNT;
+	ACTIVATE_ACCOUNT,
+	OTHER;
 }

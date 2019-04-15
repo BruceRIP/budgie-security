@@ -19,7 +19,6 @@ public class BillersResponseException extends Exception {
 	
 	public BillersResponseException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	public BillersResponseException(int code, String message, String description) {
 		super();
@@ -29,7 +28,6 @@ public class BillersResponseException extends Exception {
 	}
 	public BillersResponseException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 	public int getCode() {
 		return code;

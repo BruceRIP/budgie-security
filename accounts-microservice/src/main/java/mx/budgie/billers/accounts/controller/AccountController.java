@@ -45,7 +45,7 @@ import mx.budgie.billers.accounts.service.AccountService;
 import mx.budgie.billers.accounts.service.ClientAuthService;
 import mx.budgie.billers.accounts.vo.AccountRequestVO;
 import mx.budgie.billers.accounts.vo.AccountVO;
-import mx.budgie.billers.accounts.vo.ClientAuthVO;
+import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
 import mx.budgie.commons.client.EndpointClient;
 import mx.budgie.commons.exception.EndpointException;
@@ -183,10 +183,7 @@ public class AccountController {
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode02), accountsMSG02, accountsDesc02),
 						HttpStatus.OK);
-			}
-			if (!needValidateNickname) {
-				account.setNickname(account.getEmail());
-			}
+			}			
 			
 			PackageVO packageVO = null;
 			try {
@@ -210,7 +207,9 @@ public class AccountController {
 						HttpStatus.OK);
 			}
 			LOGGER.info("Accout was created successfully");
-			return new ResponseEntity<>(buildAccountResponse(accountVO), HttpStatus.OK);
+			AccountVO responseAccount = buildAccountResponse(accountVO);
+			responseAccount.setActivationCode(accountVO.getActivationCode());
+			return new ResponseEntity<>(responseAccount, HttpStatus.OK);
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_CREATE", status, description);
@@ -293,7 +292,7 @@ public class AccountController {
 
 	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
 	@PutMapping(value = AccountPaths.ACCOUNT_UPDATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseMessage updateAccount(@RequestBody final RequestParams params,
+	public @ResponseBody ResponseMessage updateAccount(@RequestBody final RequestParams params, @RequestParam(required=false) final String activate,
 			final @RequestHeader("transactionId") long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
@@ -303,6 +302,16 @@ public class AccountController {
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));
+			if(activate != null && !activate.isEmpty()) {
+				LOGGER.info("Trying to activate account");
+				accountVO = accountService.findAccountToActivate(activate);
+				if(accountVO == null) {
+					LOGGER.error("Accout with billerID '" + params.getBillerID() + " not found to activate");
+					status = false;
+					description = accountsDesc06;
+					return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+				}
+			}
 			LOGGER.info("Looking for account by billerID {}", params.getBillerID());
 			accountVO = accountService.findAccountByBillerID(params.getBillerID());
 			if (null == accountVO) {
@@ -317,10 +326,10 @@ public class AccountController {
 				status = false;
 				description = accountsDesc07;
 				return buildResponseMessage(Integer.valueOf(accountsCode07), accountsMSG07, accountsDesc07);
-			}
+			}			
 			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
 				accountVO.setAccountStatus(AccountStatus.ACTIVE);
-			}
+			}	
 			if (params.getAccountStatus() != null) {
 				accountVO.setAccountStatus(params.getAccountStatus());
 			}
@@ -346,7 +355,7 @@ public class AccountController {
 			}
 			if (params.getNewPassword() != null && !params.getNewPassword().isEmpty()) {
 				accountVO.setPassword(params.getNewPassword());
-			}
+			}							
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");
@@ -404,7 +413,7 @@ public class AccountController {
 	private String validateAuthenticationHeader(final String authentication) throws AccessDeniedException {
 		LOGGER.info("Validating authentication header [{}]", authentication);
 		if (!isHttpBasicAuthEnabled) {
-			ClientAuthVO client = clientAuthService.findClientByClientId(authentication);
+			ClientAuthenticationVO client = clientAuthService.findClientByClientId(authentication);
 			if (client == null) {
 				throw new AccessDeniedException("Access is denied. Authentication is null or empty");
 			}
@@ -436,6 +445,53 @@ public class AccountController {
 		}
 	}
 
+	@ApiOperation(value = "Activate a biller account", notes = "It is necessary to provide activate param")
+	@PostMapping(value = AccountPaths.ACCOUNT_ACTIVATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseMessage activateAccount(@RequestParam(required=false) final String code,
+			final @RequestHeader("transactionId") long transactionId) {
+		AccountVO accountVO = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			if(code == null || code.isEmpty()) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+			}
+			
+			LOGGER.info("Trying to activate account");
+			accountVO = accountService.findAccountToActivate(code);
+			if(accountVO == null) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+			}
+			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
+				accountVO.setAccountStatus(AccountStatus.ACTIVE);
+			}									
+			accountVO = accountService.updateAccount(accountVO);
+			if (null == accountVO) {
+				LOGGER.error("There was an error while updating the account");
+				status = false;
+				description = accountsDesc666;
+				return buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666);
+			}
+			LOGGER.info("Accout was updated successfully");
+			return new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),
+					accountVO.getAccountStatus());
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+					transactionId, "ACCOUNTS_ACTIVATE", status, description);
+			ThreadContext.clearStack();
+		}
+	}
+	
 	private ResponseMessage buildResponseMessage(final Integer code, final String message, final String description) {
 		LOGGER.info("Response Message: code = {} : message = {} : http status = {}", code, message, description);
 		return new ResponseMessage(code, message, description);

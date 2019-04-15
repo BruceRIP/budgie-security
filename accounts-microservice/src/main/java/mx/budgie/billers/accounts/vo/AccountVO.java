@@ -38,6 +38,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 	private int totalActiveSession;
 	private Date packageExpirationDate;
 	private Date datePurchasedPackage;
+	private String activationCode;
 
 	public AccountVO() {
 
@@ -182,6 +183,14 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 
 	public void setTotalRegisteredCustomer(int totalRegisteredCustomer) {
 		this.totalRegisteredCustomer = totalRegisteredCustomer;
-	}	
+	}
+
+	public String getActivationCode() {
+		return activationCode;
+	}
+
+	public void setActivationCode(String activateAccount) {
+		this.activationCode = activateAccount;
+	}
 
 }

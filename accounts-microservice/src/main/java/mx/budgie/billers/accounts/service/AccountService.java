@@ -25,4 +25,6 @@ public interface AccountService {
 	public AccountVO updateAccount(final AccountVO account);
 	
 	public void deleteAccount(final String email);
+	
+	public AccountVO findAccountToActivate(final String accountReference);
 }

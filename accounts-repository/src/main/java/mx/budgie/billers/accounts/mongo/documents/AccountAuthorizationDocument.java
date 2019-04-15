@@ -18,6 +18,7 @@ public class AccountAuthorizationDocument implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	@Id
+	private Long id;	
     private String billerID;
     private String nickname;
     private String password;
@@ -37,16 +38,19 @@ public class AccountAuthorizationDocument implements Serializable{
     private Date registerDate;
     private Date lastAccess;    
     private Date datePurchasedPackage;
+    private String activationCode;
+    private String clientIdUsed;
 
     public AccountAuthorizationDocument() {
     }    
     
-	public AccountAuthorizationDocument(String billerID, String nickname, String password, String email,
+	public AccountAuthorizationDocument(Long id, String billerID, String nickname, String password, String email,
 			String phoneNumber, GeolocalizationDocument registerLocation, Set<String> roles, String accessToken,
 			String registrationDevice, String purchasedPackage, boolean activeSession, int totalBills,
 			int totalActiveSession, AccountStatus accountStatus, Date registerDate, Date lastAccess,
 			TokenAuthenticationDocument tokensAuthentication, Date datePurchasedPackage) {
 		super();
+		this.id = id;
 		this.billerID = billerID;
 		this.nickname = nickname;
 		this.password = password;
@@ -63,6 +67,22 @@ public class AccountAuthorizationDocument implements Serializable{
 		this.registerDate = registerDate;
 		this.lastAccess = lastAccess;
 		this.datePurchasedPackage = datePurchasedPackage;
+	}
+
+	public String getClientIdUsed() {
+		return clientIdUsed;
+	}
+
+	public void setClientIdUsed(String clientIdUsed) {
+		this.clientIdUsed = clientIdUsed;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public Date getDatePurchasedPackage() {
@@ -215,6 +235,14 @@ public class AccountAuthorizationDocument implements Serializable{
 
 	public void setAccountStatus(AccountStatus accountStatus) {
 		this.accountStatus = accountStatus;
+	}
+
+	public String getActivationCode() {
+		return activationCode;
+	}
+
+	public void setActivationCode(String activateAccount) {
+		this.activationCode = activateAccount;
 	}	
 
 }

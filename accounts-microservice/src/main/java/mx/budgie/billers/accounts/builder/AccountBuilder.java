@@ -90,6 +90,7 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 			account.setTotalActiveSession(document.getTotalActiveSession());
 			account.setPackageExpirationDate(document.getPackageExpirationDate());	
 			account.setDatePurchasedPackage(document.getDatePurchasedPackage());
+			account.setActivationCode(document.getActivationCode());
 		return account;
 	}
 	
@@ -103,7 +104,8 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 		billerAccount.setRegistrationDevice(source.getRegistrationDevice());		
 		billerAccount.setAccountStatus(AccountStatus.REGISTER);
 		billerAccount.setLastAccess(Date.from(Instant.now()));
-		billerAccount.setRegisterDate(Date.from(Instant.now()));		
+		billerAccount.setRegisterDate(Date.from(Instant.now()));
+		billerAccount.setClientIdUsed(clientAuthentication);
 		Set<String> roles = new HashSet<>();
 		roles.add("USER");
 		billerAccount.setRoles(roles);

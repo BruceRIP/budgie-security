@@ -14,7 +14,7 @@ import mx.budgie.billers.accounts.mongo.documents.AccountAdministratorVO;
  *
  */
 @Repository
-public interface AccountAdministratorRepository extends MongoRepository<AccountAdministratorVO, String>{
+public interface AccountAdministratorRepository extends MongoRepository<AccountAdministratorVO, Long>{
 
 	@Query(value = "{'billerID': ?0}", fields="{'datePurchasedPackage':1, 'purchasedPackage' : 1,'sessions':1, 'totalFreeBillsEmitted' : 1,'totalBillsEmitted' : 1,'totalActiveSessions' : 1,'totalRegisteredCustomers' : 1,'packageExpirationDate' : 1}")
 	public AccountAdministratorVO findAdministratorVOByBillerID(final String billerID);
