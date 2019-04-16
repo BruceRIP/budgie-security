@@ -5,6 +5,7 @@ package mx.budgie.billers.accounts.controller;
 
 import java.nio.file.AccessDeniedException;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.validation.Valid;
@@ -144,7 +145,7 @@ public class AccountController {
 	@ApiOperation(value = "Create account for a Biller Customer", notes = "It is necessary to provide the authentication token that was generated for a client")
 	@PostMapping(value = AccountPaths.ACCOUNT_CREATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody ResponseEntity<ResponseMessage> createAccount(
-			@RequestHeader("Authentication") final String authentication,
+			@RequestHeader("Authorization") final String authentication,
 			@RequestHeader("transactionId") final long transactionId, @RequestBody @Valid AccountRequestVO account) {
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -176,7 +177,7 @@ public class AccountController {
 			}
 			LOGGER.info("Validating that the account was not previously created with nickname [{}]",account.getNickname());
 			AccountVO auxAcc = accountService.findAccountByNickname(account.getNickname());
-			if (null != auxAcc && account.getPassword().equals(auxAcc.getPassword()) && needValidateNickname) {
+			if (null != auxAcc && account.getPassword() != null && account.getPassword().equals(auxAcc.getPassword()) && needValidateNickname) {
 				status = false;
 				description = accountsDesc02;
 				LOGGER.error("There is an account associated with that nickname: [{}]", account.getNickname());
@@ -409,6 +410,52 @@ public class AccountController {
 			ThreadContext.clearStack();
 		}
 	}
+	
+	@ApiOperation(value = "Activate a biller account", notes = "It is necessary to provide activate param")
+	@PostMapping(value = AccountPaths.ACCOUNT_ACTIVATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseMessage activateAccount(@RequestBody Map<String, String> data, @RequestParam final String code,
+			final @RequestHeader("transactionId") long transactionId) {
+		AccountVO accountVO = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			if(data == null || code == null || code.isEmpty()) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+			}			
+			LOGGER.info("Trying to activate account");
+			accountVO = accountService.findAccountToActivate(code);
+			if(accountVO == null || !accountVO.getBillerID().equals(data.get("billerID")) || !accountVO.getTemporaryPassword().equals(data.get("temporaryPassword"))) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+			}			
+			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
+				accountVO.setAccountStatus(AccountStatus.ACTIVE);
+			}					
+			accountVO = accountService.updateAccount(accountVO);
+			if (null == accountVO) {
+				LOGGER.error("There was an error while updating the account");
+				status = false;
+				description = accountsDesc666;
+				return buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666);
+			}
+			LOGGER.info("Accout was updated successfully");
+			return new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),
+					accountVO.getAccountStatus());
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+					transactionId, "ACCOUNTS_ACTIVATE", status, description);
+			ThreadContext.clearStack();
+		}
+	}
 
 	private String validateAuthenticationHeader(final String authentication) throws AccessDeniedException {
 		LOGGER.info("Validating authentication header [{}]", authentication);
@@ -445,53 +492,6 @@ public class AccountController {
 		}
 	}
 
-	@ApiOperation(value = "Activate a biller account", notes = "It is necessary to provide activate param")
-	@PostMapping(value = AccountPaths.ACCOUNT_ACTIVATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseMessage activateAccount(@RequestParam(required=false) final String code,
-			final @RequestHeader("transactionId") long transactionId) {
-		AccountVO accountVO = null;
-		// ------------------------------------------------------------------
-		final Calendar startTime = Calendar.getInstance();
-		boolean status = true;
-		String description = AccountsConstants.SUCCESSFUL;
-		// ------------------------------------------------------------------
-		try {
-			ThreadContext.push(Long.toString(transactionId));
-			if(code == null || code.isEmpty()) {
-				LOGGER.error("Accout not found to activate");
-				status = false;
-				description = accountsDesc06;
-				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
-			}
-			
-			LOGGER.info("Trying to activate account");
-			accountVO = accountService.findAccountToActivate(code);
-			if(accountVO == null) {
-				LOGGER.error("Accout not found to activate");
-				status = false;
-				description = accountsDesc06;
-				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
-			}
-			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
-				accountVO.setAccountStatus(AccountStatus.ACTIVE);
-			}									
-			accountVO = accountService.updateAccount(accountVO);
-			if (null == accountVO) {
-				LOGGER.error("There was an error while updating the account");
-				status = false;
-				description = accountsDesc666;
-				return buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666);
-			}
-			LOGGER.info("Accout was updated successfully");
-			return new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),
-					accountVO.getAccountStatus());
-		} finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
-					transactionId, "ACCOUNTS_ACTIVATE", status, description);
-			ThreadContext.clearStack();
-		}
-	}
-	
 	private ResponseMessage buildResponseMessage(final Integer code, final String message, final String description) {
 		LOGGER.info("Response Message: code = {} : message = {} : http status = {}", code, message, description);
 		return new ResponseMessage(code, message, description);
@@ -499,9 +499,9 @@ public class AccountController {
 
 	private AccountVO buildAccountResponse(final AccountVO accountVO) {
 		return new AccountVO(accountVO.getBillerID(), accountVO.getAccessToken(), accountVO.getNickname(),
-				accountVO.getEmail(), accountVO.getView(), accountVO.getPurchasedPackage(), accountVO.getTotalBills(),
+				accountVO.getEmail(), accountVO.getTemporaryPassword(), accountVO.getView(), accountVO.getPurchasedPackage(), accountVO.getTotalBills(),
 				accountVO.getTotalFreeBills(), accountVO.getTotalRegisteredCustomer(),
-				accountVO.getTotalActiveSession(), accountVO.getPackageExpirationDate(),
-				accountVO.getDatePurchasedPackage());
+				accountVO.getTotalActiveSession(), accountVO.getExpirationPackageDate(),
+				accountVO.getPurchasedPackageDate());
 	}
 }

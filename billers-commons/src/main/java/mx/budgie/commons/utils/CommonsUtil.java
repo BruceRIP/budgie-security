@@ -196,12 +196,13 @@ public class CommonsUtil {
 		String data = amount + orderNumber + merchantCode +  currency + transactionType + pan + formKey;
 		return generateSignature(data, DigestAlgorithms.SHA_1);
 	}
-	public static synchronized String generateID() {        
+	
+	public static synchronized String generateID() {
     	char[] ch = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
-        char[] c = new char[20];
-        SecureRandom random = new SecureRandom();
-        for (int i = 0; i < 20; i++) {
-          c[i] = ch[random.nextInt(ch.length)];
+        char[] c = new char[21];
+        SecureRandom secureRandom = new SecureRandom();
+        for (int i = 0; i < 21; i++) {        	
+        	c[i] = ch[secureRandom.nextInt(ch.length)];
         }
         return new String(c);
     }

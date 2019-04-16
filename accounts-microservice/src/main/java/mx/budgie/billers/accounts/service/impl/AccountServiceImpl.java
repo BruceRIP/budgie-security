@@ -30,6 +30,7 @@ import mx.budgie.billers.accounts.service.AccountService;
 import mx.budgie.billers.accounts.vo.AccountRequestVO;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
+import mx.budgie.commons.utils.CommonsUtil;
 
 /**
  * @company Budgie Software
@@ -100,14 +101,15 @@ public class AccountServiceImpl implements AccountService{
 			accountAdmin.setDatePurchasedPackage(Date.from(Instant.now()));
 		}
 		Long incre = sequenceDao.getAccountSequenceNext();
-		String billerID = AESCrypt.buildHashValue(account.getNickname() + incre, DigestAlgorithms.SHA_1);
+		String billerID = CommonsUtil.generateID();
 		accountDocument.setId(incre);
 		accountDocument.setBillerID(billerID);
-		accountAdmin.setBillerID(billerID);
+		accountDocument.setPassword(AESCrypt.buildPassword(billerID, DigestAlgorithms.SHA_256));
 		accountAdmin.setId(incre);
+		accountAdmin.setBillerID(billerID);		
 		accountDocument.setActivationCode(AESCrypt.buildHashValue(accountAdmin.toString()));
 		LOGGER.info("Creating account for [: '" + billerID + "'] and Nickname ['" + account.getNickname() + "']");
-		AccountAuthorizationDocument saveDocument = accountRepository.insert(accountDocument);
+		AccountAuthorizationDocument saveDocument = accountRepository.save(accountDocument);
 		accountAdminRepository.save(accountAdmin);
 		if(null != saveDocument){
 			return accountBuilder.buildSourceFromDocument(saveDocument);

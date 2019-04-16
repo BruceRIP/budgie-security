@@ -24,7 +24,8 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String billerID;	
+	private Long id;
+	private String billerID;
 	private Set<String> roles;
 	private String accessToken;
 	private AccountStatus accountStatus;
@@ -36,16 +37,17 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 	private int totalFreeBills;
 	private int totalRegisteredCustomer;
 	private int totalActiveSession;
-	private Date packageExpirationDate;
-	private Date datePurchasedPackage;
+	private Date expirationPackageDate;
+	private Date purchasedPackageDate;
 	private String activationCode;
+	private String temporaryPassword;
 
 	public AccountVO() {
 
 	}	
 
-	public AccountVO(String billerID, String accessToken, String nickname, String email, String view, String purchasedPackage
-			, int totalBills,int totalFreeBills, int totalRegisteredCustomer, int totalActiveSession, Date packageExpirationDate, Date datePurchasedPackage) {
+	public AccountVO(String billerID, String accessToken, String nickname, String email, String password, String view, String purchasedPackage
+			, int totalBills,int totalFreeBills, int totalRegisteredCustomer, int totalActiveSession, Date expirationPackageDate, Date purchasedPackageDate) {
 		this.billerID = billerID;
 		this.accessToken = accessToken;		
 		this.setNickname(nickname);
@@ -56,8 +58,9 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.totalFreeBills = totalFreeBills;
 		this.totalRegisteredCustomer = totalRegisteredCustomer;
 		this.totalActiveSession = totalActiveSession;
-		this.packageExpirationDate = packageExpirationDate;
-		this.datePurchasedPackage = datePurchasedPackage;
+		this.expirationPackageDate = expirationPackageDate;
+		this.purchasedPackageDate = purchasedPackageDate;
+		this.temporaryPassword = password;
 	}
 
 	public AccountVO(String billerID, String nickname, String email) {
@@ -74,12 +77,20 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.setEmail(email);
 		this.setAccountStatus(accountStatus);
 	}
-	public Date getDatePurchasedPackage() {
-		return datePurchasedPackage;
+	public Long getId() {
+		return id;
 	}
 
-	public void setDatePurchasedPackage(Date datePurchasedPackage) {
-		this.datePurchasedPackage = datePurchasedPackage;
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public Date getPurchasedPackageDate() {
+		return purchasedPackageDate;
+	}
+
+	public void setPurchasedPackageDate(Date packagePurchasedDate) {
+		this.purchasedPackageDate = packagePurchasedDate;
 	}
 	public String getBillerID() {
 		return billerID;
@@ -161,12 +172,12 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.totalActiveSession = totalActiveSession;
 	}
 
-	public Date getPackageExpirationDate() {
-		return packageExpirationDate;
+	public Date getExpirationPackageDate() {
+		return expirationPackageDate;
 	}
 
-	public void setPackageExpirationDate(Date packageExpirationDate) {
-		this.packageExpirationDate = packageExpirationDate;
+	public void setExpirationPackageDate(Date expirationPackageDate) {
+		this.expirationPackageDate = expirationPackageDate;
 	}
 
 	public int getTotalFreeBills() {
@@ -191,6 +202,14 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 
 	public void setActivationCode(String activateAccount) {
 		this.activationCode = activateAccount;
+	}
+
+	public String getTemporaryPassword() {
+		return temporaryPassword;
+	}
+
+	public void setTemporaryPassword(String temporaryPassword) {
+		this.temporaryPassword = temporaryPassword;
 	}
 
 }
