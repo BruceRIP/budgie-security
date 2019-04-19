@@ -15,8 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
 
 import mx.budgie.security.constants.SecurityConstants;
 
@@ -30,20 +28,12 @@ import mx.budgie.security.constants.SecurityConstants;
 @EnableGlobalMethodSecurity(securedEnabled=true)
 public class GlobalAuthentication extends WebSecurityConfigurerAdapter {
 		
-//	@Autowired
-//	@Qualifier(SecurityConstants.SERVICE_CUSTOM_CLIENT_DETAIL)
-//	private ClientDetailsService customClientDetailService;
     @Autowired
     @Qualifier(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
     private UserDetailsService userDetailsService;
     @Value("${budgie.billers.web.security.authorize.matches}")
 	private String[] authorizeMatchesResources;
-     
-//    @Bean
-//    public ClientDetailsUserDetailsService clientCustomDetailsUserDetailsService(){
-//        return new ClientDetailsUserDetailsService(customClientDetailService);
-//    } 
- 
+      
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http

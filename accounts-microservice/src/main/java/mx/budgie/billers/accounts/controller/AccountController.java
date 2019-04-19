@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.codec.binary.Base64;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +42,7 @@ import mx.budgie.billers.accounts.constants.AccountsConstants;
 import mx.budgie.billers.accounts.loggers.LoggerTransaction;
 import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
 import mx.budgie.billers.accounts.request.RequestParams;
+import mx.budgie.billers.accounts.request.UpdateRolesParams;
 import mx.budgie.billers.accounts.response.ResponseMessage;
 import mx.budgie.billers.accounts.service.AccountManagerService;
 import mx.budgie.billers.accounts.service.AccountService;
@@ -64,7 +67,7 @@ import mx.budgie.commons.utils.CommonsUtil;
 @Api(value = AccountPaths.ACCOUNT_BASED_PATH)
 public class AccountController {
 
-	private final Logger LOGGER = LogManager.getLogger(getClass());
+	private static final Logger LOGGER = LogManager.getLogger(AccountController.class);
 	@Autowired
 	private ClientAuthService clientAuthService;
 	@Autowired
@@ -307,27 +310,30 @@ public class AccountController {
 				LOGGER.info("Trying to activate account");
 				accountVO = accountService.findAccountToActivate(activate);
 				if(accountVO == null) {
-					LOGGER.error("Accout with billerID '" + params.getBillerID() + " not found to activate");
+					LOGGER.error("Accout with billerID {} not found to activate", params.getBillerID());
+					status = false;
+					description = accountsDesc06;
+					return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+				}
+			}else {
+				LOGGER.info("Looking for account by billerID {} to update", params.getBillerID());
+				accountVO = accountService.findAccountByBillerID(params.getBillerID());
+				if (null == accountVO) {
+					LOGGER.error("Accout with billerID {} not found.", params.getBillerID());
 					status = false;
 					description = accountsDesc06;
 					return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
 				}
 			}
-			LOGGER.info("Looking for account by billerID {}", params.getBillerID());
-			accountVO = accountService.findAccountByBillerID(params.getBillerID());
-			if (null == accountVO) {
-				LOGGER.error("Accout with billerID '" + params.getBillerID() + " not found.");
-				status = false;
-				description = accountsDesc06;
-				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
-			}
 			LOGGER.info("{} account has status of {}", accountVO.getEmail(), accountVO.getAccountStatus());
-			if (!AccountStatus.REGISTER.equals(accountVO.getAccountStatus())
-					&& !accountVO.getPassword().equals(params.getPassword())) {
+			if (!AccountStatus.REGISTER.equals(accountVO.getAccountStatus()) && params.getPassword() != null && !accountVO.getPassword().equals(params.getPassword()) ) {
 				status = false;
 				description = accountsDesc07;
 				return buildResponseMessage(Integer.valueOf(accountsCode07), accountsMSG07, accountsDesc07);
-			}			
+			}
+			if (params.getNewPassword() != null && !params.getNewPassword().isEmpty()) {
+				accountVO.setPassword(params.getNewPassword());
+			}
 			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
 				accountVO.setAccountStatus(AccountStatus.ACTIVE);
 			}	
@@ -354,9 +360,6 @@ public class AccountController {
 				}
 				accountVO.setEmail(params.getEmail());
 			}
-			if (params.getNewPassword() != null && !params.getNewPassword().isEmpty()) {
-				accountVO.setPassword(params.getNewPassword());
-			}							
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");
@@ -373,7 +376,43 @@ public class AccountController {
 			ThreadContext.clearStack();
 		}
 	}
-
+	
+	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
+	@RequestMapping(value = AccountPaths.ACCOUNT_UPDATE_ROLES, method= {RequestMethod.PUT, RequestMethod.DELETE}, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseMessage updateRolesAccount(final HttpServletRequest request, @RequestBody final UpdateRolesParams params, @RequestParam(required=false) final String activate,
+			final @RequestHeader("transactionId") long transactionId) {
+		AccountVO accountVO = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));			
+			LOGGER.info("Looking for account by billerID {} to update", params.getBillerID());
+			accountVO = accountService.findAccountByBillerID(params.getBillerID());
+			if (null == accountVO) {
+				LOGGER.error("Accout with billerID {} not found.", params.getBillerID());
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+			}						
+			accountVO = accountService.updateRoles(params, "DELETE".equals(request.getMethod()));
+			if (null == accountVO) {
+				LOGGER.error("There was an error while updating the account");
+				status = false;
+				description = accountsDesc666;
+				return buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666);
+			}
+			LOGGER.info("Accout was updated successfully");
+			return new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),accountVO.getAccountStatus(), accountVO.getRoles());
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+					transactionId, "ACCOUNTS_UPDATE", status, description);
+			ThreadContext.clearStack();
+		}
+	}
+	
 	@ApiOperation(value = "Delete a biller account", notes = "It is necessary to provide all parameters included the password")
 	@DeleteMapping(value = AccountPaths.ACCOUNT_DELETE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody ResponseMessage deleteAccount(@RequestBody final RequestParams params,

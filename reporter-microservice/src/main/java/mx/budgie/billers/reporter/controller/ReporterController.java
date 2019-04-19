@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +27,6 @@ import mx.budgie.commons.response.ResponseMessage;
  *
  */
 @RestController
-@RequestMapping("/email")
 @RefreshScope
 public class ReporterController {
 
@@ -36,7 +34,7 @@ public class ReporterController {
 	@Autowired
 	private EmailSender emailSender;
 	
-	@PostMapping(value = "/send", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@PostMapping(value = "/emailsend", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody ResponseMessage getHello(@RequestBody @Valid EmailSenderVO sender, @RequestHeader("transactionId") final long transactionId) {
 		try {
 			ThreadContext.push(Long.toString(transactionId));

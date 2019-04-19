@@ -6,6 +6,8 @@ package mx.budgie.billers.accounts.service.impl;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +28,7 @@ import mx.budgie.billers.accounts.mongo.repositories.AccountPackagesRepository;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
 import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
 import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
+import mx.budgie.billers.accounts.request.UpdateRolesParams;
 import mx.budgie.billers.accounts.service.AccountService;
 import mx.budgie.billers.accounts.vo.AccountRequestVO;
 import mx.budgie.billers.accounts.vo.AccountVO;
@@ -158,9 +161,10 @@ public class AccountServiceImpl implements AccountService{
 
 	@Override
 	public AccountVO updateAccount(final AccountVO account) {
-		AccountAuthorizationDocument document = accountBuilder.buildDocumentFromSource(account);
-		AccountAuthorizationDocument doc = accountRepository.save(document);
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());		
 		if(null != document){
+			accountBuilder.buildDocumentFromSource(account);
+			AccountAuthorizationDocument doc = accountRepository.save(document);
 			return accountBuilder.buildSourceFromDocument(doc);
 		}
 		return null;
@@ -180,5 +184,26 @@ public class AccountServiceImpl implements AccountService{
 		}
 		return null;
 	}
-	
+
+	@Override
+	public AccountVO updateRoles(UpdateRolesParams params, boolean deleted) {
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(params.getBillerID());		
+		if(null != document){
+			Iterator<String> roles = params.getRoles().iterator();
+			if(deleted) {				
+				document.getRoles().removeIf(x -> params.getRoles().contains(x));
+			}else {
+				if(document.getRoles() == null) {
+					document.setRoles(new HashSet<>());
+				}
+				while(roles.hasNext()) {
+					document.getRoles().add(roles.next());
+				}
+			}
+			AccountAuthorizationDocument doc = accountRepository.save(document);
+			return accountBuilder.buildSourceFromDocument(doc);
+		}
+		return null;
+	}
+		
 }

@@ -32,7 +32,6 @@ import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
 import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
 import mx.budgie.billers.accounts.mongo.documents.TokenAuthentication;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
-import mx.budgie.billers.accounts.mongo.repositories.ClientAuthenticationRepository;
 import mx.budgie.billers.accounts.mongo.repositories.OauthClientDetailsRepository;
 import mx.budgie.security.constants.SecurityConstants;
 import mx.budgie.security.vo.RefreshTokenVO;
@@ -58,10 +57,6 @@ public class CustomTokenStoreService implements TokenStore{
 	@Autowired	
 	@Qualifier(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
 	private UserDetailsService userDetailsService;
-	
-	@Autowired
-	@Qualifier(RepositoryConstants.MONGO_BILLER_CLIENT_AUTH_REPOSITORY)
-	private ClientAuthenticationRepository clientAuthenticationRepository;
 	
 	@Autowired
 	private OauthClientDetailsRepository oauthClientDetailsRepository;

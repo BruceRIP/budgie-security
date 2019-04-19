@@ -3,6 +3,7 @@
  */
 package mx.budgie.billers.accounts.service;
 
+import mx.budgie.billers.accounts.request.UpdateRolesParams;
 import mx.budgie.billers.accounts.vo.AccountRequestVO;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
@@ -27,4 +28,6 @@ public interface AccountService {
 	public void deleteAccount(final String email);
 	
 	public AccountVO findAccountToActivate(final String accountReference);
+	
+	public AccountVO updateRoles(final UpdateRolesParams params, boolean deleted);
 }

@@ -26,9 +26,7 @@ public class RequestParams implements Serializable{
 	private String email;
 	private String password;
 	private String newPassword;
-	private AccountStatus accountStatus;
-	
-	
+	private AccountStatus accountStatus;	
 	
 	public AccountStatus getAccountStatus() {
 		return accountStatus;
@@ -65,6 +63,6 @@ public class RequestParams implements Serializable{
 	}
 	public void setNewPassword(String newPassword) {
 		this.newPassword = newPassword;
-	}
+	}	
 	
 }

@@ -4,3 +4,5 @@ banner:
 spring:
   application:
      name: reporter-microservice  # Service registers under this name
+server:
+   context-path: /reporter    

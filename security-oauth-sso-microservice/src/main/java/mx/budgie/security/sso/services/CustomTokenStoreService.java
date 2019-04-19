@@ -32,7 +32,6 @@ import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
 import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
 import mx.budgie.billers.accounts.mongo.documents.TokenAuthentication;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
-import mx.budgie.billers.accounts.mongo.repositories.ClientAuthenticationRepository;
 import mx.budgie.billers.accounts.mongo.repositories.OauthClientDetailsRepository;
 import mx.budgie.security.sso.constants.SecurityConstants;
 import mx.budgie.security.sso.vo.RefreshTokenVO;
@@ -58,10 +57,6 @@ public class CustomTokenStoreService implements TokenStore{
 	@Autowired	
 	@Qualifier(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
 	private UserDetailsService userDetailsService;
-	
-	@Autowired
-	@Qualifier(RepositoryConstants.MONGO_BILLER_CLIENT_AUTH_REPOSITORY)
-	private ClientAuthenticationRepository clientAuthenticationRepository;
 	
 	@Autowired
 	private OauthClientDetailsRepository oauthClientDetailsRepository;
@@ -198,52 +193,19 @@ public class CustomTokenStoreService implements TokenStore{
 
 	@Override
 	public OAuth2RefreshToken readRefreshToken(String tokenValue) {		
-		LOGGER.info("\n\n\t\t  ***** Entro a readRefreshToken ***** ");
-		RefreshTokenVO refreshTokenVO = null;
-//		AccountAuthorizationDocument document = accountRepository.findByTokensAuthenticationRefreshTokenAuth(tokenValue);
-//		if(null != document){
-//			return new RefreshTokenVO(document.getTokensAuthentication().getRefreshTokenAuth());
-//		}
-		return refreshTokenVO;
+		LOGGER.info("\n\n\t\t  ***** Entro a readRefreshToken ***** ");		
+		return null;
 	}
 
 	@Override
 	public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {		
 		LOGGER.info("\n\n\t\t  ***** Entro a readAuthenticationForRefreshToken ***** ");
-		OAuth2Authentication auth = null;
-		
-//		AccountAuthorizationDocument document = accountRepository.findByTokensAuthenticationRefreshTokenAuth(token.getValue());
-//		if(null != document){
-//			String clientAuthentication = (String)document.getTokensAuthentication().getAdditionalInformation().get("clientAuthentication");
-//			UserVO user = new UserVO();
-//			user.setNickname(document.getNickname());
-//			user.setPassword(document.getPassword());			
-//			Map<String, String> requestParameters = new HashMap<String, String>();
-//		    Map<String, Serializable> extensionProperties = new HashMap<String, Serializable>();		   
-//		    Set<String> responseTypes = new HashSet<String>();
-//		    Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-//		    OAuth2Request oauth2Request = new OAuth2Request(requestParameters
-//		                                                          , clientAuthentication
-//		                                                          , user.getAuthorities()
-//		                                                          , true
-//		                                                          , new HashSet<String>(new ArrayList<String>())
-//		                                                          , new HashSet<String>(new ArrayList<String>())
-//		                                                          , "/"
-//		                                                          , responseTypes
-//		                                                          , extensionProperties);
-//		    auth = new OAuth2Authentication(oauth2Request, authentication);
-//		}				
-		return auth;
+		return null;
 	}
 
 	@Override
 	public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {
 		LOGGER.info("\n\n\t\t  ***** Entro a removeAccessTokenUsingRefreshToken ***** ");
-//		AccountAuthorizationDocument document = accountRepository.findByTokensAuthenticationRefreshTokenAuth(refreshToken.getValue());
-//		if(null != document){
-//			System.out.print("\n\n\t\t  ************************");
-//		}
-//		System.out.print("\n\n\t\t  +++++++++++++++++++++++++++++");
 	}
 
 	@Override

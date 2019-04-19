@@ -66,6 +66,9 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 		billerAccount.setTotalActiveSession(source.getTotalActiveSession());
 		billerAccount.setAccountStatus(source.getAccountStatus());
 		billerAccount.setDatePurchasedPackage(source.getPurchasedPackageDate());
+		if(source.getRoles() != null) {
+			billerAccount.setRoles(source.getRoles());
+		}
 		if(source.getRegisterLocation() != null){
 			billerAccount.setRegisterLocation(new GeolocalizationDocument(source.getRegisterLocation().getLatitude(), source.getRegisterLocation().getLongitude()));			
 		}										
@@ -94,6 +97,7 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 			account.setPurchasedPackageDate(document.getDatePurchasedPackage());
 			account.setActivationCode(document.getActivationCode());
 			account.setTemporaryPassword(document.getPassword());
+			account.setRoles(document.getRoles());
 		return account;
 	}
 	
@@ -147,4 +151,5 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 		}
 		return null;
 	}
+		
 }

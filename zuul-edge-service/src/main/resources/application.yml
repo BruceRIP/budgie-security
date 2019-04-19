@@ -2,7 +2,8 @@ banner:
   location: classpath:static/banner.txt
 
 server:
-  port: 8080
+  port: 8880
+  context-path: /budgie  
   
 spring:
   application:
@@ -19,16 +20,32 @@ eureka:
   
 # Todas las peticiones que lleguen con /oauth-server o /sso-server/ se derivan al endpoint del servicio cuyo indentificador se registro en eureka
 zuul:   
-  routes:
+  routes:  
     oauth-server:
       sensitiveHeaders:
       path: /oauth-server/**
       service-id: SECURITY-OAUTH-MICROSERVICE      
-      strip-prefix: true
+      strip-prefix: false
     sso-server:  
-      path: /sso-server/**      
+      sensitiveHeaders:
+      path: /sso-server/**
       service-id: SECURITY-OAUTH-SSO-MICROSERVICE
-      strip-prefix: true
+      strip-prefix: false
+    accounts:  
+      sensitiveHeaders:
+      path: /accounts/**
+      service-id: ACCOUNTS-MICROSERVICE
+      strip-prefix: false
+    client:
+      sensitiveHeaders:
+      path: /clients/**
+      service-id: ACCOUNTS-MICROSERVICE
+      strip-prefix: false
+    reporter:
+      sensitiveHeaders:
+      path: /reporter/**
+      service-id: REPORTER-MICROSERVICE
+      strip-prefix: false
   ribbon-isolation-strategy: THREAD
 
 hystrix.command.default.execution.timeout.enabled: false          
