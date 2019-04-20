@@ -104,59 +104,79 @@ public class ClientAuthenticationBuilder extends AbstractBuilder<ClientAuthentic
 		return document;
 	}
 	
-	public OauthClientDetailsDocument buildDocumentFromSource(OauthClientDetailsDocument document, ClientAuthenticationVO source) {
-		if(source.getAuthorities() != null) {
-			if(document.getAuthorities() == null) {
-				document.setAuthorities(new HashSet<>());
-			}
-			Iterator<String> authorities = source.getAuthorities().iterator();
-			while(authorities.hasNext()) {
-				document.getAuthorities().add(authorities.next() + "");
+	public OauthClientDetailsDocument buildDocumentFromSource(OauthClientDetailsDocument document, ClientAuthenticationVO source, boolean deleted) {
+		if(deleted && source.getAuthorities() != null) {
+			document.getAuthorities().removeIf(x -> source.getAuthorities().contains(x));
+		}else {
+			if(source.getAuthorities() != null) {
+				if(document.getAuthorities() == null) {
+					document.setAuthorities(new HashSet<>());
+				}
+				Iterator<String> authorities = source.getAuthorities().iterator();
+				while(authorities.hasNext()) {
+					document.getAuthorities().add(authorities.next() + "");
+				}
 			}
 		}
-		if(source.getAuthorizationGrantTypes() != null) {
-			if(document.getAuthorizationGrantTypes() == null) {
-				document.setAuthorizationGrantTypes(new HashSet<>());
+		if(deleted && source.getAuthorizationGrantTypes() != null) {
+			document.getAuthorizationGrantTypes().removeIf(x -> source.getAuthorizationGrantTypes().contains(x));
+		}else {
+			if(source.getAuthorizationGrantTypes() != null) {
+				if(document.getAuthorizationGrantTypes() == null) {
+					document.setAuthorizationGrantTypes(new HashSet<>());
+				}
+				Iterator<String> authorizationGrantTypes = source.getAuthorizationGrantTypes().iterator();
+				while(authorizationGrantTypes.hasNext()) {
+					document.getAuthorizationGrantTypes().add(authorizationGrantTypes.next() + "");
+				}
+			}		
+		}
+		if(deleted && source.getRedirectUris() != null) {
+			document.getRedirectUris().removeIf(x -> source.getRedirectUris().contains(x));
+		}else {
+			if(source.getRedirectUris() != null) {
+				if(document.getRedirectUris() == null) {
+					document.setRedirectUris(new HashSet<>());
+				}
+				Iterator<String> redirectUris = source.getRedirectUris().iterator();
+				while(redirectUris.hasNext()) {
+					document.getRedirectUris().add(redirectUris.next() + "");
+				}
 			}
-			Iterator<String> authorizationGrantTypes = source.getAuthorizationGrantTypes().iterator();
-			while(authorizationGrantTypes.hasNext()) {
-				document.getAuthorizationGrantTypes().add(authorizationGrantTypes.next() + "");
+		}
+		if(deleted && source.getResourceIds() != null) {
+			document.getResourceIds().removeIf(x -> source.getResourceIds().contains(x));
+		}else {
+			if(source.getResourceIds() != null) {
+				if(document.getResourceIds() == null) {
+					document.setResourceIds(new HashSet<>());
+				}
+				Iterator<String> resourceIds = source.getResourceIds().iterator();
+				while(resourceIds.hasNext()) {
+					document.getResourceIds().add(resourceIds.next() + "");
+				}
 			}
-		}		
-		if(source.getExpirationDate() != null) {
+		}
+		if(deleted && source.getScope() != null) {
+			document.getScope().removeIf(x -> source.getScope().contains(x));			
+		}else {
+			if(source.getScope() != null) {
+				if(document.getScope() == null) {
+					document.setScope(new HashSet<>());
+				}
+				Iterator<String> scope = source.getScope().iterator();
+				while(scope.hasNext()) {
+					document.getScope().add(scope.next() + "");
+				}
+			}
+		}
+		if(source.getExpirationDate() != null && !deleted) {
 			document.setExpirationDate(source.getExpirationDate());
 		}
-		if(source.getRedirectUris() != null) {
-			if(document.getRedirectUris() == null) {
-				document.setRedirectUris(new HashSet<>());
-			}
-			Iterator<String> redirectUris = source.getRedirectUris().iterator();
-			while(redirectUris.hasNext()) {
-				document.getRedirectUris().add(redirectUris.next() + "");
-			}
-		}
-		if(source.getResourceIds() != null) {
-			if(document.getResourceIds() == null) {
-				document.setResourceIds(new HashSet<>());
-			}
-			Iterator<String> resourceIds = source.getResourceIds().iterator();
-			while(resourceIds.hasNext()) {
-				document.getResourceIds().add(resourceIds.next() + "");
-			}
-		}
-		if(source.getScope() != null) {
-			if(document.getScope() == null) {
-				document.setScope(new HashSet<>());
-			}
-			Iterator<String> scope = source.getScope().iterator();
-			while(scope.hasNext()) {
-				document.getScope().add(scope.next() + "");
-			}
-		}
-		if(source.getTokenType() != null) {
+		if(source.getTokenType() != null && !deleted) {
 			document.setTokenType(source.getTokenType());
 		}
-		if(source.isAutoApprove() != null) {
+		if(source.isAutoApprove() != null && !deleted) {
 			document.setAutoApprove(source.isAutoApprove());
 		}
 		return document;

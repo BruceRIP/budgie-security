@@ -5,6 +5,8 @@ package mx.budgie.billers.accounts.controller;
 
 import java.util.Calendar;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
@@ -17,10 +19,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -150,8 +152,8 @@ public class ClientAuthenticationController {
 	}
 	
 	@ApiOperation(value = "Update tokens of a client", notes = "it is necessary to provide the client information")
-	@PutMapping(value= AccountPaths.CLIENT_UPDATE, consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage updateClient(final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
+	@RequestMapping(value= AccountPaths.CLIENT_UPDATE, method= {RequestMethod.PUT, RequestMethod.DELETE},consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseMessage updateClient(final HttpServletRequest request, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -160,7 +162,7 @@ public class ClientAuthenticationController {
 		try{			
 			ThreadContext.push(Long.toString(transactionId));			
 			LOGGER.info("Updating client '{}' ", client.getClientId());
-			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(client);
+			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(client, "DELETE".equals(request.getMethod()));
 			if(null != clientVO){
 				return clientVO;
 			}
@@ -168,6 +170,6 @@ public class ClientAuthenticationController {
 		}finally{
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_UPDATE", flag, message);
 			ThreadContext.clearStack();
-		}		
+		}
 	}
 }

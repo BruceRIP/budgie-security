@@ -19,7 +19,7 @@ public interface ClientAuthService {
 	
 	public boolean deleteClientByName(final String name);
 	
-	public ClientAuthenticationVO updateClient(final ClientAuthenticationVO clientVO);
+	public ClientAuthenticationVO updateClient(final ClientAuthenticationVO clientVO, final boolean deleted);
 	
 	public boolean validateAuthenticationClient(final String username, final String password);
 	

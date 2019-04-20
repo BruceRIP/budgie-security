@@ -140,10 +140,10 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	}
 
 	@Override
-	public ClientAuthenticationVO updateClient(ClientAuthenticationVO clientVO) {
+	public ClientAuthenticationVO updateClient(ClientAuthenticationVO clientVO, final boolean delete) {
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientVO.getClientId());
 		if(oauthClientDocument != null) {
-			oauthClientDocument = clientAuthenticationBuilder.buildDocumentFromSource(oauthClientDocument, clientVO);
+			oauthClientDocument = clientAuthenticationBuilder.buildDocumentFromSource(oauthClientDocument, clientVO, delete);
 			oauthClientDetailsRepository.save(oauthClientDocument);
 			return clientAuthenticationBuilder.buildSourceFromDocument(oauthClientDocument);
 		}

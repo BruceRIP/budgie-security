@@ -296,7 +296,7 @@ public class AccountController {
 
 	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
 	@PutMapping(value = AccountPaths.ACCOUNT_UPDATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseMessage updateAccount(@RequestBody final RequestParams params, @RequestParam(required=false) final String activate,
+	public @ResponseBody ResponseMessage updateAccount(@RequestBody final RequestParams params,
 			final @RequestHeader("transactionId") long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
@@ -306,24 +306,13 @@ public class AccountController {
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));
-			if(activate != null && !activate.isEmpty()) {
-				LOGGER.info("Trying to activate account");
-				accountVO = accountService.findAccountToActivate(activate);
-				if(accountVO == null) {
-					LOGGER.error("Accout with billerID {} not found to activate", params.getBillerID());
-					status = false;
-					description = accountsDesc06;
-					return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
-				}
-			}else {
-				LOGGER.info("Looking for account by billerID {} to update", params.getBillerID());
-				accountVO = accountService.findAccountByBillerID(params.getBillerID());
-				if (null == accountVO) {
-					LOGGER.error("Accout with billerID {} not found.", params.getBillerID());
-					status = false;
-					description = accountsDesc06;
-					return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
-				}
+			LOGGER.info("Looking for account by billerID {} to update", params.getBillerID());
+			accountVO = accountService.findAccountByBillerID(params.getBillerID());
+			if (null == accountVO) {
+				LOGGER.error("Accout with billerID {} not found.", params.getBillerID());
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
 			}
 			LOGGER.info("{} account has status of {}", accountVO.getEmail(), accountVO.getAccountStatus());
 			if (!AccountStatus.REGISTER.equals(accountVO.getAccountStatus()) && params.getPassword() != null && !accountVO.getPassword().equals(params.getPassword()) ) {
