@@ -22,6 +22,8 @@ public class ClientAuthenticationVO extends ResponseMessage {
 	private static final long serialVersionUID = 1L;
 	
 	private String clientId;
+	private String clientSecret;
+	private String accessToken;
 	private Date expirationDate;
 	private String tokenType;
 	private Set<String> resourceIds;
@@ -31,7 +33,6 @@ public class ClientAuthenticationVO extends ResponseMessage {
 	private Set<String> authorities;
 	private Boolean autoApprove;
 	
-	private String clientSecret;
 	private int accessTokenValidity;
 	private int refreshTokenValidity;
 	private Map<String, Object> additionalInformation;
@@ -113,6 +114,15 @@ public class ClientAuthenticationVO extends ResponseMessage {
 	}
 	public void setAdditionalInformation(Map<String, Object> additionalInformation) {
 		this.additionalInformation = additionalInformation;
+	}
+	public String getAccessToken() {
+		return accessToken;
+	}
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+	public Boolean getAutoApprove() {
+		return autoApprove;
 	}
 	
 }

@@ -48,22 +48,22 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	private String defaultDigest;
 	
 	@Override
-	public TokensResponse saveClient(final String clientName) {
+	public TokensResponse saveClient(final String applicationName) {
 		final TokensResponse tokens = new TokensResponse();
 		final String defaultKey = keyDefault;
-		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByName(clientName);
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByName(applicationName);
 		if(oauthClientDocument != null) {
 			LOGGER.info("Client was found");
-			oauthClientDocument.setName(clientName);
-			oauthClientDocument.setClientId(AESCrypt.buildPassword(clientName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
-			oauthClientDocument.setClientSecret(BCrypt.hashpw(clientName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
+			oauthClientDocument.setName(applicationName);
+			oauthClientDocument.setClientId(AESCrypt.buildPassword(applicationName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
+			oauthClientDocument.setClientSecret(BCrypt.hashpw(applicationName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
 			oauthClientDocument.setAuthenticationToken(AESCrypt.encryptKeyAndEncodeBase64(oauthClientDocument.getClientId() + ":" + oauthClientDocument.getClientSecret(), defaultKey));
 		}else {
 			LOGGER.info("Client NOT found");
 			oauthClientDocument = new OauthClientDetailsDocument();
-			oauthClientDocument.setName(clientName);
-			oauthClientDocument.setClientId(AESCrypt.buildPassword(clientName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
-			oauthClientDocument.setClientSecret(BCrypt.hashpw(clientName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
+			oauthClientDocument.setName(applicationName);
+			oauthClientDocument.setClientId(AESCrypt.buildPassword(applicationName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
+			oauthClientDocument.setClientSecret(BCrypt.hashpw(applicationName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
 			oauthClientDocument.setAuthenticationToken(AESCrypt.encryptKeyAndEncodeBase64(oauthClientDocument.getClientId() + ":" + oauthClientDocument.getClientSecret(), defaultKey));		
 			long incre = sequenceDao.getClientAuthSequenceNext();
 			oauthClientDocument.setId(incre);
@@ -73,25 +73,17 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			oauthClientDocument.setExpirationDate(cal.getTime());
 			oauthClientDocument.setExpiresIn(30);
 			oauthClientDocument.setTokenType("bearer");
-			Set<String> resources = new HashSet<>();
-			resources.add("billers");
-			oauthClientDocument.setResourceIds(resources);
-			Set<String> scopes = new HashSet<>();
-			scopes.add("read");
-			scopes.add("write");
-			oauthClientDocument.setScope(scopes);
+			Set<String> resourcesId = new HashSet<>();
+			resourcesId.add(applicationName);
+			oauthClientDocument.setResourceIds(resourcesId);
+			oauthClientDocument.setScope(new HashSet<>());
 			Set<String> grant = new HashSet<>();
-			grant.add("password");
+			grant.add("authorization_code");
 			grant.add("client_credentials");
-//			grant.add("refresh_token");
 			oauthClientDocument.setAuthorizationGrantTypes(grant);
-			Set<String> redirectUri = new HashSet<>();
-			redirectUri.add("/error");
-			redirectUri.add("/denied");
-			oauthClientDocument.setRedirectUris(redirectUri);
+			oauthClientDocument.setRedirectUris(new HashSet<>());
 			Set<String> authorities = new HashSet<>();
-			authorities.add("ROLE_USER");
-			authorities.add("ROLE_CLIENT");
+			authorities.add("ROLE_CLIENT_APP");
 			oauthClientDocument.setAuthorities(authorities);
 			oauthClientDocument.setAccessTokenValidity(10000);
 			oauthClientDocument.setRefreshTokenValidity(60000);
@@ -113,6 +105,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			ClientAuthenticationVO vo = new ClientAuthenticationVO();
 			vo.setClientId(oauthClientDocument.getClientId());
 			vo.setClientSecret(oauthClientDocument.getClientSecret());
+			vo.setAccessToken(oauthClientDocument.getAuthenticationToken());
 			vo.setAccessTokenValidity(oauthClientDocument.getAccessTokenValidity());
 			vo.setAdditionalInformation(oauthClientDocument.getAdditionalInformation());
 			vo.setAuthorities(oauthClientDocument.getAuthorities());

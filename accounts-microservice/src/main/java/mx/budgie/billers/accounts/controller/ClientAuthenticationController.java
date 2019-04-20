@@ -84,7 +84,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Create authentication tokens for a client that will consume API", notes = "It must be present in all transactions")
 	@PostMapping(value= AccountPaths.CLIENT_CREATE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage createClient(@RequestParam("clientName") String clientName, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseMessage createClient(@RequestParam("applicationName") String applicationName, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -92,11 +92,11 @@ public class ClientAuthenticationController {
 		//------------------------------------------------------
 		try{
 			ThreadContext.push(Long.toString(transactionId));
-			LOGGER.info("Creating client '{}' ", clientName);
+			LOGGER.info("Creating client '{}' ", applicationName);
 			TokensResponse tokenResonse = null;			
-			tokenResonse = oauthClientAuthService.saveClient(clientName);
+			tokenResonse = oauthClientAuthService.saveClient(applicationName);
 			if(null != tokenResonse){
-				LOGGER.info("Client was created successfully for '{}'", clientName);
+				LOGGER.info("Client was created successfully for '{}'", applicationName);
 				return tokenResonse;
 			}
 			return new ResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666);
