@@ -1,2 +1,2 @@
 # budgie-security
-Repositorio para proyecto de seguridad
+Security project based on oauth 2.0 protocol
