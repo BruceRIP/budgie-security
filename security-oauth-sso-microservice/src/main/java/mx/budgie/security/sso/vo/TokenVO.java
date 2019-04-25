@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.common.OAuth2RefreshToken;
  * @author brucewayne
  * @date Jun 25, 2017
  */
-public class TokenVO implements OAuth2AccessToken {
+public class TokenVO implements OAuth2AccessToken, OAuth2RefreshToken {
 	
 	private RefreshTokenVO refreshTokenVO;
 	private String tokenType;

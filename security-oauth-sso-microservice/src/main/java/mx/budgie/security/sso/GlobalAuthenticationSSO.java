@@ -23,7 +23,7 @@ import mx.budgie.security.sso.constants.SecurityConstants;
  */
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled=true)
+@EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled = true)
 public class GlobalAuthenticationSSO extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -32,6 +32,9 @@ public class GlobalAuthenticationSSO extends WebSecurityConfigurerAdapter {
 	@Value("${budgie.billers.web.security.authorize.matches}")
 	private String[] authorizeMatches;
 
+	/**
+	 * CSRF is activate by default when using WebSecurityConfigurerAdapter
+	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.requestMatchers()

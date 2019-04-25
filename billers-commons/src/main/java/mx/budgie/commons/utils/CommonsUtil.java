@@ -35,6 +35,7 @@ import mx.budgie.commons.crypto.DigestAlgorithms;
  */
 public class CommonsUtil {
 
+	private CommonsUtil() {}
 	public static int getPassId(String source) {
 		int id = -1;
 		if (source != null) {
@@ -148,7 +149,6 @@ public class CommonsUtil {
 			XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(date);
 			return xmlCal;
 		} catch (DatatypeConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 		return null;

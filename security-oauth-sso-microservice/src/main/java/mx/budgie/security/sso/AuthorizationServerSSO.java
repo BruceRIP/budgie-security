@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import mx.budgie.security.sso.constants.SecurityConstants;
 
@@ -29,11 +30,15 @@ import mx.budgie.security.sso.constants.SecurityConstants;
 public class AuthorizationServerSSO extends AuthorizationServerConfigurerAdapter {
 
 	@Autowired
-	private AuthenticationManager authenticationManager;
-
-	@Autowired
 	@Qualifier(SecurityConstants.SERVICE_CUSTOM_CLIENT_DETAIL)
 	private ClientDetailsService customClientDetailService;
+
+	@Autowired
+	@Qualifier(SecurityConstants.SERVICE_CUSTOM_TOKEN_STORE)
+	private TokenStore customTokenStore;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -48,7 +53,9 @@ public class AuthorizationServerSSO extends AuthorizationServerConfigurerAdapter
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-		endpoints.authenticationManager(authenticationManager);
+		endpoints.authenticationManager(authenticationManager)
+		.tokenStore(customTokenStore)
+		.setClientDetailsService(customClientDetailService);
 	}
 
 }

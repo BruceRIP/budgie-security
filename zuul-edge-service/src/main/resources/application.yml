@@ -9,6 +9,11 @@ spring:
   application:
     name: zuul-edge-service
 
+security:
+  oauth2:
+    resource:
+      user-info-uri: http://budgie.billers:3004/sso-server/hello
+      
 # Discovery Server Access
 eureka:
   client:
@@ -36,7 +41,7 @@ zuul:
       path: /accounts/**
       service-id: ACCOUNTS-MICROSERVICE
       strip-prefix: false
-    client:
+    clients:
       sensitiveHeaders:
       path: /clients/**
       service-id: ACCOUNTS-MICROSERVICE
@@ -45,6 +50,11 @@ zuul:
       sensitiveHeaders:
       path: /reporter/**
       service-id: REPORTER-MICROSERVICE
+      strip-prefix: false
+    packages:
+      sensitiveHeaders:
+      path: /packages/**
+      service-id: PACKAGES-MICROSERVICE
       strip-prefix: false
   ribbon-isolation-strategy: THREAD
 

@@ -13,7 +13,7 @@ import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
  */
 public interface ClientAuthService {
 
-	public TokensResponse saveClient(final String applicationName);
+	public TokensResponse saveClient(final String applicationName, final String tokenType);
 	
 	public ClientAuthenticationVO findClientByClientId(final String name);
 	
@@ -22,5 +22,7 @@ public interface ClientAuthService {
 	public ClientAuthenticationVO updateClient(final ClientAuthenticationVO clientVO, final boolean deleted);
 	
 	public boolean validateAuthenticationClient(final String username, final String password);
+	
+	public String findClientIdByToken(final String token);
 	
 }

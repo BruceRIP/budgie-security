@@ -27,7 +27,7 @@ public class AccountPaths {
 	public static final String CLIENT_BASED_PATH = "/clients";
 	public static final String CLIENT_CREATE = "/authentication";
 	public static final String CLIENT_DELETE = "/authentication/{clientName}";
-	public static final String CLIENT_UPDATE = "/authentication";	
+	public static final String CLIENT_UPDATE = "/authentication/{clientName}";	
 	public static final String CLIENT_RECOVER_BY_NAME = "/authentication/{clientId}";
 	
 	public static final String ACCOUNT_DASHBOARD_INFO = "/dashboard/{billerID}";

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mx.budgie.security.services;
+package mx.budgie.security.sso.services;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,10 +17,10 @@ import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
 import mx.budgie.billers.accounts.mongo.documents.AccountAuthorizationDocument;
 import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
-import mx.budgie.security.builder.AccountBuilder;
-import mx.budgie.security.constants.SecurityConstants;
-import mx.budgie.security.vo.AccountVO;
-import mx.budgie.security.vo.UserVO;
+import mx.budgie.security.sso.builder.AccountBuilder;
+import mx.budgie.security.sso.constants.SecurityConstants;
+import mx.budgie.security.sso.vo.AccountVO;
+import mx.budgie.security.sso.vo.UserVO;
 
 /**
  * @company Budgie Software
@@ -28,9 +28,9 @@ import mx.budgie.security.vo.UserVO;
  * @date Jun 25, 2017
  */
 @Service(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
-public class CustomUserDetailsService implements UserDetailsService{
+public class CustomUserDetailsSSOService implements UserDetailsService{
 
-	private final Logger LOGGER = LogManager.getLogger(getClass());	
+	private static final Logger LOGGER = LogManager.getLogger(CustomUserDetailsSSOService.class);	
 	@Autowired
 	@Qualifier(RepositoryConstants.MONGO_BILLER_ACCOUNT_REPOSITORY)
 	private AccountsRepository accountRepository;

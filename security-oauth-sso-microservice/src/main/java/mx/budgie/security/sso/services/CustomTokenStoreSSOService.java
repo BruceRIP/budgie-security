@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mx.budgie.security.services;
+package mx.budgie.security.sso.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,9 +33,9 @@ import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
 import mx.budgie.billers.accounts.mongo.documents.TokenAuthentication;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
 import mx.budgie.billers.accounts.mongo.repositories.OauthClientDetailsRepository;
-import mx.budgie.security.constants.SecurityConstants;
-import mx.budgie.security.vo.RefreshTokenVO;
-import mx.budgie.security.vo.TokenVO;
+import mx.budgie.security.sso.constants.SecurityConstants;
+import mx.budgie.security.sso.vo.RefreshTokenVO;
+import mx.budgie.security.sso.vo.TokenVO;
 
 /**
  * @company Budgie Software
@@ -43,9 +43,9 @@ import mx.budgie.security.vo.TokenVO;
  * @date Jun 25, 2017
  */
 @Service(SecurityConstants.SERVICE_CUSTOM_TOKEN_STORE)
-public class CustomTokenStoreService implements TokenStore{
+public class CustomTokenStoreSSOService implements TokenStore{
 	
-	private static final Logger LOGGER = LogManager.getLogger(CustomTokenStoreService.class);	
+	private static final Logger LOGGER = LogManager.getLogger(CustomTokenStoreSSOService.class);	
 	
 	@Value(SecurityConstants.BILLERS_FORMAT_DATE)
 	private String formatDate;
@@ -66,8 +66,8 @@ public class CustomTokenStoreService implements TokenStore{
 		LOGGER.info(" *--- Creating accessToken for ClientID [{}] ---* ", authentication.getOAuth2Request().getClientId());
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(authentication.getOAuth2Request().getClientId());
 		TokenAuthentication tokenAuthentication = new TokenAuthentication();
-		tokenAuthentication.setAdditionalInformation(token.getAdditionalInformation() != null ? token.getAdditionalInformation() : new LinkedHashMap<>());
-		tokenAuthentication.setExpirationDateAuth(token.getExpiration());
+		tokenAuthentication.setAdditionalInformation(token.getAdditionalInformation() != null ? token.getAdditionalInformation() : new LinkedHashMap<>());		
+		tokenAuthentication.setExpirationDateAuth(token.getExpiration());		
 		tokenAuthentication.setExpiresIn(token.getExpiresIn());
 		tokenAuthentication.setScopes(token.getScope());
 		tokenAuthentication.setAccessToken(token.getValue());
@@ -83,7 +83,7 @@ public class CustomTokenStoreService implements TokenStore{
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByTokenAuthenticationAccessToken(tokenValue);
 		if(null != oauthClientDocument && oauthClientDocument.getTokenAuthentication() != null) {
 			TokenVO tokenVO = new TokenVO();
-			tokenVO.setAdditionalInformation(oauthClientDocument.getTokenAuthentication().getAdditionalInformation());
+			tokenVO.setAdditionalInformation(oauthClientDocument.getTokenAuthentication().getAdditionalInformation());			
 			tokenVO.setExpirationDate(oauthClientDocument.getTokenAuthentication().getExpirationDateAuth());
 			tokenVO.setExpiresIn(oauthClientDocument.getTokenAuthentication().getExpiresIn());
 			tokenVO.setScope(oauthClientDocument.getTokenAuthentication().getScopes());
@@ -127,8 +127,8 @@ public class CustomTokenStoreService implements TokenStore{
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(authentication.getOAuth2Request().getClientId());
 		if(null != oauthClientDocument && oauthClientDocument.getTokenAuthentication() != null) {
 			TokenVO tokenVO = new TokenVO();
-			tokenVO.setAdditionalInformation(oauthClientDocument.getTokenAuthentication().getAdditionalInformation());
-			tokenVO.setExpirationDate(oauthClientDocument.getTokenAuthentication().getExpirationDateAuth());
+			tokenVO.setAdditionalInformation(oauthClientDocument.getTokenAuthentication().getAdditionalInformation());			
+			tokenVO.setExpirationDate(oauthClientDocument.getTokenAuthentication().getExpirationDateAuth());			
 			tokenVO.setExpiresIn(oauthClientDocument.getTokenAuthentication().getExpiresIn());
 			tokenVO.setScope(oauthClientDocument.getTokenAuthentication().getScopes());
 			tokenVO.setTokenType(oauthClientDocument.getTokenAuthentication().getTokenTypeAuth());
@@ -172,14 +172,47 @@ public class CustomTokenStoreService implements TokenStore{
 		}
 	}
 	
+	@Override
+	public OAuth2RefreshToken readRefreshToken(String tokenValue) {		
+		LOGGER.info(" *--- Reading refreshToken by tokenValue [{}] ---*", tokenValue);
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByTokenAuthenticationRefreshTokenAuth(tokenValue);
+		if(null != oauthClientDocument && oauthClientDocument.getTokenAuthentication() != null) {
+			TokenVO tokenVO = new TokenVO();			
+			tokenVO.setTokenValue(oauthClientDocument.getTokenAuthentication().getRefreshTokenAuth());
+			return tokenVO;
+		}
+		return null;
+	}
 	
+	@Override
+	public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {		
+		LOGGER.info(" *--- Reading Authentication For Refresh Token by tokenValue [{}] ---*", token.getValue());
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByTokenAuthenticationRefreshTokenAuth(token.getValue());
+		if(oauthClientDocument != null) {
+			OAuth2Request oauth2Request = new OAuth2Request(
+					new HashMap<String, String>()					// requestParameters
+                    , oauthClientDocument.getClientId()					// clientId
+                    , getAuthorities(oauthClientDocument.getAuthorities())					// authorities
+                    , oauthClientDocument.isAutoApprove()									// approved
+                    , oauthClientDocument.getScope() // scope
+                    , oauthClientDocument.getResourceIds() // resourcesIds
+                    , (oauthClientDocument.getRedirectUris() != null && !oauthClientDocument.getRedirectUris().isEmpty()) ? oauthClientDocument.getRedirectUris().iterator().next() : "/" 
+                    , new HashSet<>()								// responseTypes
+                    , new HashMap<>());							// extensionProperties
+			return new OAuth2Authentication(oauth2Request, null);
+		}
+		return null;
+	}
 	
-	
-	
-	
-	
-	
-	
+	@Override
+	public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {
+		LOGGER.info(" *--- Removing Access Token Using Refresh Token by tokenValue [{}] ---*", refreshToken.getValue());
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByTokenAuthenticationRefreshTokenAuth(refreshToken.getValue());
+		if(oauthClientDocument != null && oauthClientDocument.getTokenAuthentication() != null) {			
+			oauthClientDocument.getTokenAuthentication().setAccessToken(null);
+			oauthClientDetailsRepository.save(oauthClientDocument);
+		}
+	}
 	
 	
 	
@@ -189,57 +222,7 @@ public class CustomTokenStoreService implements TokenStore{
 	public OAuth2Authentication readAuthentication(String token) {
 		LOGGER.info("\n\n\t\t  ***** Entro a readAuthentication ***** ");		
 		return null;
-	}	
-
-	@Override
-	public OAuth2RefreshToken readRefreshToken(String tokenValue) {		
-		LOGGER.info("\n\n\t\t  ***** Entro a readRefreshToken ***** ");
-		RefreshTokenVO refreshTokenVO = null;
-//		AccountAuthorizationDocument document = accountRepository.findByTokensAuthenticationRefreshTokenAuth(tokenValue);
-//		if(null != document){
-//			return new RefreshTokenVO(document.getTokensAuthentication().getRefreshTokenAuth());
-//		}
-		return refreshTokenVO;
-	}
-
-	@Override
-	public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {		
-		LOGGER.info("\n\n\t\t  ***** Entro a readAuthenticationForRefreshToken ***** ");
-		OAuth2Authentication auth = null;
-		
-//		AccountAuthorizationDocument document = accountRepository.findByTokensAuthenticationRefreshTokenAuth(token.getValue());
-//		if(null != document){
-//			String clientAuthentication = (String)document.getTokensAuthentication().getAdditionalInformation().get("clientAuthentication");
-//			UserVO user = new UserVO();
-//			user.setNickname(document.getNickname());
-//			user.setPassword(document.getPassword());			
-//			Map<String, String> requestParameters = new HashMap<String, String>();
-//		    Map<String, Serializable> extensionProperties = new HashMap<String, Serializable>();		   
-//		    Set<String> responseTypes = new HashSet<String>();
-//		    Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-//		    OAuth2Request oauth2Request = new OAuth2Request(requestParameters
-//		                                                          , clientAuthentication
-//		                                                          , user.getAuthorities()
-//		                                                          , true
-//		                                                          , new HashSet<String>(new ArrayList<String>())
-//		                                                          , new HashSet<String>(new ArrayList<String>())
-//		                                                          , "/"
-//		                                                          , responseTypes
-//		                                                          , extensionProperties);
-//		    auth = new OAuth2Authentication(oauth2Request, authentication);
-//		}				
-		return auth;
-	}
-
-	@Override
-	public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken) {
-		LOGGER.info("\n\n\t\t  ***** Entro a removeAccessTokenUsingRefreshToken ***** ");
-//		AccountAuthorizationDocument document = accountRepository.findByTokensAuthenticationRefreshTokenAuth(refreshToken.getValue());
-//		if(null != document){
-//			System.out.print("\n\n\t\t  ************************");
-//		}
-//		System.out.print("\n\n\t\t  +++++++++++++++++++++++++++++");
-	}
+	}		
 
 	@Override
 	public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(String clientId, String userName) {

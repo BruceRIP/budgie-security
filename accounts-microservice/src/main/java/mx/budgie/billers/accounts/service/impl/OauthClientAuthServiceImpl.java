@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -48,7 +49,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	private String defaultDigest;
 	
 	@Override
-	public TokensResponse saveClient(final String applicationName) {
+	public TokensResponse saveClient(final String applicationName, final String tokenType) {
 		final TokensResponse tokens = new TokensResponse();
 		final String defaultKey = keyDefault;
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByName(applicationName);
@@ -74,19 +75,25 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			oauthClientDocument.setExpiresIn(30);
 			oauthClientDocument.setTokenType("bearer");
 			Set<String> resourcesId = new HashSet<>();
+			resourcesId.add("oauth-security");
 			resourcesId.add(applicationName);
 			oauthClientDocument.setResourceIds(resourcesId);
-			oauthClientDocument.setScope(new HashSet<>());
+			Set<String> scope = new HashSet<>();
+			scope.add("read");
+			scope.add("write");
+			oauthClientDocument.setScope(scope);
 			Set<String> grant = new HashSet<>();
-			grant.add("authorization_code");
-			grant.add("client_credentials");
+			grant.add("client_credentials");			
+			if(tokenType != null) {
+				grant.add(tokenType);
+			}
 			oauthClientDocument.setAuthorizationGrantTypes(grant);
 			oauthClientDocument.setRedirectUris(new HashSet<>());
 			Set<String> authorities = new HashSet<>();
 			authorities.add("ROLE_CLIENT_APP");
 			oauthClientDocument.setAuthorities(authorities);
-			oauthClientDocument.setAccessTokenValidity(10000);
-			oauthClientDocument.setRefreshTokenValidity(60000);
+			oauthClientDocument.setAccessTokenValidity(86400);
+			oauthClientDocument.setRefreshTokenValidity(43200);
 			oauthClientDocument.setAutoApprove(true);
 			oauthClientDetailsRepository.save(oauthClientDocument);
 		}
@@ -114,6 +121,14 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			vo.setRedirectUris(oauthClientDocument.getRedirectUris());
 			vo.setResourceIds(oauthClientDocument.getResourceIds());
 			vo.setScope(oauthClientDocument.getScope());
+			if(oauthClientDocument.getTokenAuthentication() != null){
+				vo.setAdditionalInformation(new LinkedHashMap<>());
+				vo.getAdditionalInformation().put("access_token", oauthClientDocument.getTokenAuthentication().getAccessToken());
+				vo.getAdditionalInformation().put("refresh_token", oauthClientDocument.getTokenAuthentication().getRefreshTokenAuth());
+				vo.getAdditionalInformation().put("token_type", oauthClientDocument.getTokenAuthentication().getTokenTypeAuth());
+				vo.getAdditionalInformation().put("expiresIn", oauthClientDocument.getTokenAuthentication().getExpiresIn());
+				vo.getAdditionalInformation().put("scopes", oauthClientDocument.getTokenAuthentication().getScopes());
+			}
 			return vo;
 		}
 		return null;
@@ -147,6 +162,15 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	public boolean validateAuthenticationClient(String clientId, String password) {
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientId);
 		return (oauthClientDocument != null && password.equalsIgnoreCase(oauthClientDocument.getAuthenticationToken()));
+	}
+
+	@Override
+	public String findClientIdByToken(String token) {
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByTokenAuthenticationAccessToken(token);
+		if(oauthClientDocument != null) {
+			return oauthClientDocument.getClientId();
+		}
+		return null;
 	}
 
 }

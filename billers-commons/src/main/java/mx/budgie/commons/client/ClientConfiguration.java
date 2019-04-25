@@ -85,21 +85,21 @@ public class ClientConfiguration extends BalancedResource{
 		configureEntity();
 	}
 	
-	protected void configureClientTokenAuthentication(final String authenticationToken) {
+	protected void configureClientTokenAuthorization(final String authenticationToken) {
 		if(headers == null) {
 			headers = new HttpHeaders();
 		}
-		headers.add("Authentication", authenticationToken);
+		headers.add("Authorization", authenticationToken);
 	}
 	
-	protected void configureBearerAuthentication(final String accessToken) {
+	protected void configureBearerAuthorization(final String accessToken) {
 		if(headers == null) {
 			headers = new HttpHeaders();
 		}
-		headers.add("Authorization", "Bearer " + accessToken);
+		headers.add("Authorization", "bearer " + accessToken);
 	}
 	
-	protected void configureClientBasicAuthentication(final String authenticationToken) {
+	protected void configureClientBasicAuthorization(final String authenticationToken) {
 		if(headers == null) {
 			headers = new HttpHeaders();
 		}

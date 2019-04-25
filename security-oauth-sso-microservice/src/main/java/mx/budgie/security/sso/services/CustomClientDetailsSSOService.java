@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mx.budgie.security.services;
+package mx.budgie.security.sso.services;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
 import mx.budgie.billers.accounts.mongo.repositories.OauthClientDetailsRepository;
-import mx.budgie.security.builder.ClientBuilder;
-import mx.budgie.security.constants.SecurityConstants;
+import mx.budgie.security.sso.builder.ClientBuilder;
+import mx.budgie.security.sso.constants.SecurityConstants;
 
 /**
  * @company Budgie Software
@@ -22,9 +22,9 @@ import mx.budgie.security.constants.SecurityConstants;
  * @date Jun 25, 2017
  */
 @Service(SecurityConstants.SERVICE_CUSTOM_CLIENT_DETAIL)
-public class CustomClientDetailsService implements ClientDetailsService{
+public class CustomClientDetailsSSOService implements ClientDetailsService{
 
-	private static final Logger LOGGER = LogManager.getLogger(CustomClientDetailsService.class);
+	private static final Logger LOGGER = LogManager.getLogger(CustomClientDetailsSSOService.class);
 	
 	@Autowired
 	private ClientBuilder clientBuilder;

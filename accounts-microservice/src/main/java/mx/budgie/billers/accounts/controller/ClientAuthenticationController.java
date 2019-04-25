@@ -84,7 +84,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Create authentication tokens for a client that will consume API", notes = "It must be present in all transactions")
 	@PostMapping(value= AccountPaths.CLIENT_CREATE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage createClient(@RequestParam("applicationName") String applicationName, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseMessage createClient(@RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -94,7 +94,7 @@ public class ClientAuthenticationController {
 			ThreadContext.push(Long.toString(transactionId));
 			LOGGER.info("Creating client '{}' ", applicationName);
 			TokensResponse tokenResonse = null;			
-			tokenResonse = oauthClientAuthService.saveClient(applicationName);
+			tokenResonse = oauthClientAuthService.saveClient(applicationName, tokenType);
 			if(null != tokenResonse){
 				LOGGER.info("Client was created successfully for '{}'", applicationName);
 				return tokenResonse;
@@ -153,15 +153,16 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Update tokens of a client", notes = "it is necessary to provide the client information")
 	@RequestMapping(value= AccountPaths.CLIENT_UPDATE, method= {RequestMethod.PUT, RequestMethod.DELETE},consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage updateClient(final HttpServletRequest request, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseMessage updateClient(final HttpServletRequest request, final @PathVariable String clientName, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
 		String message = AccountsConstants.SUCCESSFUL;
 		//------------------------------------------------------
 		try{			
-			ThreadContext.push(Long.toString(transactionId));			
-			LOGGER.info("Updating client '{}' ", client.getClientId());
+			ThreadContext.push(Long.toString(transactionId));
+			LOGGER.info("Updating client '{}' ", clientName);
+			client.setClientId(clientName);
 			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(client, "DELETE".equals(request.getMethod()));
 			if(null != clientVO){
 				return clientVO;

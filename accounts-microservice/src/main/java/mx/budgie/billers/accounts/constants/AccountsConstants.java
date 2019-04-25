@@ -40,6 +40,7 @@ public class AccountsConstants {
 	public static final String ACCOUNT_DEFAULT_PACKAGE = "${account.default.packge}";
 	public static final String ACCOUNT_HTTP_BASIC_AUTH_ENABLED = "${account.http.basic.auth.enabled}";
 	public static final String ACCOUNT_NEED_VALIDATE_NICKNAME = "${account.need.validate.nickname}";
+	public static final String ACCOUNT_NEED_VALIDATE_AUTHORIZATION = "${account.need.validate.authorization.header}";
 	
 	/**
 	 * Error and Success codes

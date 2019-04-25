@@ -163,7 +163,7 @@ public class AccountServiceImpl implements AccountService{
 	public AccountVO updateAccount(final AccountVO account) {
 		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());		
 		if(null != document){
-			document = accountBuilder.buildDocumentFromSource(account);
+			document.setAccountStatus(account.getAccountStatus());	
 			AccountAuthorizationDocument doc = accountRepository.save(document);
 			return accountBuilder.buildSourceFromDocument(doc);
 		}

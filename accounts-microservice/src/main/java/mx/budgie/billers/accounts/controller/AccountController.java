@@ -144,6 +144,8 @@ public class AccountController {
 	private boolean isHttpBasicAuthEnabled;
 	@Value(AccountsConstants.ACCOUNT_NEED_VALIDATE_NICKNAME)
 	private boolean needValidateNickname;
+	@Value(AccountsConstants.ACCOUNT_NEED_VALIDATE_AUTHORIZATION)
+	private boolean needValidateAuthorization;
 
 	@ApiOperation(value = "Create account for a Biller Customer", notes = "It is necessary to provide the authentication token that was generated for a client")
 	@PostMapping(value = AccountPaths.ACCOUNT_CREATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -192,6 +194,7 @@ public class AccountController {
 			PackageVO packageVO = null;
 			try {
 				ResponseEntity<PackageVO> responsePackage = new EndpointClient(String.format("%s", packageEndpoint))
+														.putAuthorizationToken(authentication)
 														.putHeaders(CommonsUtil.createHead())
 														.requestParameters(defaultPackage)
 														.callGET(PackageVO.class);	
@@ -485,20 +488,21 @@ public class AccountController {
 		}
 	}
 
-	private String validateAuthenticationHeader(final String authentication) throws AccessDeniedException {
-		LOGGER.info("Validating authentication header [{}]", authentication);
+	private String validateAuthenticationHeader(final String authorization) throws AccessDeniedException {
+		LOGGER.info("Validating authentication header [{}]", authorization);
 		if (!isHttpBasicAuthEnabled) {
-			ClientAuthenticationVO client = clientAuthService.findClientByClientId(authentication);
+			ClientAuthenticationVO client = clientAuthService.findClientByClientId(authorization);
 			if (client == null) {
 				throw new AccessDeniedException("Access is denied. Authentication is null or empty");
 			}
 			return client.getClientId();
-		} else {
+		} 
+		if(needValidateAuthorization) {
 			try {
-				if (authentication == null || authentication.isEmpty()) {
+				if (authorization == null || authorization.isEmpty()) {
 					throw new AccessDeniedException("Access is denied. Authentication is null or empty");
 				}
-				final String encUserPassword = authentication.replaceFirst("Basic" + " ", "");
+				final String encUserPassword = authorization.replaceFirst("Basic" + " ", "");
 				LOGGER.info("Decoding basic authentication");
 				final String decodingBase64 = new String(Base64.decodeBase64(encUserPassword.getBytes()));
 				LOGGER.info("Decrypting basic authentication header");
@@ -517,7 +521,14 @@ public class AccountController {
 			} catch (Exception ex) {
 				throw new AccessDeniedException("Access is denied. Authentication is null or empty");
 			}
-		}
+		}else {
+			final String token = authorization.replaceFirst("bearer" + " ", "");
+			String clientId = oauthClientAuthService.findClientIdByToken(token);
+			if(clientId == null) {
+				throw new AccessDeniedException("Access is denied. ClientId doesn´t exist");
+			}
+			return clientId;
+		}		
 	}
 
 	private ResponseMessage buildResponseMessage(final Integer code, final String message, final String description) {

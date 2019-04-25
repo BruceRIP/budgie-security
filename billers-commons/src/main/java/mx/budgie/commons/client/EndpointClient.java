@@ -82,32 +82,32 @@ public class EndpointClient extends ClientConfiguration{
 	}
 	
 	/**
-	 * Setting authentication token. A specific Authentication token
+	 * Setting Authorization token. A specific Authorization token
 	 * @param authenticationToken
 	 * @return
 	 */
-	public EndpointClient putAuthenticationToken(final String authenticationToken) {
-		configureClientTokenAuthentication(authenticationToken);
+	public EndpointClient putAuthorizationToken(final String authorizationToken) {
+		configureClientTokenAuthorization(authorizationToken);
 		return this;
 	}
 	
 	/**
-	 * Setting bearer token. Access Token that was received of a Authorization Server. Authentication Bearer <token>
-	 * @param authenticationToken
+	 * Setting bearer token. Access Token that was received of a Authorization Server. AuthorizationToken Bearer <token>
+	 * @param authorizationToken
 	 * @return
 	 */
-	public EndpointClient putBearerAccessToken(final String authenticationToken) {
-		configureBearerAuthentication(authenticationToken);
+	public EndpointClient putBearerAccessToken(final String authorizationToken) {
+		configureBearerAuthorization(authorizationToken);
 		return this;
 	}
 	
 	/**
-	 * Setting Basic Authentication. Authentication Basic <token>
+	 * Setting Basic Authorization. Authorization Basic <token>
 	 * @param authenticationToken
 	 * @return
 	 */
-	public EndpointClient putBasicAuthentication(final String authenticationToken) {
-		configureClientBasicAuthentication(authenticationToken);
+	public EndpointClient putBasicAuthorization(final String authorizationToken) {
+		configureClientBasicAuthorization(authorizationToken);
 		return this;
 	}
 	

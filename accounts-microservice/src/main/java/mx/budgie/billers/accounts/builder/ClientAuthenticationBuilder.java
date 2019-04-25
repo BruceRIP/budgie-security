@@ -46,6 +46,8 @@ public class ClientAuthenticationBuilder extends AbstractBuilder<ClientAuthentic
 		client.setResourceIds(document.getResourceIds());
 		client.setScope(document.getScope());
 		client.setTokenType(document.getTokenType());
+		client.setAccessTokenValidity(document.getAccessTokenValidity());
+		client.setRefreshTokenValidity(document.getRefreshTokenValidity());
 		return client;
 	}
 	
