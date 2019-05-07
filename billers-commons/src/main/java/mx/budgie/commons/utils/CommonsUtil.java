@@ -89,7 +89,7 @@ public class CommonsUtil {
 		return differenceTime;
 	}
 	
-	public static Map<String, String> transactionIdHeader(final int systemId) {
+	public static Map<String, String> transactionIdHeader(final Long systemId) {
 		Map<String, String> headers = new LinkedHashMap<>();
 		headers.put("transactionId", String.valueOf(CommonsUtil.getTransactionId(systemId)));
 		return headers;

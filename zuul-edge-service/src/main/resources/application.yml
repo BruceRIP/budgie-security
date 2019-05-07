@@ -12,15 +12,15 @@ spring:
 security:
   oauth2:
     resource:
-      user-info-uri: http://budgie.billers:3004/sso-server/hello
+      user-info-uri: http://localhost:3004/sso-server/hello
       
 # Discovery Server Access
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://budgie.billers:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
   instance:
-    hostname: budgie.billers
+    hostname: localhost
     instance-id: ${spring.application.name}:${server.port}        
   
 # Todas las peticiones que lleguen con /oauth-server o /sso-server/ se derivan al endpoint del servicio cuyo indentificador se registro en eureka
@@ -55,6 +55,11 @@ zuul:
       sensitiveHeaders:
       path: /packages/**
       service-id: PACKAGES-MICROSERVICE
+      strip-prefix: false
+    register-security:
+      sensitiveHeaders:
+      path: /register/**
+      service-id: REGISTER-SECURITY-MICROSERVICE
       strip-prefix: false
   ribbon-isolation-strategy: THREAD
 

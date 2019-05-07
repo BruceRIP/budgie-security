@@ -23,7 +23,6 @@ public class AccountPaths {
 	public static final String ACCOUNT_MANAGER_MANAGED = "/manager/plan/{billerID}";
 	public static final String ACCOUNT_MANAGER_MANAGED_REMOVE = "/manager/plan/{billerID}";
 	
-	
 	public static final String CLIENT_BASED_PATH = "/clients";
 	public static final String CLIENT_CREATE = "/authentication";
 	public static final String CLIENT_DELETE = "/authentication/{clientName}";

@@ -2,6 +2,6 @@
 spring:
   cloud:
    config:
-      uri: http://budgie.billers:5550           
+      uri: http://localhost:5550           
   profiles:
     active: development
