@@ -75,7 +75,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			oauthClientDocument.setExpiresIn(30);
 			oauthClientDocument.setTokenType("bearer");
 			Set<String> resourcesId = new HashSet<>();
-			resourcesId.add("oauth-security");
+			resourcesId.add("auth-security");
 			resourcesId.add(applicationName);
 			oauthClientDocument.setResourceIds(resourcesId);
 			Set<String> scope = new HashSet<>();

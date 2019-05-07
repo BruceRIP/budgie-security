@@ -2,7 +2,6 @@ banner:
   location: classpath:static/banner.txt
 
 server:
-  port: 8880
   context-path: /budgie  
   
 spring:
@@ -33,7 +32,7 @@ zuul:
       strip-prefix: false
     sso-server:  
       sensitiveHeaders:
-      path: /sso-server/**
+      path: /auth-server/**
       service-id: SECURITY-OAUTH-SSO-MICROSERVICE
       strip-prefix: false
     accounts:  

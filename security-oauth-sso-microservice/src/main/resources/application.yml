@@ -11,5 +11,5 @@ logging:
       security: DEBUG
 
 server:  
-  context-path: /sso-server
+  context-path: /auth-server
   
