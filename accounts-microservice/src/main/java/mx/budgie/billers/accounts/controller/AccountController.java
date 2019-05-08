@@ -171,7 +171,7 @@ public class AccountController {
 				description = ex.getMessage();
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode400), accountsDesc400, accountsDesc400),
-						HttpStatus.OK);
+						HttpStatus.FOUND);
 			}
 			LOGGER.info("Validating that the account was not previously created with email [{}]", account.getEmail());
 			if (null != accountService.findAccountByEmail(account.getEmail())) {
@@ -180,7 +180,7 @@ public class AccountController {
 				description = accountsDesc03;
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode03), accountsMSG03, accountsDesc03),
-						HttpStatus.OK);
+						HttpStatus.FOUND);
 			}
 			LOGGER.info("Validating that the account was not previously created with nickname [{}]",account.getNickname());
 			AccountVO auxAcc = accountService.findAccountByNickname(account.getNickname());
@@ -190,7 +190,7 @@ public class AccountController {
 				LOGGER.error("There is an account associated with that nickname: [{}]", account.getNickname());
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode02), accountsMSG02, accountsDesc02),
-						HttpStatus.OK);
+						HttpStatus.FOUND);
 			}			
 			
 			PackageVO packageVO = null;
@@ -213,12 +213,12 @@ public class AccountController {
 				description = accountsDesc01;
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode01), accountsMSG01, accountsDesc01),
-						HttpStatus.OK);
+						HttpStatus.FOUND);
 			}
 			LOGGER.info("Accout was created successfully");
 			AccountVO responseAccount = buildAccountResponse(accountVO);
 			responseAccount.setActivationCode(accountVO.getActivationCode());
-			return new ResponseEntity<>(responseAccount, HttpStatus.OK);
+			return new ResponseEntity<>(responseAccount, HttpStatus.CREATED);
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_CREATE", status, description);
