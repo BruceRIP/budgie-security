@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,7 +86,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Create authentication tokens for a client that will consume API", notes = "It must be present in all transactions")
 	@PostMapping(value= AccountPaths.CLIENT_CREATE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage createClient(@RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> createClient(@RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -97,9 +99,9 @@ public class ClientAuthenticationController {
 			tokenResonse = oauthClientAuthService.saveClient(applicationName, tokenType);
 			if(null != tokenResonse){
 				LOGGER.info("Client was created successfully for '{}'", applicationName);
-				return tokenResonse;
+				return new ResponseEntity<>(tokenResonse, HttpStatus.CREATED);
 			}
-			return new ResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666);
+			return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666), HttpStatus.NOT_ACCEPTABLE);
 		}finally{
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_CREATE", flag, message);
 			ThreadContext.clearStack();
@@ -108,7 +110,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Get tokens of a client", notes = "it is necessary to provide the client name")
 	@GetMapping(value=AccountPaths.CLIENT_RECOVER_BY_NAME, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage recoverClient(final @PathVariable String clientId, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> recoverClient(final @PathVariable String clientId, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -120,9 +122,9 @@ public class ClientAuthenticationController {
 			ClientAuthenticationVO client = oauthClientAuthService.findClientByClientId(clientId);
 			if(null != client){
 				LOGGER.info("Client was found with email '{}'", client.getClientId());
-				return client;
+				return new ResponseEntity<>(client, HttpStatus.OK);
 			}
-		return new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04);
+			return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04), HttpStatus.NOT_ACCEPTABLE);
 		}finally{
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_RECOVER", flag, message);
 			ThreadContext.clearStack();
@@ -131,7 +133,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Delete tokens of a client", notes = "it is necessary to provide the client name")
 	@DeleteMapping(value=AccountPaths.CLIENT_DELETE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage deleteClient(final @PathVariable String clientID, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> deleteClient(final @PathVariable String clientID, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -142,9 +144,9 @@ public class ClientAuthenticationController {
 			LOGGER.info("Removing client '{}'", clientID);				
 			if(oauthClientAuthService.deleteClientByName(clientID)){
 				LOGGER.info("Client '{}' was removed successfully", clientID);
-				return new ResponseMessage(Integer.valueOf(accountsCodeSuccess), accountsMSGSuccess);
+				return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCodeSuccess), accountsMSGSuccess), HttpStatus.OK);
 			}			
-		return new ResponseMessage(Integer.valueOf(accountsCode04),accountsMSG04);
+			return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCode04),accountsMSG04), HttpStatus.NOT_ACCEPTABLE);
 		}finally{
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_DELETE", flag, message);
 			ThreadContext.clearStack();
@@ -153,7 +155,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Update tokens of a client", notes = "it is necessary to provide the client information")
 	@RequestMapping(value= AccountPaths.CLIENT_UPDATE, method= {RequestMethod.PUT, RequestMethod.DELETE},consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseMessage updateClient(final HttpServletRequest request, final @PathVariable String clientID, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> updateClient(final HttpServletRequest request, final @PathVariable String clientID, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -165,9 +167,9 @@ public class ClientAuthenticationController {
 			client.setClientId(clientID);
 			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(client, "DELETE".equals(request.getMethod()));
 			if(null != clientVO){
-				return clientVO;
+				return new ResponseEntity<>(clientVO, HttpStatus.OK);
 			}
-			return new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04);
+			return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04), HttpStatus.NOT_ACCEPTABLE);
 		}finally{
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_UPDATE", flag, message);
 			ThreadContext.clearStack();

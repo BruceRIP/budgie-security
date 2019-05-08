@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -191,10 +192,10 @@ public class EndpointClient extends ClientConfiguration{
 			LOGGER.info(" Response StatusCode = {}", response.getStatusCode());			
 			LOGGER.info(" Response Body = {}", response.getBody());
 			return response;
-		}catch(HttpClientErrorException ex) {
+		}catch(HttpClientErrorException | HttpServerErrorException ex) {
 			LOGGER.info(" Response StatusCode = {}", ex.getStatusCode());
-			LOGGER.info(" Response HttpClientErrorException: {}", ex.getMessage());
-			throw new EndpointException(ex.getStatusCode(), ex.getResponseBodyAsString());
+			LOGGER.info(" Response HttpClientErrorException: {}", new String(ex.getResponseBodyAsByteArray()));
+			throw new EndpointException(ex.getStatusCode(), new String(ex.getResponseBodyAsByteArray()));
 		}catch(ResourceAccessException ex) {			
 			LOGGER.info(" Response StatusCode = {}", HttpStatus.NOT_FOUND);
 			LOGGER.info(" Response ResourceAccessException: {}", ex.getMessage());

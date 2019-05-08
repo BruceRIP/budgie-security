@@ -10,7 +10,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -35,14 +37,14 @@ public class ReporterController {
 	private EmailSender emailSender;
 	
 	@PostMapping(value = "/emailsend", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseMessage getHello(@RequestBody @Valid EmailSenderVO sender, @RequestHeader("transactionId") final long transactionId) {
+	public @ResponseBody ResponseEntity<?> getHello(@RequestBody @Valid EmailSenderVO sender, @RequestHeader("transactionId") final long transactionId) {
 		try {
 			ThreadContext.push(Long.toString(transactionId));
 			emailSender.send(sender);
-			return new ResponseMessage(200, "Message was sent");
+			return new ResponseEntity<>(new ResponseMessage(200, "Message was sent"), HttpStatus.OK);
 		} catch (BillersEmailException e) {
 			LOGGER.error("Error {}", e);
-			return new ResponseMessage(500, e.getMessage());
+			return new ResponseEntity<>(new ResponseMessage(500, e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
 		}finally{	
 			ThreadContext.clearStack();
 		}
