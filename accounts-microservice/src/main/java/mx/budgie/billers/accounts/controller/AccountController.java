@@ -146,7 +146,9 @@ public class AccountController {
 	private boolean needValidateNickname;
 	@Value(AccountsConstants.ACCOUNT_NEED_VALIDATE_AUTHORIZATION)
 	private boolean needValidateAuthorization;
-
+	@Value(AccountsConstants.ACCOUNT_NEED_VALIDATE_CLIENT_ID)
+	private boolean needValidateClientId;
+	
 	@ApiOperation(value = "Create account for a Biller Customer", notes = "It is necessary to provide the authentication token that was generated for a client")
 	@PostMapping(value = AccountPaths.ACCOUNT_CREATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody ResponseEntity<ResponseMessage> createAccount(
@@ -462,15 +464,22 @@ public class AccountController {
 			}			
 			LOGGER.info("Trying to activate account");
 			accountVO = accountService.findAccountToActivate(code);
-			if(accountVO == null || !accountVO.getBillerID().equals(data.get("billerID")) || !accountVO.getTemporaryPassword().equals(data.get("temporaryPassword"))) {
+			if(accountVO == null || !accountVO.getBillerID().equals(data.get("billerID")) || data.get("password") == null || data.get("repassword") == null) {
 				LOGGER.error("Accout not found to activate");
 				status = false;
 				description = accountsDesc06;
 				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
-			}			
+			}
+			if(!data.get("password").equals(data.get("repassword"))) {
+				LOGGER.error("Password not match");
+				status = false;
+				description = accountsDesc06;
+				return buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06);
+			}
 			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
 				accountVO.setAccountStatus(AccountStatus.ACTIVE);
-			}					
+			}
+			accountVO.setPassword(data.get("password"));
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");
@@ -521,7 +530,7 @@ public class AccountController {
 			} catch (Exception ex) {
 				throw new AccessDeniedException("Access is denied. Authentication is null or empty");
 			}
-		}else {
+		}else if(needValidateClientId){
 			final String token = authorization.replaceFirst("bearer" + " ", "");
 			String clientId = oauthClientAuthService.findClientIdByToken(token);
 			if(clientId == null) {
@@ -529,6 +538,7 @@ public class AccountController {
 			}
 			return clientId;
 		}		
+		return authorization;
 	}
 
 	private ResponseMessage buildResponseMessage(final Integer code, final String message, final String description) {

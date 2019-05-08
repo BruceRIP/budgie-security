@@ -27,4 +27,5 @@ public interface OauthClientDetailsRepository extends MongoRepository<OauthClien
 	public OauthClientDetailsDocument findOauthClientByTokenAuthenticationAccessToken(final String tokenAuthentication);
 	
 	public OauthClientDetailsDocument findOauthClientByTokenAuthenticationRefreshTokenAuth(final String refreshToken);
+	
 }

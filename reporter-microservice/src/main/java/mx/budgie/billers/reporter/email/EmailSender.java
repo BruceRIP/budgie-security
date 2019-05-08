@@ -149,9 +149,9 @@ public class EmailSender{
 			ve.init();
 			switch (templateType) {
 			case ACTIVATE_ACCOUNT:
-				return ve.getTemplate("src/main/resources/static/email-templates/activate-account.vm", "UTF8");			
-			case OTHER:
-				return ve.getTemplate("src/main/resources/static/email-templates/other.html", "UTF8");
+				return ve.getTemplate("src/main/resources/static/email-templates/activate_account.html", "UTF8");			
+			case CLIENT_CREDENTIALS:
+				return ve.getTemplate("src/main/resources/static/email-templates/client_credentials.html", "UTF8");
 			default:
 				LOGGER.warn("You must setting email template");
 				throw new BillersEmailException("Email template must be present");

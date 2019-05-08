@@ -166,7 +166,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 
 	@Override
 	public String findClientIdByToken(String token) {
-		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByTokenAuthenticationAccessToken(token);
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByAuthenticationToken(token);
 		if(oauthClientDocument != null) {
 			return oauthClientDocument.getClientId();
 		}

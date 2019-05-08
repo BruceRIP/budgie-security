@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -40,6 +41,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 	private Date expirationPackageDate;
 	private Date purchasedPackageDate;
 	private String activationCode;
+	@JsonIgnore
 	private String temporaryPassword;
 
 	public AccountVO() {
