@@ -261,44 +261,42 @@ public class AccountController {
 		}
 	}
 
-	@ApiOperation(value = "Get a biller account from a nickname or email", notes = "It is necessary to provide the nickname or email in the request paramr. Ej: ?nickname=BruceRip")
-	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_NICKNAME, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> recoverAccountByNickname(final @RequestParam("nickname") String nickname,
+	@ApiOperation(value = "Get a biller account from activation code and billerID", notes = "It is necessary to provide the activation code and billerID in the request paramr.")
+	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_ACTIVATION_CODE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseEntity<?> recoverAccountByActivationCode(final @RequestParam("code") String code,
+			final @RequestParam("billerID") String billerID,
 			final @RequestHeader("transactionId") long transactionId) {
-		AccountVO account = null;
+		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
-		final Calendar startTime = Calendar.getInstance();
-		boolean status = true;
-		String description = AccountsConstants.SUCCESSFUL;
+			final Calendar startTime = Calendar.getInstance();
+			boolean status = true;
+			String description = AccountsConstants.SUCCESSFUL;
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));
-			LOGGER.info("Looking for a account by Nickname or Email {}", nickname);
-			account = accountService.findAccountByNickname(nickname);
-			if (null == account) {
-				account = accountService.findAccountByEmail(nickname);
-				if (null == account) {
-					LOGGER.info("BillerID not found");
-					LOGGER.error("Accout with nickname '" + nickname + "' not found.");
-					status = false;
-					description = accountsDesc06;
-					return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
-				}
-			}
-			if (!AccountStatus.ACTIVE.equals(account.getAccountStatus())) {
+			if(code == null || code.isEmpty() || billerID == null || billerID.isEmpty()) {
+				LOGGER.error("Accout not found to activate");
 				status = false;
-				description = accountsDesc13;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13, accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}			
+			LOGGER.info("Trying to get account with activation code");
+			accountVO = accountService.findAccountToActivate(code);
+			if(accountVO == null || !accountVO.getBillerID().equals(billerID)) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
-			LOGGER.info("Account {} was found ", nickname);
-			return new ResponseEntity<>(buildAccountResponse(account), HttpStatus.OK);
+			LOGGER.info("Account {} was found email:{}", accountVO.getNickname(), accountVO.getEmail());
+			return new ResponseEntity<>(buildAccountResponse(accountVO), HttpStatus.OK);
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
-					transactionId, "ACCOUNTS_RECOVER", status, description);
+					transactionId, "ACCOUNTS_RECOVER_ACTIVATION_CODE", status, description);
 			ThreadContext.clearStack();
 		}
 	}
-
+	
 	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
 	@PutMapping(value = AccountPaths.ACCOUNT_UPDATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody ResponseEntity<?> updateAccount(@RequestBody final RequestParams params,
@@ -480,6 +478,7 @@ public class AccountController {
 				accountVO.setAccountStatus(AccountStatus.ACTIVE);
 			}
 			accountVO.setPassword(data.get("password"));
+			accountVO.setActivationCode(null);
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");

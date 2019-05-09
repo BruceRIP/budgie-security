@@ -17,7 +17,8 @@ public class AccountPaths {
 	public static final String ACCOUNT_UPDATE_ROLES = "/roles";
 	public static final String ACCOUNT_ACTIVATE = "/activate";
 	public static final String ACCOUNT_RECOVER_BY_ID = "/{billerID}";
-	public static final String ACCOUNT_RECOVER_BY_NICKNAME = "";
+//	public static final String ACCOUNT_RECOVER_BY_NICKNAME = "";
+	public static final String ACCOUNT_RECOVER_BY_ACTIVATION_CODE = "";
 	public static final String ACCOUNT_MANAGER_GET = "/manager/plan/{billerID}";
 	public static final String ACCOUNT_MANAGER_UPDATE = "/manager/plan/{billerID}";
 	public static final String ACCOUNT_MANAGER_MANAGED = "/manager/plan/{billerID}";
