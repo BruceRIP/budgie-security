@@ -260,6 +260,46 @@ public class AccountController {
 			ThreadContext.clearStack();
 		}
 	}
+	
+	@ApiOperation(value = "Login a biller account with email", notes = "It is necessary to provide the email and password")
+	@PostMapping(value = AccountPaths.ACCOUNT_LOGIN, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseEntity<?> loginAccount(final @RequestHeader("transactionId") long transactionId
+			, @RequestBody AccountRequestVO accountRequest) {
+		AccountVO account = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			LOGGER.info("Starting account recover process by ID");
+			LOGGER.info("Looking for a Account by email {}", accountRequest.getEmail());
+			account = accountService.findAccountByEmail(accountRequest.getEmail());
+			if (null == account) {
+				LOGGER.warn("Accout with email '{}' not found.", accountRequest.getEmail());
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}
+			if (!AccountStatus.ACTIVE.equals(account.getAccountStatus())) {
+				status = false;
+				description = accountsDesc13;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13, accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
+			}
+			if (!account.getPassword().equals(accountRequest.getPassword())) {
+				status = false;
+				description = accountsDesc13;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}
+			LOGGER.info("Account [{}] was found ", accountRequest.getEmail());
+			return new ResponseEntity<>(new ResponseMessage(), HttpStatus.OK);
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+					transactionId, "ACCOUNTS_RECOVER", status, description);
+			ThreadContext.clearStack();
+		}
+	}
 
 	@ApiOperation(value = "Get a biller account from activation code and billerID", notes = "It is necessary to provide the activation code and billerID in the request paramr.")
 	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_ACTIVATION_CODE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
