@@ -169,7 +169,7 @@ public class AccountServiceImpl implements AccountService{
 			if(!account.getAccountStatus().equals(document.getAccountStatus())) {
 				document.setAccountStatus(account.getAccountStatus());				
 			}
-			if(!account.getActivationCode().equals(document.getActivationCode())) {
+			if(document.getActivationCode() != null && !document.getActivationCode().equals(account.getActivationCode())) {
 				document.setActivationCode(account.getActivationCode());
 			}
 			AccountAuthorizationDocument doc = accountRepository.save(document);

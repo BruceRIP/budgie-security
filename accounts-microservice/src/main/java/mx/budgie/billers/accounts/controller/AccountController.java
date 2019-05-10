@@ -283,17 +283,19 @@ public class AccountController {
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
 			if (!AccountStatus.ACTIVE.equals(account.getAccountStatus())) {
+				LOGGER.warn("Accout with email '{}' is inactive", accountRequest.getEmail());
 				status = false;
 				description = accountsDesc13;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13, accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
 			}
 			if (!account.getPassword().equals(accountRequest.getPassword())) {
+				LOGGER.warn("Accout with email '{}' not match for password", accountRequest.getEmail());
 				status = false;
 				description = accountsDesc13;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
 			LOGGER.info("Account [{}] was found ", accountRequest.getEmail());
-			return new ResponseEntity<>(new ResponseMessage(), HttpStatus.OK);
+			return new ResponseEntity<>(new AccountVO(account.getBillerID(), account.getNickname(), account.getEmail(),account.getAccountStatus()), HttpStatus.OK);
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_RECOVER", status, description);
@@ -527,8 +529,7 @@ public class AccountController {
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666), HttpStatus.NOT_ACCEPTABLE);
 			}
 			LOGGER.info("Accout was updated successfully");
-			return new ResponseEntity<>(new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),
-					accountVO.getAccountStatus()), HttpStatus.OK);
+			return new ResponseEntity<>(new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),accountVO.getAccountStatus()), HttpStatus.OK);
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_ACTIVATE", status, description);
