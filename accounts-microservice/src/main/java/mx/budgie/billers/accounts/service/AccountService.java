@@ -30,4 +30,6 @@ public interface AccountService {
 	public AccountVO findAccountToActivate(final String accountReference);
 	
 	public AccountVO updateRoles(final UpdateRolesParams params, boolean deleted);
+	
+	public AccountVO resendActivationCode(final AccountVO account);
 }

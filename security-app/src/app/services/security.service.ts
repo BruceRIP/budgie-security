@@ -30,8 +30,17 @@ export class SecurityService {
     return this.httpClient.get(url, {headers});
   }
 
+  getTransactionId(): string {
+    let randomTransactionId = '';
+    const possible = '0123456789';
+    for (let i = 0; i < 9; i++) {
+      randomTransactionId += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return randomTransactionId;
+  }
+
   registerUser(accountRequest: AccountRequest) {
-    return this.callPOST('register/', accountRequest);
+    return this.callPOST('register', accountRequest);
   }
 
   getAccountByCodeAndId(code: string, id: string) {
@@ -57,12 +66,10 @@ export class SecurityService {
     return this.callPOST('accounts/login', accountRequest);
   }
 
-  getTransactionId(): string {
-    let randomTransactionId = '';
-    const possible = '0123456789';
-    for (let i = 0; i < 9; i++) {
-      randomTransactionId += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return randomTransactionId;
+  resetPassword(email: string) {
+    const accountRequest = {
+      email
+    };
+    return this.callPOST(`register/reset`, accountRequest);
   }
 }

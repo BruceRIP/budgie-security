@@ -89,6 +89,15 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.roles = roles;
 	}
 	
+	public AccountVO(String billerID, String nickname, String email, AccountStatus accountStatus, String activationCode) {
+		super();
+		this.billerID = billerID;
+		this.setNickname(nickname);
+		this.setEmail(email);
+		this.setAccountStatus(accountStatus);
+		this.activationCode = activationCode;
+	}
+	
 	public Long getId() {
 		return id;
 	}

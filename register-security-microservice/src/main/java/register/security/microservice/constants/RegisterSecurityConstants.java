@@ -13,7 +13,8 @@ public class RegisterSecurityConstants {
 
 	public static final String PATH_BASE = "/register";
 	public static final String PATH_LOGIN = "/login";
-	public static final String PATH_CREATE_ACCOUNT= "/";
+	public static final String PATH_CREATE_ACCOUNT= "";
+	public static final String PATH_RESET_ACCOUNT= "/reset";
 	public static final String PATH_CREATE_CLIENT = "/authorization/{billerID}";
 	public static final String PATH_CREATE_ADMIN_CLIENT = "/administration/authorization";
 }

@@ -25,7 +25,6 @@ export class RegisterComponent implements OnInit {
   ngOnInit() {  }
 
   signup(nickname: string, email: string) {
-    console.log(`Signing up to user ${nickname} and email ${email}`);
     this.accountRequest = new AccountRequest();
     this.accountRequest.email = email;
     this.accountRequest.nickname = nickname;
@@ -38,7 +37,6 @@ export class RegisterComponent implements OnInit {
                 this.message2 = "to activate your account.";
                 this.message3 = "Please verify your inbox";
             }, ( error: any ) => {
-                console.log(error.error);
                 this.error = error.error.message;
                 this.showBanner = true;
             });

@@ -3,6 +3,7 @@
  */
 package mx.budgie.commons.client;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import mx.budgie.commons.exception.EndpointClientException;
@@ -192,14 +194,22 @@ public class EndpointClient extends ClientConfiguration{
 			LOGGER.info(" Response StatusCode = {}", response.getStatusCode());			
 			LOGGER.info(" Response Body = {}", response.getBody());
 			return response;
-		}catch(HttpClientErrorException | HttpServerErrorException ex) {
+		}catch(HttpClientErrorException ex) {
 			LOGGER.info(" Response StatusCode = {}", ex.getStatusCode());
 			LOGGER.info(" Response HttpClientErrorException: {}", new String(ex.getResponseBodyAsByteArray()));
-			throw new EndpointException(ex.getStatusCode(), new String(ex.getResponseBodyAsByteArray()));
+			try {
+				return new ResponseEntity<>(new ObjectMapper().readValue(ex.getResponseBodyAsString(), responseType), ex.getStatusCode());
+			} catch (IOException e) {
+				throw new EndpointException(ex.getStatusCode(), new String(ex.getResponseBodyAsByteArray()));
+			}
 		}catch(ResourceAccessException ex) {			
 			LOGGER.info(" Response StatusCode = {}", HttpStatus.NOT_FOUND);
 			LOGGER.info(" Response ResourceAccessException: {}", ex.getMessage());
 			throw new EndpointException(HttpStatus.NOT_FOUND, ex.getMessage());
+		}catch(HttpServerErrorException ex) {
+			LOGGER.info(" Response StatusCode = {}", ex.getStatusCode());
+			LOGGER.info(" Response HttpClientErrorException: {}", new String(ex.getResponseBodyAsByteArray()));
+			throw new EndpointException(ex.getStatusCode(), new String(ex.getResponseBodyAsByteArray()));
 		}catch(Exception ex) {			
 			LOGGER.info(" Response StatusCode = {}", HttpStatus.INTERNAL_SERVER_ERROR);
 			LOGGER.info(" Response Exception: {}", ex.getMessage());			

@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 import mx.budgie.billers.reporter.exception.BillersEmailException;
 import mx.budgie.billers.reporter.vo.EmailSenderVO;
-import mx.budgie.billers.reporter.vo.EmailTemplateType;
+import mx.budgie.commons.utils.EmailTemplateType;
 
 /**
  * @author bruce

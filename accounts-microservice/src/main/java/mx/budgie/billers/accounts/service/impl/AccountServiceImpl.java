@@ -23,6 +23,7 @@ import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
 import mx.budgie.billers.accounts.mongo.dao.SequenceDao;
 import mx.budgie.billers.accounts.mongo.documents.AccountAdministratorVO;
 import mx.budgie.billers.accounts.mongo.documents.AccountAuthorizationDocument;
+import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
 import mx.budgie.billers.accounts.mongo.repositories.AccountAdministratorRepository;
 import mx.budgie.billers.accounts.mongo.repositories.AccountPackagesRepository;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
@@ -208,6 +209,18 @@ public class AccountServiceImpl implements AccountService{
 					document.getRoles().add(roles.next());
 				}
 			}
+			AccountAuthorizationDocument doc = accountRepository.save(document);
+			return accountBuilder.buildSourceFromDocument(doc);
+		}
+		return null;
+	}
+
+	@Override
+	public AccountVO resendActivationCode(AccountVO account) {
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());
+		if(document != null) {
+			document.setActivationCode(AESCrypt.buildHashValue(account.toString()));
+			document.setAccountStatus(AccountStatus.TO_CONFIRM);
 			AccountAuthorizationDocument doc = accountRepository.save(document);
 			return accountBuilder.buildSourceFromDocument(doc);
 		}

@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import mx.budgie.commons.utils.EmailTemplateType;
+
 /**
  * @author bruno.rivera
  *

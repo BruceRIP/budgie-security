@@ -10,6 +10,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { ActivateComponent } from './components/activate/activate.component';
 import { HomeComponent } from './components/home/home.component';
 import { CryptoService } from './services/CryptoService';
+import { RecoverComponent } from './components/recover/recover.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { CryptoService } from './services/CryptoService';
     LoginComponent,
     RegisterComponent,
     ActivateComponent,
-    HomeComponent
+    HomeComponent,
+    RecoverComponent
   ],
   imports: [
     BrowserModule,

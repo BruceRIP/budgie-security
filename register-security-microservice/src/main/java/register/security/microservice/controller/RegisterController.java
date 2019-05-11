@@ -7,6 +7,7 @@ import static register.security.microservice.constants.RegisterSecurityConstants
 import static register.security.microservice.constants.RegisterSecurityConstants.PATH_CREATE_ACCOUNT;
 import static register.security.microservice.constants.RegisterSecurityConstants.PATH_CREATE_ADMIN_CLIENT;
 import static register.security.microservice.constants.RegisterSecurityConstants.PATH_CREATE_CLIENT;
+import static register.security.microservice.constants.RegisterSecurityConstants.PATH_RESET_ACCOUNT;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
@@ -32,14 +34,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import mx.budgie.commons.client.EndpointClient;
+import mx.budgie.commons.email.EmailRequest;
+import mx.budgie.commons.email.SendEmail;
 import mx.budgie.commons.exception.EndpointException;
+import mx.budgie.commons.utils.EmailTemplateType;
 import register.security.microservice.loggers.LoggerTransaction;
 import register.security.microservice.model.AccessTokenResponse;
 import register.security.microservice.model.AccountReponse;
 import register.security.microservice.model.AccountRequest;
 import register.security.microservice.model.ClientResponse;
 import register.security.microservice.model.ResponseMessage;
-import register.security.microservice.model.SendEmailRequest;
 
 /**
  * @author bruno.rivera
@@ -52,13 +56,16 @@ import register.security.microservice.model.SendEmailRequest;
 @Api(value = PATH_BASE)
 public class RegisterController {
 		
-	private final String instanceName = "REGISTER-SECURITY";
+	@Autowired
+	private SendEmail sendEmail;
 	@Value("${server.port}")
 	private String port;
 	@Value("${accounts.biller.id.recover}")
 	private String urlGetAccount;
 	@Value("${accounts.account.create}")
 	private String urlAccountCreate;
+	@Value("${accounts.account.password.reset}")
+	private String urlAccountResetPassword;
 	@Value("${accounts.client.create}")
 	private String urlCreateClient;
 	@Value("${accounts.client.delete}")
@@ -77,7 +84,106 @@ public class RegisterController {
 	private String linkHome;	
 	@Value("${accounts.account.activate.url}")
 	private String urlActivateAccount;		
+	private static final String INSTANCE_NAME = "REGISTER-SECURITY";
 	
+	@ApiOperation(value = "Create account", notes = "Create an security account. It sends an email with access credentials")
+	@PostMapping(path = PATH_CREATE_ACCOUNT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<?> createAccount(@RequestHeader("transactionId") final Long transactionId
+										, @RequestHeader("Authorization") final String authorizationToken
+										, @RequestBody final AccountRequest account){
+		// ------------------------------------------------------------------
+			final Calendar startTime = Calendar.getInstance();
+			boolean status = true;
+			String description = "SUCCESSFUL";
+		// ------------------------------------------------------------------
+		Map<String, String> headers = new HashMap<>();	
+		headers.put("transactionId", String.valueOf(transactionId));
+		headers.put("Content-Type", "application/json");		
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			ResponseEntity<AccountReponse>	accountResponse = new EndpointClient(String.format("%s", urlAccountCreate))
+													.putHeaders(headers)
+													.putAuthorizationToken(authorizationToken)
+													.requestBody(account)
+													.callPOST(AccountReponse.class);
+			if(!accountResponse.getStatusCode().equals(HttpStatus.CREATED)) {
+				log.error("oAuth Server error: {}", accountResponse.getBody().getDescription());
+				return new ResponseEntity<>(new ResponseMessage(accountResponse.getStatusCodeValue(), accountResponse.getBody().getDescription()), accountResponse.getStatusCode());
+			}
+			
+			EmailRequest emailRequest = new EmailRequest();
+			emailRequest.setHeaders(headers);
+			emailRequest.setAuthorizationToken(authorizationToken);
+			emailRequest.setFrom(emailFrom);
+			emailRequest.setTo(accountResponse.getBody().getEmail());
+			emailRequest.setSubject(emailSubject);
+			emailRequest.setTemplateType(EmailTemplateType.ACTIVATE_ACCOUNT);
+			Map<String, String> custom = new LinkedHashMap<>();
+			custom.put("nickname", accountResponse.getBody().getNickname());			
+			custom.put("link_home", linkHome);
+			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getCode() + "&billerID=" + accountResponse.getBody().getBillerID());
+			emailRequest.setCustom(custom);
+			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);			
+			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.CREATED);
+		} catch (EndpointException e) {
+			log.error("Create account error {}", e);
+			description = e.getMessage();
+			status = false;
+			return new ResponseEntity<>(new ResponseMessage(400, HttpStatus.BAD_REQUEST.getReasonPhrase()), HttpStatus.BAD_REQUEST);
+		}finally {
+			LoggerTransaction.printTransactionalLog(INSTANCE_NAME, port, startTime, Calendar.getInstance(), transactionId, "ACCOUNT_CREATE", status, description);
+			ThreadContext.clearStack();
+		}
+	}
+	
+	@ApiOperation(value = "Reset password", notes = "Reset password when the user forgot or wants to change it. Send an email with activation code")
+	@PostMapping(path = PATH_RESET_ACCOUNT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<?> resetPassowrd(@RequestHeader("transactionId") final Long transactionId
+										, @RequestHeader("Authorization") final String authorizationToken
+										, @RequestBody final AccountRequest accountRequest){
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = "SUCCESSFUL";
+		// ------------------------------------------------------------------
+		Map<String, String> headers = new HashMap<>();
+		headers.put("transactionId", String.valueOf(transactionId));	
+		headers.put("Content-Type", "application/json");	
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			ResponseEntity<AccountReponse> accountResponse = new EndpointClient(String.format("%s", urlAccountResetPassword))
+																.putAuthorizationToken(authorizationToken)
+																.putHeaders(headers)
+																.requestBody(accountRequest)
+																.callPOST(AccountReponse.class);
+			if (!accountResponse.getStatusCode().equals(HttpStatus.OK)) {
+				log.error("oAuth Server error: {}", accountResponse.getBody().getDescription());
+				return new ResponseEntity<>(new ResponseMessage(accountResponse.getStatusCodeValue(), accountResponse.getBody().getDescription()), accountResponse.getStatusCode());
+			}
+			EmailRequest emailRequest = new EmailRequest();
+			emailRequest.setHeaders(headers);
+			emailRequest.setAuthorizationToken(authorizationToken);
+			emailRequest.setFrom(emailFrom);
+			emailRequest.setTo(accountResponse.getBody().getEmail());
+			emailRequest.setSubject(emailSubject);
+			emailRequest.setTemplateType(EmailTemplateType.ACTIVATE_ACCOUNT);
+			Map<String, String> custom = new LinkedHashMap<>();
+			custom.put("nickname", accountResponse.getBody().getNickname());			
+			custom.put("link_home", linkHome);
+			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID());
+			emailRequest.setCustom(custom);
+			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);	
+			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.OK);			
+		} catch (EndpointException e) {
+			log.error("Reset password error {}", e);
+			description = e.getMessage();
+			status = false;
+			return new ResponseEntity<>(new ResponseMessage(400, e.getMessage()), e.getCode());
+		} finally {
+			LoggerTransaction.printTransactionalLog(INSTANCE_NAME, port, startTime, Calendar.getInstance(), transactionId, "ACCOUNT_RESET_PASSWORD", status, description);
+			ThreadContext.clearStack();
+		}
+	}
 	@ApiOperation(value = "Create administration client", notes = "Create client for administration purpose")
 	@PostMapping(path=PATH_CREATE_ADMIN_CLIENT)
 	public @ResponseBody ResponseEntity<?> createAdminClientCredentials(@RequestParam("applicationName") final String applicationName			
@@ -129,7 +235,7 @@ public class RegisterController {
 			status = false;
 			return new ResponseEntity<>(new ResponseMessage(400, HttpStatus.BAD_REQUEST.getReasonPhrase()), HttpStatus.BAD_REQUEST);
 		}finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+			LoggerTransaction.printTransactionalLog(INSTANCE_NAME, port, startTime, Calendar.getInstance(),
 					transactionId, "CLIENT_ADMIN_CREATE", status, description);
 			ThreadContext.clearStack();
 		}
@@ -189,29 +295,29 @@ public class RegisterController {
 				throw new EndpointException(accessTokenResponse.getBody().toString());
 			}			
 
-			SendEmailRequest emailRequest = new SendEmailRequest();
-			emailRequest.setFrom(emailFrom);
-			emailRequest.setTo(accountsResponse.getBody().getEmail());
-			emailRequest.setSubject(emailSubject);
-			emailRequest.setTemplateType("CLIENT_CREDENTIALS");
-			Map<String, String> custom = new LinkedHashMap<>();
-			custom.put("nickname", accountsResponse.getBody().getNickname());
-			custom.put("email", accountsResponse.getBody().getEmail());
-			custom.put("link_home", linkHome);
-			custom.put("clientId", clientResponse.getBody().getClientId());
-			custom.put("clientSecret", clientResponse.getBody().getClientSecret());
-			custom.put("accessToken", null);
-			custom.put("token_type", null);
-			custom.put("expires_in", null);
-			custom.put("scope", null);
-			emailRequest.setCustom(custom);
-			clientId = null;
-			ResponseEntity<String> sendEmailResponse = new EndpointClient(String.format("%s", urlSendEmail))
-															.putHeaders(headers)
-															.putBearerAccessToken(accessTokenResponse.getBody().getAccessToken())
-															.requestBody(emailRequest)
-															.callPOST(String.class);
-			log.info("Email Response: ", sendEmailResponse.getBody());
+//			SendEmailRequest emailRequest = new SendEmailRequest();
+//			emailRequest.setFrom(emailFrom);
+//			emailRequest.setTo(accountsResponse.getBody().getEmail());
+//			emailRequest.setSubject(emailSubject);
+//			emailRequest.setTemplateType("CLIENT_CREDENTIALS");
+//			Map<String, String> custom = new LinkedHashMap<>();
+//			custom.put("nickname", accountsResponse.getBody().getNickname());
+//			custom.put("email", accountsResponse.getBody().getEmail());
+//			custom.put("link_home", linkHome);
+//			custom.put("clientId", clientResponse.getBody().getClientId());
+//			custom.put("clientSecret", clientResponse.getBody().getClientSecret());
+//			custom.put("accessToken", null);
+//			custom.put("token_type", null);
+//			custom.put("expires_in", null);
+//			custom.put("scope", null);
+//			emailRequest.setCustom(custom);
+//			clientId = null;
+//			ResponseEntity<String> sendEmailResponse = new EndpointClient(String.format("%s", urlSendEmail))
+//															.putHeaders(headers)
+//															.putBearerAccessToken(accessTokenResponse.getBody().getAccessToken())
+//															.requestBody(emailRequest)
+//															.callPOST(String.class);
+//			log.info("Email Response: ", sendEmailResponse.getBody());
 			return new ResponseEntity<>(new ResponseMessage(201, HttpStatus.CREATED.getReasonPhrase()), HttpStatus.CREATED);
 		} catch (EndpointException e) {
 			log.error("Create client error {}", e);
@@ -220,54 +326,11 @@ public class RegisterController {
 			status = false;
 			return new ResponseEntity<>(new ResponseMessage(400, HttpStatus.BAD_REQUEST.getReasonPhrase()), HttpStatus.BAD_REQUEST);
 		}finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+			LoggerTransaction.printTransactionalLog(INSTANCE_NAME, port, startTime, Calendar.getInstance(),
 					transactionId, "CLIENT_CREATE", status, description);
 			ThreadContext.clearStack();
 		}
-	}
-	
-	@ApiOperation(value = "Create account", notes = "Create an security account. It sends an email with access credentials")
-	@PostMapping(path = PATH_CREATE_ACCOUNT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<?> createAccount(@RequestHeader("transactionId") final Long transactionId
-										, @RequestHeader("Authorization") final String authorizationToken
-										, @RequestBody final AccountRequest account){
-		// ------------------------------------------------------------------
-			final Calendar startTime = Calendar.getInstance();
-			boolean status = true;
-			String description = "SUCCESSFUL";
-		// ------------------------------------------------------------------
-		Map<String, String> headers = new HashMap<>();	
-		headers.put("transactionId", String.valueOf(transactionId));
-		headers.put("Content-Type", "application/json");		
-		try {
-			ThreadContext.push(Long.toString(transactionId));
-			ResponseEntity<AccountReponse>	accountResponse = new EndpointClient(String.format("%s", urlAccountCreate))
-													.putHeaders(headers)
-													.putAuthorizationToken(authorizationToken)
-													.requestBody(account)
-													.callPOST(AccountReponse.class);
-			if(!accountResponse.getStatusCode().equals(HttpStatus.CREATED)) {
-				log.error("oAuth Server error: {}", accountResponse.getBody().getDescription());
-				return new ResponseEntity<>(new ResponseMessage(accountResponse.getStatusCodeValue(), accountResponse.getBody().getDescription()), accountResponse.getStatusCode());
-			}
-			ResponseEntity<String> sendEmailResponse = new EndpointClient(String.format("%s", urlSendEmail))
-														.putHeaders(headers)
-														.putAuthorizationToken(authorizationToken)
-														.requestBody(sendEmailRequest("ACTIVATE_ACCOUNT", accountResponse.getBody().getEmail(), accountResponse.getBody().getNickname(), accountResponse.getBody().getActivationCode(), accountResponse.getBody().getBillerID()))
-														.callPOST(String.class);
-			log.info("Email Response: ", sendEmailResponse.getBody());
-			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.CREATED);
-		} catch (EndpointException e) {
-			log.error("Create account error {}", e);
-			description = e.getMessage();
-			status = false;
-			return new ResponseEntity<>(new ResponseMessage(400, HttpStatus.BAD_REQUEST.getReasonPhrase()), HttpStatus.BAD_REQUEST);
-		}finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
-					transactionId, "ACCOUNT_CREATE", status, description);
-			ThreadContext.clearStack();
-		}
-	}
+	}		
 	
 	public void removeClient(final String clientId, final Map<String, String> headers) {
 		if(clientId != null) {
@@ -283,26 +346,4 @@ public class RegisterController {
 		}
 	}
 	
-	private SendEmailRequest sendEmailRequest(final String template, final String emailTo, final String nickname, final String code, final String billerID, final String ... extraParams ) {
-		SendEmailRequest emailRequest = new SendEmailRequest();
-		emailRequest.setFrom(emailFrom);
-		emailRequest.setTo(emailTo);
-		emailRequest.setSubject(emailSubject);
-		emailRequest.setTemplateType(template);
-		Map<String, String> custom = new LinkedHashMap<>();
-		custom.put("nickname", nickname);
-		custom.put("email", emailTo);
-		custom.put("link_home", linkHome);
-		custom.put("link_activate_account", urlActivateAccount + "?code=" + code + "&billerID=" + billerID);
-		if(extraParams != null && extraParams.length > 0) {
-			custom.put("clientId", extraParams[0]);
-			custom.put("clientSecret", extraParams[1]);
-			custom.put("accessToken", extraParams[2]);
-			custom.put("token_type", extraParams[3]);
-			custom.put("expires_in", extraParams[4]);
-			custom.put("scope", extraParams[5]);			
-		}
-		emailRequest.setCustom(custom);
-		return emailRequest;
-	}
 }

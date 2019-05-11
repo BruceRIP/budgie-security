@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mx.budgie.billers.reporter.vo;
+package mx.budgie.commons.utils;
 
 /**
  * @author bruno.rivera

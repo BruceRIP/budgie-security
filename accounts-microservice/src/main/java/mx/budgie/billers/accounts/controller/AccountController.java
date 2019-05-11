@@ -47,6 +47,7 @@ import mx.budgie.billers.accounts.response.ResponseMessage;
 import mx.budgie.billers.accounts.service.AccountManagerService;
 import mx.budgie.billers.accounts.service.AccountService;
 import mx.budgie.billers.accounts.service.ClientAuthService;
+import mx.budgie.billers.accounts.vo.AccountEmailRequest;
 import mx.budgie.billers.accounts.vo.AccountRequestVO;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
@@ -226,41 +227,6 @@ public class AccountController {
 		}
 	}
 
-	@ApiOperation(value = "Get a biller account with billerId", notes = "It is necessary to provide the billerId in the path variable")
-	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_ID, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> recoverAccount(final @PathVariable("billerID") String billerID,
-			final @RequestHeader("transactionId") long transactionId) {
-		AccountVO account = null;
-		// ------------------------------------------------------------------
-		final Calendar startTime = Calendar.getInstance();
-		boolean status = true;
-		String description = AccountsConstants.SUCCESSFUL;
-		// ------------------------------------------------------------------
-		try {
-			ThreadContext.push(Long.toString(transactionId));
-			LOGGER.info("Starting account recover process by ID");
-			LOGGER.info("Looking for a Account by billerID {}", billerID);
-			account = accountService.findAccountByBillerID(billerID);
-			if (null == account) {
-				LOGGER.warn("Accout with billerID '{}' not found.", billerID);
-				status = false;
-				description = accountsDesc06;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
-			}
-			if (!AccountStatus.ACTIVE.equals(account.getAccountStatus())) {
-				status = false;
-				description = accountsDesc13;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13, accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
-			}
-			LOGGER.info("Account [{}] was found ", billerID);
-			return new ResponseEntity<>(buildAccountResponse(account), HttpStatus.OK);
-		} finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
-					transactionId, "ACCOUNTS_RECOVER", status, description);
-			ThreadContext.clearStack();
-		}
-	}
-	
 	@ApiOperation(value = "Login a biller account with email", notes = "It is necessary to provide the email and password")
 	@PostMapping(value = AccountPaths.ACCOUNT_LOGIN, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public @ResponseBody ResponseEntity<?> loginAccount(final @RequestHeader("transactionId") long transactionId
@@ -299,6 +265,123 @@ public class AccountController {
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_RECOVER", status, description);
+			ThreadContext.clearStack();
+		}
+	}
+	
+	@ApiOperation(value = "Activate a biller account", notes = "It is necessary to provide activate param")
+	@PostMapping(value = AccountPaths.ACCOUNT_ACTIVATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseEntity<?> activateAccount(@RequestBody Map<String, String> data, @RequestParam final String code,
+			final @RequestHeader("transactionId") long transactionId) {
+		AccountVO accountVO = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			if(data == null || code == null || code.isEmpty()) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}			
+			LOGGER.info("Trying to activate account");
+			accountVO = accountService.findAccountToActivate(code);
+			if(accountVO == null || !accountVO.getBillerID().equals(data.get("billerID")) || data.get("password") == null || data.get("repassword") == null) {
+				LOGGER.error("Accout not found to activate");
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}
+			if(!data.get("password").equals(data.get("repassword"))) {
+				LOGGER.error("Password not match");
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}		
+			accountVO.setAccountStatus(AccountStatus.ACTIVE);			
+			accountVO.setPassword(data.get("password"));
+			accountVO.setActivationCode(null);
+			accountVO = accountService.updateAccount(accountVO);
+			if (null == accountVO) {
+				LOGGER.error("There was an error while updating the account");
+				status = false;
+				description = accountsDesc666;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666), HttpStatus.NOT_ACCEPTABLE);
+			}
+			LOGGER.info("Accout was updated successfully");
+			return new ResponseEntity<>(new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),accountVO.getAccountStatus()), HttpStatus.OK);
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+					transactionId, "ACCOUNTS_ACTIVATE", status, description);
+			ThreadContext.clearStack();
+		}
+	}
+	
+	@ApiOperation(value = "Get a biller account with billerId", notes = "It is necessary to provide the billerId in the path variable")
+	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_ID, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseEntity<?> recoverAccount(final @PathVariable("billerID") String billerID,
+			final @RequestHeader("transactionId") long transactionId) {
+		AccountVO account = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			LOGGER.info("Starting account recover process by ID");
+			LOGGER.info("Looking for a Account by billerID {}", billerID);
+			account = accountService.findAccountByBillerID(billerID);
+			if (null == account) {
+				LOGGER.warn("Accout with billerID '{}' not found.", billerID);
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}
+			if (!AccountStatus.ACTIVE.equals(account.getAccountStatus())) {
+				status = false;
+				description = accountsDesc13;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13 + account.getAccountStatus().name(), accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
+			}
+			LOGGER.info("Account [{}] was found ", billerID);
+			return new ResponseEntity<>(buildAccountResponse(account), HttpStatus.OK);
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
+					transactionId, "ACCOUNTS_RECOVER", status, description);
+			ThreadContext.clearStack();
+		}
+	}
+	
+	@ApiOperation(value = "Resend an activation code", notes = "Resend activation code to reset or recover password")
+	@PostMapping(value = AccountPaths.ACCOUNT_RESET_OR_RECOVER_PASSWORD, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public @ResponseBody ResponseEntity<?> resetOrRecoverPassword(final @RequestBody(required = true) AccountEmailRequest accountEmail,
+			final @RequestHeader("transactionId") long transactionId) {
+		AccountVO account = null;
+		// ------------------------------------------------------------------
+		final Calendar startTime = Calendar.getInstance();
+		boolean status = true;
+		String description = AccountsConstants.SUCCESSFUL;
+		// ------------------------------------------------------------------
+		try {
+			ThreadContext.push(Long.toString(transactionId));
+			LOGGER.info("Starting account recover process by email");
+			LOGGER.info("Looking for a Account by email {}", accountEmail.getEmail());
+			account = accountService.findAccountByEmail(accountEmail.getEmail());
+			if (null == account) {
+				LOGGER.warn("Accout with email '{}' not found.", accountEmail.getEmail());
+				status = false;
+				description = accountsDesc06;
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+			}					
+			LOGGER.info("Account [{}] was found ", accountEmail.getEmail());
+			AccountVO responseAccount = accountService.resendActivationCode(account);
+			LOGGER.info("Activation code was created");			
+			return new ResponseEntity<>(new AccountVO(responseAccount.getBillerID(), responseAccount.getNickname(), responseAccount.getEmail(), responseAccount.getAccountStatus(), responseAccount.getActivationCode()), HttpStatus.OK);
+		} finally {
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "ACCOUNTS_RESET_RECOVER_PASSWORD", status, description);
 			ThreadContext.clearStack();
 		}
 	}
@@ -480,59 +563,6 @@ public class AccountController {
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_DELETE", status, description);
-			ThreadContext.clearStack();
-		}
-	}
-	
-	@ApiOperation(value = "Activate a biller account", notes = "It is necessary to provide activate param")
-	@PostMapping(value = AccountPaths.ACCOUNT_ACTIVATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> activateAccount(@RequestBody Map<String, String> data, @RequestParam final String code,
-			final @RequestHeader("transactionId") long transactionId) {
-		AccountVO accountVO = null;
-		// ------------------------------------------------------------------
-		final Calendar startTime = Calendar.getInstance();
-		boolean status = true;
-		String description = AccountsConstants.SUCCESSFUL;
-		// ------------------------------------------------------------------
-		try {
-			ThreadContext.push(Long.toString(transactionId));
-			if(data == null || code == null || code.isEmpty()) {
-				LOGGER.error("Accout not found to activate");
-				status = false;
-				description = accountsDesc06;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
-			}			
-			LOGGER.info("Trying to activate account");
-			accountVO = accountService.findAccountToActivate(code);
-			if(accountVO == null || !accountVO.getBillerID().equals(data.get("billerID")) || data.get("password") == null || data.get("repassword") == null) {
-				LOGGER.error("Accout not found to activate");
-				status = false;
-				description = accountsDesc06;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
-			}
-			if(!data.get("password").equals(data.get("repassword"))) {
-				LOGGER.error("Password not match");
-				status = false;
-				description = accountsDesc06;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
-			}
-			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
-				accountVO.setAccountStatus(AccountStatus.ACTIVE);
-			}
-			accountVO.setPassword(data.get("password"));
-			accountVO.setActivationCode(null);
-			accountVO = accountService.updateAccount(accountVO);
-			if (null == accountVO) {
-				LOGGER.error("There was an error while updating the account");
-				status = false;
-				description = accountsDesc666;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666, accountsDesc666), HttpStatus.NOT_ACCEPTABLE);
-			}
-			LOGGER.info("Accout was updated successfully");
-			return new ResponseEntity<>(new AccountVO(accountVO.getBillerID(), accountVO.getNickname(), accountVO.getEmail(),accountVO.getAccountStatus()), HttpStatus.OK);
-		} finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
-					transactionId, "ACCOUNTS_ACTIVATE", status, description);
 			ThreadContext.clearStack();
 		}
 	}
