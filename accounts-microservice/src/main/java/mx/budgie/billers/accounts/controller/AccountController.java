@@ -41,6 +41,7 @@ import mx.budgie.billers.accounts.constants.AccountPaths;
 import mx.budgie.billers.accounts.constants.AccountsConstants;
 import mx.budgie.billers.accounts.loggers.LoggerTransaction;
 import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
+import mx.budgie.billers.accounts.request.AccountUpdateParams;
 import mx.budgie.billers.accounts.request.RequestParams;
 import mx.budgie.billers.accounts.request.UpdateRolesParams;
 import mx.budgie.billers.accounts.response.ResponseMessage;
@@ -424,7 +425,7 @@ public class AccountController {
 	
 	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
 	@PutMapping(value = AccountPaths.ACCOUNT_UPDATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> updateAccount(@RequestBody final RequestParams params,
+	public @ResponseBody ResponseEntity<?> updateAccount(@RequestBody final AccountUpdateParams params,
 			final @RequestHeader("transactionId") long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
@@ -443,40 +444,19 @@ public class AccountController {
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
 			LOGGER.info("{} account has status of {}", accountVO.getEmail(), accountVO.getAccountStatus());
-			if (!AccountStatus.REGISTER.equals(accountVO.getAccountStatus()) && params.getPassword() != null && !accountVO.getPassword().equals(params.getPassword()) ) {
+			if (params.getPassword() != null && !accountVO.getPassword().equals(params.getPassword()) ) {
 				status = false;
 				description = accountsDesc07;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode07), accountsMSG07, accountsDesc07), HttpStatus.NOT_ACCEPTABLE);
-			}
-			if (params.getNewPassword() != null && !params.getNewPassword().isEmpty()) {
-				accountVO.setPassword(params.getNewPassword());
-			}
-			if (AccountStatus.REGISTER.equals(accountVO.getAccountStatus())) {
-				accountVO.setAccountStatus(AccountStatus.ACTIVE);
-			}	
-			if (params.getAccountStatus() != null) {
-				accountVO.setAccountStatus(params.getAccountStatus());
+			}			
+			if (params.getStatus() != null) {
+				LOGGER.info("Changing status by {} to {}", accountVO.getAccountStatus(), params.getStatus());
+				accountVO.setAccountStatus(params.getStatus());
 			}
 			if (params.getNickname() != null && !params.getNickname().isEmpty()) {
-				LOGGER.info("Changing nickname to {} to {}", accountVO.getNickname(), params.getNickname());
-				String nickname = params.getNickname();
-				if (null != accountService.findAccountByNickname(nickname)) {
-					status = false;
-					description = accountsDesc02;
-					return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode02), accountsMSG02, accountsDesc02), HttpStatus.NOT_ACCEPTABLE);
-				}
-				accountVO.setNickname(nickname);
-			}
-			if (params.getEmail() != null && !params.getEmail().isEmpty()) {
-				LOGGER.info("Changing email to {} to {}", accountVO.getEmail(), params.getEmail());
-				String email = params.getEmail();
-				if (null != accountService.findAccountByEmail(email)) {
-					status = false;
-					description = accountsDesc03;
-					return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode03), accountsMSG03, accountsDesc03), HttpStatus.NOT_ACCEPTABLE);
-				}
-				accountVO.setEmail(params.getEmail());
-			}
+				LOGGER.info("Changing nickname by {} to {}", accountVO.getNickname(), params.getNickname());				
+				accountVO.setNickname(params.getNickname());
+			}			
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");

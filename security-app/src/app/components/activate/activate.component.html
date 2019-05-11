@@ -1,3 +1,7 @@
+<div *ngIf="frontMessage.showAlert" class="alert alert-danger animated fadeIn">
+  <p>{{ frontMessage.message }}</p>
+</div>
+
 <div class="login-dark animated fadeIn">
   <div class="form">
     <h2 class="sr-only"></h2>
@@ -22,9 +26,4 @@
       </div>
     </div>
   </div>
-</div>
-
-<div *ngIf="showError" class="alert alert-danger animated fadeIn">
-  <h3>Error occurred</h3>
-  <p> Service is unavailable: {{ errorMessage }}</p>
 </div>

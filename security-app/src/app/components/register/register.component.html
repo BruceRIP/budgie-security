@@ -1,4 +1,4 @@
-<div class="login-dark animated fadeIn" *ngIf="!showBanner" >
+<div class="login-dark animated fadeIn" *ngIf="!frontMessage.showAlert" >
   <div class="form">
     <h2 class="sr-only"></h2>
     <div class="illustration">
@@ -21,7 +21,7 @@
   </div>
 </div>
 
-<div class="login-dark animated fadeIn" *ngIf="showBanner">
+<div class="login-dark animated fadeIn" *ngIf="frontMessage.showAlert">
   <div class="form">
     <h2 class="sr-only"></h2>
     <div class="illustration">
@@ -31,8 +31,8 @@
       <p>{{ message1 }} <strong>{{ email }}</strong> {{ message2 }}</p>
       <p>{{ message3 }}</p>
     </div>
-    <div class="form-group" *ngIf="error" >
-      <p>{{ error }}</p>
+    <div class="form-group" *ngIf="frontMessage.showAlert" >
+      <p>{{ frontMessage.message }}</p>
     </div>
     <div class="form-group">
       <a class="btn btn-primary btn-block" [routerLink]="'/login'">Login</a>

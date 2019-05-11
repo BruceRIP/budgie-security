@@ -121,7 +121,7 @@ public class RegisterController {
 			Map<String, String> custom = new LinkedHashMap<>();
 			custom.put("nickname", accountResponse.getBody().getNickname());			
 			custom.put("link_home", linkHome);
-			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getCode() + "&billerID=" + accountResponse.getBody().getBillerID());
+			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID());
 			emailRequest.setCustom(custom);
 			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);			
 			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.CREATED);

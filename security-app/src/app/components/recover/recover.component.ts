@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SecurityService } from '../../services/security.service';
+import { FrontMessage } from '../../model/FrontMessage';
 
 @Component({
   selector: 'app-recover',
@@ -9,14 +10,11 @@ import { SecurityService } from '../../services/security.service';
 export class RecoverComponent implements OnInit {
 
   email: string;
-  showBanner: boolean;
-  error: string;
   message1: string;
   message2: string;
+  frontMessage = new FrontMessage();
 
-  constructor(private securityService: SecurityService) {
-    this.showBanner = false;
-   }
+  constructor(private securityService: SecurityService) { }
 
 
   ngOnInit() {
@@ -25,15 +23,13 @@ export class RecoverComponent implements OnInit {
   recover(emailIn: string) {
     this.securityService.resetPassword(emailIn)
       .subscribe( (response: any) => {
-        console.log(response.email);
-        this.showBanner = true;
+        this.frontMessage.showAlert = true;
         this.email = response.email;
         this.message1 = 'We have sent an email to the following address';
         this.message2 = 'with instructions';
       }, (error: any) => {
-        console.log(error.error);
-        this.error = error.error.message;
-        this.showBanner = true;
+        this.frontMessage.showAlert = true;
+        this.frontMessage.message = error.error.message;
       });
   }
 }

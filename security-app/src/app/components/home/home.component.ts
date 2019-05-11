@@ -14,7 +14,6 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.activatedRoute.params.subscribe( params => {
       this.nickname = params['nickname'];
-      console.log(this.nickname);
     });
   }
 

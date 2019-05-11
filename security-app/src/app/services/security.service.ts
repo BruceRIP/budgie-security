@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AccountRequest } from '../components/register/register.component';
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +38,7 @@ export class SecurityService {
     return randomTransactionId;
   }
 
-  registerUser(accountRequest: AccountRequest) {
+  registerUser(accountRequest: any) {
     return this.callPOST('register', accountRequest);
   }
 
@@ -58,12 +57,8 @@ export class SecurityService {
     return this.callPOST(url, activateAccountRequest);
   }
 
-  login(email: string, password: string) {
-    const accountRequest = {
-      email,
-      password
-    };
-    return this.callPOST('accounts/login', accountRequest);
+  login(accountLoginRequest: any) {
+    return this.callPOST('accounts/login', accountLoginRequest);
   }
 
   resetPassword(email: string) {
