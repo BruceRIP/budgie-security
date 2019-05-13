@@ -5,11 +5,9 @@ package mx.budgie.billers.accounts.controller;
 
 import java.nio.file.AccessDeniedException;
 import java.util.Calendar;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
@@ -41,15 +39,11 @@ import mx.budgie.billers.accounts.constants.AccountPaths;
 import mx.budgie.billers.accounts.constants.AccountsConstants;
 import mx.budgie.billers.accounts.loggers.LoggerTransaction;
 import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
-import mx.budgie.billers.accounts.request.AccountUpdateParams;
-import mx.budgie.billers.accounts.request.RequestParams;
-import mx.budgie.billers.accounts.request.UpdateRolesParams;
 import mx.budgie.billers.accounts.response.ResponseMessage;
 import mx.budgie.billers.accounts.service.AccountManagerService;
 import mx.budgie.billers.accounts.service.AccountService;
 import mx.budgie.billers.accounts.service.ClientAuthService;
-import mx.budgie.billers.accounts.vo.AccountEmailRequest;
-import mx.budgie.billers.accounts.vo.AccountRequestVO;
+import mx.budgie.billers.accounts.vo.AccountRequest;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
@@ -153,9 +147,10 @@ public class AccountController {
 	
 	@ApiOperation(value = "Create account for a Biller Customer", notes = "It is necessary to provide the authentication token that was generated for a client")
 	@PostMapping(value = AccountPaths.ACCOUNT_CREATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<ResponseMessage> createAccount(
-			@RequestHeader("Authorization") final String authentication,
-			@RequestHeader("transactionId") final long transactionId, @RequestBody @Valid AccountRequestVO account) {
+	public @ResponseBody ResponseEntity<?> createAccount(
+			  @RequestHeader("Authorization") final String authentication
+			, @RequestHeader("transactionId") final long transactionId
+			, @RequestBody AccountRequest accountRequest) {
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
 		boolean status = true;
@@ -175,21 +170,29 @@ public class AccountController {
 						buildResponseMessage(Integer.valueOf(accountsCode400), accountsDesc400, accountsDesc400),
 						HttpStatus.NOT_ACCEPTABLE);
 			}
-			LOGGER.info("Validating that the account was not previously created with email [{}]", account.getEmail());
-			if (null != accountService.findAccountByEmail(account.getEmail())) {
-				LOGGER.error("There is an account associated with that email: [{}]", account.getEmail());
+			if(accountRequest.getNickname() == null || accountRequest.getNickname().isEmpty() || accountRequest.getEmail() == null || accountRequest.getEmail().isEmpty()) {
+				LOGGER.error("Missing parameters");
+				status = false;
+				description = "Missing parameters: " + accountRequest.toString();
+				return new ResponseEntity<>(
+						buildResponseMessage(Integer.valueOf(accountsCode400), accountsDesc400, accountsDesc400),
+						HttpStatus.NOT_ACCEPTABLE);
+			}
+			LOGGER.info("Validating that the account was not previously created with email [{}]", accountRequest.getEmail());
+			if (null != accountService.findAccountByEmail(accountRequest.getEmail())) {
+				LOGGER.error("There is an account associated with that email: [{}]", accountRequest.getEmail());
 				status = false;
 				description = accountsDesc03;
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode03), accountsMSG03, accountsDesc03),
 						HttpStatus.NOT_ACCEPTABLE);
 			}
-			LOGGER.info("Validating that the account was not previously created with nickname [{}]",account.getNickname());
-			AccountVO auxAcc = accountService.findAccountByNickname(account.getNickname());
-			if (null != auxAcc && account.getPassword() != null && account.getPassword().equals(auxAcc.getPassword()) && needValidateNickname) {
+			LOGGER.info("Validating that the account was not previously created with nickname [{}]",accountRequest.getNickname());
+			AccountVO auxAcc = accountService.findAccountByNickname(accountRequest.getNickname());
+			if (null != auxAcc && accountRequest.getPassword() != null && accountRequest.getPassword().equals(auxAcc.getPassword()) && needValidateNickname) {
 				status = false;
 				description = accountsDesc02;
-				LOGGER.error("There is an account associated with that nickname: [{}]", account.getNickname());
+				LOGGER.error("There is an account associated with that nickname: [{}]", accountRequest.getNickname());
 				return new ResponseEntity<>(
 						buildResponseMessage(Integer.valueOf(accountsCode02), accountsMSG02, accountsDesc02),
 						HttpStatus.NOT_ACCEPTABLE);
@@ -207,8 +210,8 @@ public class AccountController {
 				LOGGER.error("Endpoint package is failed: {}", e);
 			}
 			
-			LOGGER.info("Creating account for Biller User: [{}]", account.getEmail());
-			AccountVO accountVO = accountService.createAccount(account, clientAuthentication, packageVO);
+			LOGGER.info("Creating account for Biller User: [{}]", accountRequest.getEmail());
+			AccountVO accountVO = accountService.createAccount(accountRequest, clientAuthentication, packageVO);
 			if (null == accountVO) {
 				LOGGER.error("Error while create account");
 				status = false;
@@ -222,16 +225,16 @@ public class AccountController {
 			responseAccount.setActivationCode(accountVO.getActivationCode());
 			return new ResponseEntity<>(responseAccount, HttpStatus.CREATED);
 		} finally {
-			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
-					transactionId, "ACCOUNTS_CREATE", status, description);
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "ACCOUNTS_CREATE", status, description);
 			ThreadContext.clearStack();
 		}
 	}
 
 	@ApiOperation(value = "Login a biller account with email", notes = "It is necessary to provide the email and password")
 	@PostMapping(value = AccountPaths.ACCOUNT_LOGIN, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> loginAccount(final @RequestHeader("transactionId") long transactionId
-			, @RequestBody AccountRequestVO accountRequest) {
+	public @ResponseBody ResponseEntity<?> loginAccount(
+				  @RequestHeader final long transactionId
+				, @RequestBody final AccountRequest accountRequest) {
 		AccountVO account = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -242,6 +245,14 @@ public class AccountController {
 			ThreadContext.push(Long.toString(transactionId));
 			LOGGER.info("Starting account recover process by ID");
 			LOGGER.info("Looking for a Account by email {}", accountRequest.getEmail());
+			if(accountRequest.getEmail() == null || accountRequest.getEmail().isEmpty() || accountRequest.getPassword() == null || accountRequest.getPassword().isEmpty()) {
+				LOGGER.error("Missing parameters");
+				status = false;
+				description = "Missing parameters: " + accountRequest.toString();
+				return new ResponseEntity<>(
+						buildResponseMessage(Integer.valueOf(accountsCode400), accountsDesc400, accountsDesc400),
+						HttpStatus.NOT_ACCEPTABLE);
+			}
 			account = accountService.findAccountByEmail(accountRequest.getEmail());
 			if (null == account) {
 				LOGGER.warn("Accout with email '{}' not found.", accountRequest.getEmail());
@@ -262,7 +273,7 @@ public class AccountController {
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
 			LOGGER.info("Account [{}] was found ", accountRequest.getEmail());
-			return new ResponseEntity<>(new AccountVO(account.getBillerID(), account.getNickname(), account.getEmail(),account.getAccountStatus()), HttpStatus.OK);
+			return new ResponseEntity<>(new AccountVO(account.getBillerID(), account.getNickname(), account.getEmail(), account.getAccountStatus()), HttpStatus.OK);
 		} finally {
 			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(),
 					transactionId, "ACCOUNTS_RECOVER", status, description);
@@ -272,8 +283,11 @@ public class AccountController {
 	
 	@ApiOperation(value = "Activate a biller account", notes = "It is necessary to provide activate param")
 	@PostMapping(value = AccountPaths.ACCOUNT_ACTIVATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> activateAccount(@RequestBody Map<String, String> data, @RequestParam final String code,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> activateAccount(
+			  @RequestParam(name = "code") final String code
+			, @RequestParam final String billerID
+			, @RequestBody final AccountRequest accountRequest
+			, @RequestHeader final long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -282,28 +296,28 @@ public class AccountController {
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));
-			if(data == null || code == null || code.isEmpty()) {
+			if(billerID == null || billerID.isEmpty() || code == null || code.isEmpty()) {
 				LOGGER.error("Accout not found to activate");
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
-			}			
+			}						
 			LOGGER.info("Trying to activate account");
 			accountVO = accountService.findAccountToActivate(code);
-			if(accountVO == null || !accountVO.getBillerID().equals(data.get("billerID")) || data.get("password") == null || data.get("repassword") == null) {
+			if(accountVO == null || !accountVO.getBillerID().equals(billerID) || accountRequest.getPassword() == null || accountRequest.getPassword() == null) {
 				LOGGER.error("Accout not found to activate");
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
-			if(!data.get("password").equals(data.get("repassword"))) {
+			if(!accountRequest.getPassword().equals(accountRequest.getRepassword())) {
 				LOGGER.error("Password not match");
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}		
 			accountVO.setAccountStatus(AccountStatus.ACTIVE);			
-			accountVO.setPassword(data.get("password"));
+			accountVO.setPassword(accountRequest.getPassword());
 			accountVO.setActivationCode(null);
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
@@ -323,8 +337,9 @@ public class AccountController {
 	
 	@ApiOperation(value = "Get a biller account with billerId", notes = "It is necessary to provide the billerId in the path variable")
 	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_ID, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> recoverAccount(final @PathVariable("billerID") String billerID,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> recoverAccount(
+			  @PathVariable final String billerID
+			, @RequestHeader final long transactionId) {
 		AccountVO account = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -358,8 +373,9 @@ public class AccountController {
 	
 	@ApiOperation(value = "Resend an activation code", notes = "Resend activation code to reset or recover password")
 	@PostMapping(value = AccountPaths.ACCOUNT_RESET_OR_RECOVER_PASSWORD, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> resetOrRecoverPassword(final @RequestBody(required = true) AccountEmailRequest accountEmail,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> resetOrRecoverPassword(
+			  @RequestBody(required = true) final AccountRequest accountRequest
+			, @RequestHeader final long transactionId) {
 		AccountVO account = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -369,15 +385,15 @@ public class AccountController {
 		try {
 			ThreadContext.push(Long.toString(transactionId));
 			LOGGER.info("Starting account recover process by email");
-			LOGGER.info("Looking for a Account by email {}", accountEmail.getEmail());
-			account = accountService.findAccountByEmail(accountEmail.getEmail());
+			LOGGER.info("Looking for a Account by email {}", accountRequest.getEmail());
+			account = accountService.findAccountByEmail(accountRequest.getEmail());
 			if (null == account) {
-				LOGGER.warn("Accout with email '{}' not found.", accountEmail.getEmail());
+				LOGGER.warn("Accout with email '{}' not found.", accountRequest.getEmail());
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}					
-			LOGGER.info("Account [{}] was found ", accountEmail.getEmail());
+			LOGGER.info("Account [{}] was found ", accountRequest.getEmail());
 			AccountVO responseAccount = accountService.resendActivationCode(account);
 			LOGGER.info("Activation code was created");			
 			return new ResponseEntity<>(new AccountVO(responseAccount.getBillerID(), responseAccount.getNickname(), responseAccount.getEmail(), responseAccount.getAccountStatus(), responseAccount.getActivationCode()), HttpStatus.OK);
@@ -389,9 +405,10 @@ public class AccountController {
 
 	@ApiOperation(value = "Get a biller account from activation code and billerID", notes = "It is necessary to provide the activation code and billerID in the request paramr.")
 	@GetMapping(value = AccountPaths.ACCOUNT_RECOVER_BY_ACTIVATION_CODE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> recoverAccountByActivationCode(final @RequestParam("code") String code,
-			final @RequestParam("billerID") String billerID,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> recoverAccountByActivationCode(
+			  @RequestParam("code") final String code
+			, @RequestParam final String billerID
+			, @RequestHeader final long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
 			final Calendar startTime = Calendar.getInstance();
@@ -425,8 +442,10 @@ public class AccountController {
 	
 	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
 	@PutMapping(value = AccountPaths.ACCOUNT_UPDATE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> updateAccount(@RequestBody final AccountUpdateParams params,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> updateAccount(
+			  @PathVariable final String billerID
+			, @RequestBody final AccountRequest accountRequest
+			, @RequestHeader final  long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -435,28 +454,39 @@ public class AccountController {
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));
-			LOGGER.info("Looking for account by billerID {} to update", params.getBillerID());
-			accountVO = accountService.findAccountByBillerID(params.getBillerID());
+			LOGGER.info("Looking for account by billerID {} to update", billerID);
+			accountVO = accountService.findAccountByBillerID(billerID);
 			if (null == accountVO) {
-				LOGGER.error("Accout with billerID {} not found.", params.getBillerID());
+				LOGGER.error("Accout with billerID {} not found.", billerID);
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
 			LOGGER.info("{} account has status of {}", accountVO.getEmail(), accountVO.getAccountStatus());
-			if (params.getPassword() != null && !accountVO.getPassword().equals(params.getPassword()) ) {
+			if (accountRequest.getPassword() != null && !accountVO.getPassword().equals(accountRequest.getPassword()) ) {
 				status = false;
 				description = accountsDesc07;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode07), accountsMSG07, accountsDesc07), HttpStatus.NOT_ACCEPTABLE);
-			}			
-			if (params.getStatus() != null) {
-				LOGGER.info("Changing status by {} to {}", accountVO.getAccountStatus(), params.getStatus());
-				accountVO.setAccountStatus(params.getStatus());
 			}
-			if (params.getNickname() != null && !params.getNickname().isEmpty()) {
-				LOGGER.info("Changing nickname by {} to {}", accountVO.getNickname(), params.getNickname());				
-				accountVO.setNickname(params.getNickname());
+			if (accountRequest.getStatus() != null) {
+				LOGGER.info("Changing status by {} to {}", accountVO.getAccountStatus(), accountRequest.getStatus());
+				accountVO.setAccountStatus(accountRequest.getStatus());
 			}			
+			if(accountRequest.getRepassword() != null && !accountRequest.getRepassword().isEmpty()) {
+				LOGGER.info("Changig passowrd");
+				accountVO.setPassword(accountRequest.getRepassword());
+			}
+			if (accountRequest.getNickname() != null && !accountRequest.getNickname().isEmpty()) {
+				LOGGER.info("Changing nickname by {} to {}", accountVO.getNickname(), accountRequest.getNickname());				
+				accountVO.setNickname(accountRequest.getNickname());
+			}
+			if(accountRequest.getEmail() != null && !accountRequest.getEmail().isEmpty()) {
+				accountVO.setEmail(accountRequest.getEmail());
+				LOGGER.info("Updating an email");
+				AccountVO responseAccount = accountService.resendActivationCode(accountVO);
+				LOGGER.info("Activation code was created");
+				return new ResponseEntity<>(new AccountVO(responseAccount.getBillerID(), responseAccount.getNickname(), responseAccount.getEmail(), responseAccount.getAccountStatus(), responseAccount.getActivationCode()), HttpStatus.OK);
+			}
 			accountVO = accountService.updateAccount(accountVO);
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");
@@ -476,8 +506,10 @@ public class AccountController {
 	
 	@ApiOperation(value = "Update a biller account", notes = "It is necessary to provide all parameters that need update")
 	@RequestMapping(value = AccountPaths.ACCOUNT_UPDATE_ROLES, method= {RequestMethod.PUT, RequestMethod.DELETE}, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> updateRolesAccount(final HttpServletRequest request, @RequestBody final UpdateRolesParams params, @RequestParam(required=false) final String activate,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> updateRolesAccount(final HttpServletRequest request
+			,  @PathVariable final String billerID
+			, @RequestBody final AccountRequest accountRequest			
+			, @RequestHeader("transactionId") final long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -486,15 +518,15 @@ public class AccountController {
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));			
-			LOGGER.info("Looking for account by billerID {} to update", params.getBillerID());
-			accountVO = accountService.findAccountByBillerID(params.getBillerID());
+			LOGGER.info("Looking for account by billerID {} to update", billerID);
+			accountVO = accountService.findAccountByBillerID(billerID);
 			if (null == accountVO) {
-				LOGGER.error("Accout with billerID {} not found.", params.getBillerID());
+				LOGGER.error("Accout with billerID {} not found.", billerID);
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}						
-			accountVO = accountService.updateRoles(params, "DELETE".equals(request.getMethod()));
+			accountVO = accountService.updateRoles(billerID, accountRequest.getRoles(), "DELETE".equals(request.getMethod()));
 			if (null == accountVO) {
 				LOGGER.error("There was an error while updating the account");
 				status = false;
@@ -512,8 +544,10 @@ public class AccountController {
 	
 	@ApiOperation(value = "Delete a biller account", notes = "It is necessary to provide all parameters included the password")
 	@DeleteMapping(value = AccountPaths.ACCOUNT_DELETE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<?> deleteAccount(@RequestBody final RequestParams params,
-			final @RequestHeader("transactionId") long transactionId) {
+	public @ResponseBody ResponseEntity<?> deleteAccount(
+			  @PathVariable final String billerID
+			, @RequestBody final AccountRequest accountRequest
+			, @RequestHeader("transactionId") final long transactionId) {
 		AccountVO accountVO = null;
 		// ------------------------------------------------------------------
 		final Calendar startTime = Calendar.getInstance();
@@ -522,15 +556,15 @@ public class AccountController {
 		// ------------------------------------------------------------------
 		try {
 			ThreadContext.push(Long.toString(transactionId));
-			LOGGER.info("Looking for account object by billerID {}", params.getBillerID());
-			accountVO = accountService.findAccountByBillerID(params.getBillerID());
+			LOGGER.info("Looking for account object by billerID {}", billerID);
+			accountVO = accountService.findAccountByBillerID(billerID);
 			if (null == accountVO) {
-				LOGGER.error("Accout with billerID '" + params.getBillerID() + "' not found.");
+				LOGGER.error("Accout with billerID '" + billerID + "' not found.");
 				status = false;
 				description = accountsDesc06;
 				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
 			}
-			if (!accountVO.getPassword().equals(params.getPassword())) {
+			if (!accountVO.getPassword().equals(accountRequest.getPassword())) {
 				LOGGER.error("Password not match, we can´t delete account");
 				status = false;
 				description = accountsDesc07;
@@ -597,10 +631,19 @@ public class AccountController {
 	}
 
 	private AccountVO buildAccountResponse(final AccountVO accountVO) {
-		return new AccountVO(accountVO.getBillerID(), accountVO.getAccessToken(), accountVO.getNickname(),
-				accountVO.getEmail(), accountVO.getTemporaryPassword(), accountVO.getView(), accountVO.getPurchasedPackage(), accountVO.getTotalBills(),
-				accountVO.getTotalFreeBills(), accountVO.getTotalRegisteredCustomer(),
-				accountVO.getTotalActiveSession(), accountVO.getExpirationPackageDate(),
-				accountVO.getPurchasedPackageDate());
+		return new AccountVO(accountVO.getBillerID()
+							, accountVO.getAccessToken()
+							, accountVO.getNickname()
+							, accountVO.getEmail()
+							, accountVO.getTemporaryPassword()
+							, accountVO.getView()
+							, accountVO.getPurchasedPackage()
+							, accountVO.getTotalBills()
+							, accountVO.getTotalFreeBills()
+							, accountVO.getTotalRegisteredCustomer()
+							, accountVO.getTotalActiveSession()
+							, accountVO.getExpirationPackageDate()
+							, accountVO.getPurchasedPackageDate()
+							, accountVO.getAccountStatus());
 	}
 }

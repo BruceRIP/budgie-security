@@ -12,11 +12,11 @@ public class AccountPaths {
 	private AccountPaths() {}
 	public static final String ACCOUNT_BASED_PATH = "/accounts";
 	public static final String ACCOUNT_CREATE = "";
-	public static final String ACCOUNT_DELETE = "";
-	public static final String ACCOUNT_UPDATE = "";
+	public static final String ACCOUNT_DELETE = "/{billerID}";
+	public static final String ACCOUNT_UPDATE = "/{billerID}";
 	public static final String ACCOUNT_RECOVER_BY_ID = "/{billerID}";
 	public static final String ACCOUNT_RESET_OR_RECOVER_PASSWORD = "/reset";
-	public static final String ACCOUNT_UPDATE_ROLES = "/roles";
+	public static final String ACCOUNT_UPDATE_ROLES = "/roles/{billerID}";
 	public static final String ACCOUNT_ACTIVATE = "/activate";
 	public static final String ACCOUNT_LOGIN = "/login";
 	public static final String ACCOUNT_RECOVER_BY_ACTIVATION_CODE = "/activate";

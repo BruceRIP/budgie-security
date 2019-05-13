@@ -18,7 +18,7 @@ import mx.budgie.billers.accounts.mongo.documents.GeolocalizationDocument;
 import mx.budgie.billers.accounts.mongo.documents.TokenAuthenticationDocument;
 import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
 import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
-import mx.budgie.billers.accounts.vo.AccountRequestVO;
+import mx.budgie.billers.accounts.vo.AccountRequest;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.GeolocalizationVO;
 import mx.budgie.billers.accounts.vo.TokenAuthenticationVO;
@@ -84,7 +84,9 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 			account.setNickname(document.getNickname());
 			account.setPassword(document.getPassword());
 			account.setPhoneNumber(document.getPhoneNumber());			
-			account.setRegisterLocation(new GeolocalizationVO(document.getRegisterLocation().getLatitude(), document.getRegisterLocation().getLongitude()));
+			if(document.getRegisterLocation() != null) {
+				account.setRegisterLocation(new GeolocalizationVO(document.getRegisterLocation().getLatitude(), document.getRegisterLocation().getLongitude()));				
+			}
 			account.setRoles(document.getRoles());
 			account.setRegistrationDevice(document.getRegistrationDevice());
 			account.setAccountStatus(document.getAccountStatus());
@@ -101,14 +103,14 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 		return account;
 	}
 	
-	public AccountAuthorizationDocument createDocumentFromSource(final AccountRequestVO source, final String clientAuthentication) {
+	public AccountAuthorizationDocument createDocumentFromSource(final AccountRequest source, final String clientAuthentication) {
 		createDocument();
 		billerAccount.setBillerID(AESCrypt.buildHashValue(AESCrypt.getUniqueID(null), DigestAlgorithms.SHA_256));
 		billerAccount.setEmail(source.getEmail());
 		billerAccount.setNickname(source.getNickname());
 		billerAccount.setPassword(source.getPassword() != null ? AESCrypt.buildPassword(source.getPassword()) : null);
 		billerAccount.setPhoneNumber(source.getPhoneNumber());
-		billerAccount.setRegistrationDevice(source.getRegistrationDevice());		
+		billerAccount.setRegistrationDevice(source.getRegistrationDevice());
 		billerAccount.setAccountStatus(AccountStatus.REGISTER);
 		billerAccount.setLastAccess(Date.from(Instant.now()));
 		billerAccount.setRegisterDate(Date.from(Instant.now()));

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -19,7 +20,7 @@ import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
  * @date Jun 25, 2017
  */
 @JsonInclude(Include.NON_NULL)
-public class AccountVO extends AccountRequestVO implements Serializable {
+public class AccountVO extends AccountRequest implements Serializable {
 
 	/**
 	 * 
@@ -28,17 +29,23 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 	private Long id;
 	private String billerID;
 	private Set<String> roles;
-	private String accessToken;
+	private String accessToken;	
 	private AccountStatus accountStatus;
 	private Date registerDate;
 	private Date lastAccess;	
 	private String view;
-	private String purchasedPackage;	
+	private String purchasedPackage;
+	@JsonIgnore
 	private int totalBills;
+	@JsonIgnore
 	private int totalFreeBills;
+	@JsonIgnore
 	private int totalRegisteredCustomer;
+	@JsonIgnore
 	private int totalActiveSession;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
 	private Date expirationPackageDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
 	private Date purchasedPackageDate;
 	private String activationCode;
 	@JsonIgnore
@@ -49,7 +56,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 	}	
 
 	public AccountVO(String billerID, String accessToken, String nickname, String email, String password, String view, String purchasedPackage
-			, int totalBills,int totalFreeBills, int totalRegisteredCustomer, int totalActiveSession, Date expirationPackageDate, Date purchasedPackageDate) {
+			, int totalBills,int totalFreeBills, int totalRegisteredCustomer, int totalActiveSession, Date expirationPackageDate, Date purchasedPackageDate, AccountStatus status) {
 		this.billerID = billerID;
 		this.accessToken = accessToken;		
 		this.setNickname(nickname);
@@ -63,6 +70,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.expirationPackageDate = expirationPackageDate;
 		this.purchasedPackageDate = purchasedPackageDate;
 		this.temporaryPassword = password;
+		this.accountStatus = status;
 	}
 
 	public AccountVO(String billerID, String nickname, String email) {
@@ -77,7 +85,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.billerID = billerID;
 		this.setNickname(nickname);
 		this.setEmail(email);
-		this.setAccountStatus(accountStatus);
+		this.accountStatus = accountStatus;
 	}
 	
 	public AccountVO(String billerID, String nickname, String email, AccountStatus accountStatus, Set<String> roles) {
@@ -85,7 +93,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.billerID = billerID;
 		this.setNickname(nickname);
 		this.setEmail(email);
-		this.setAccountStatus(accountStatus);
+		this.accountStatus = accountStatus;
 		this.roles = roles;
 	}
 	
@@ -94,7 +102,7 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.billerID = billerID;
 		this.setNickname(nickname);
 		this.setEmail(email);
-		this.setAccountStatus(accountStatus);
+		this.accountStatus = accountStatus;
 		this.activationCode = activationCode;
 	}
 	
@@ -135,14 +143,6 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
-	}
-
-	public AccountStatus getAccountStatus() {
-		return accountStatus;
-	}
-
-	public void setAccountStatus(AccountStatus accountStatus) {
-		this.accountStatus = accountStatus;
 	}
 
 	public Date getRegisterDate() {
@@ -231,6 +231,14 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 
 	public void setTemporaryPassword(String temporaryPassword) {
 		this.temporaryPassword = temporaryPassword;
+	}
+
+	public AccountStatus getAccountStatus() {
+		return accountStatus;
+	}
+
+	public void setAccountStatus(AccountStatus accountStatus) {
+		this.accountStatus = accountStatus;
 	}
 
 }

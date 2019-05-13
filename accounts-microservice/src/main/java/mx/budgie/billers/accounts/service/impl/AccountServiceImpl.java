@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,9 +30,8 @@ import mx.budgie.billers.accounts.mongo.repositories.AccountPackagesRepository;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
 import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
 import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
-import mx.budgie.billers.accounts.request.UpdateRolesParams;
 import mx.budgie.billers.accounts.service.AccountService;
-import mx.budgie.billers.accounts.vo.AccountRequestVO;
+import mx.budgie.billers.accounts.vo.AccountRequest;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
 import mx.budgie.commons.utils.CommonsUtil;
@@ -61,11 +61,11 @@ public class AccountServiceImpl implements AccountService{
 	private AccountAdministratorRepository accountAdminRepository;
 	
 	@Override
-	public AccountVO createAccount(final AccountRequestVO account, final String clientAuthentication, PackageVO packageVO) {
+	public AccountVO createAccount(final AccountRequest account, final String clientAuthentication, PackageVO packageVO) {
 		Assert.notNull(accountRepository, "Account object can't be null");			
 		AccountAuthorizationDocument accountDocument = accountBuilder.createDocumentFromSource(account, clientAuthentication);				
 		Calendar cal = Calendar.getInstance();
-		AccountAdministratorVO accountAdmin = new AccountAdministratorVO();;
+		AccountAdministratorVO accountAdmin = new AccountAdministratorVO();
 		if(null != packageVO) {
 			LOGGER.info("Creationg account plan with [{}]", packageVO.getNamePackage());
 			cal.add(Calendar.DAY_OF_YEAR, packageVO.getTotalActiveDays());
@@ -85,7 +85,7 @@ public class AccountServiceImpl implements AccountService{
 			accountAdmin.setDatePurchasedPackage(Date.from(Instant.now()));
 			accountAdmin.setTotalActiveSessions(0);
 		}else {
-			LOGGER.info("Creationg account plan from hardcode");
+			LOGGER.info("Creating account plan from hardcode");
 			cal.setTime(new Date());
 			cal.add(Calendar.DAY_OF_YEAR, 30);
 			accountDocument.setPurchasedPackage("PAQUETE BÁSICO");
@@ -164,14 +164,17 @@ public class AccountServiceImpl implements AccountService{
 	public AccountVO updateAccount(final AccountVO account) {
 		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());		
 		if(null != document){
-			if(!account.getPassword().equals(document.getPassword())) {
+			if(!document.getPassword().equals(account.getPassword())) {
 				document.setPassword(account.getPassword());
 			}
-			if(!account.getAccountStatus().equals(document.getAccountStatus())) {
+			if(!document.getAccountStatus().equals(account.getAccountStatus())) {
 				document.setAccountStatus(account.getAccountStatus());				
 			}
 			if(document.getActivationCode() != null && !document.getActivationCode().equals(account.getActivationCode())) {
 				document.setActivationCode(account.getActivationCode());
+			}
+			if(document.getNickname() != null && !document.getNickname().equals(account.getNickname())) {
+				document.setNickname(account.getNickname());
 			}
 			AccountAuthorizationDocument doc = accountRepository.save(document);
 			return accountBuilder.buildSourceFromDocument(doc);
@@ -195,12 +198,12 @@ public class AccountServiceImpl implements AccountService{
 	}
 
 	@Override
-	public AccountVO updateRoles(UpdateRolesParams params, boolean deleted) {
-		AccountAuthorizationDocument document = accountRepository.findByBillerID(params.getBillerID());		
+	public AccountVO updateRoles(final String billerID, final Set<String> rolesParams, boolean deleted) {
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(billerID);
 		if(null != document){
-			Iterator<String> roles = params.getRoles().iterator();
+			Iterator<String> roles = rolesParams.iterator();
 			if(deleted) {				
-				document.getRoles().removeIf(x -> params.getRoles().contains(x));
+				document.getRoles().removeIf(x -> rolesParams.contains(x));
 			}else {
 				if(document.getRoles() == null) {
 					document.setRoles(new HashSet<>());
@@ -221,6 +224,15 @@ public class AccountServiceImpl implements AccountService{
 		if(document != null) {
 			document.setActivationCode(AESCrypt.buildHashValue(account.toString()));
 			document.setAccountStatus(AccountStatus.TO_CONFIRM);
+			if(!document.getEmail().equals(account.getEmail())) {
+				document.setEmail(account.getEmail());
+			}
+			if(!document.getNickname().equals(account.getNickname())) {
+				document.setNickname(account.getNickname());
+			}
+			if(!document.getPassword().equals(account.getPassword())) {
+				document.setPassword(account.getPassword());
+			}
 			AccountAuthorizationDocument doc = accountRepository.save(document);
 			return accountBuilder.buildSourceFromDocument(doc);
 		}

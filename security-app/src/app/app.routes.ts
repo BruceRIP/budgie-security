@@ -10,7 +10,7 @@ export const ROUTES: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'activate', component: ActivateComponent},
   {path: 'recover', component: RecoverComponent},
-  {path: 'home/:nickname', component: HomeComponent},
+  {path: 'home/:id', component: HomeComponent},
   {path: '', pathMatch: 'full', component: LoginComponent},
   {path: '**', pathMatch: 'full', component: LoginComponent}
 ];
