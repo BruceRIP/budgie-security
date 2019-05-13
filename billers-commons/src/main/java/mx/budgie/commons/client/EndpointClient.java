@@ -192,7 +192,7 @@ public class EndpointClient extends ClientConfiguration{
 			LOGGER.info(" Request Body = {}",requestEntity != null ? new Gson().toJson(requestEntity.getBody()).replaceAll("\\\\", "") : requestEntity);
 			ResponseEntity<T> response = restTemplate.exchange(uri, method, requestEntity, responseType);
 			LOGGER.info(" Response StatusCode = {}", response.getStatusCode());			
-			LOGGER.info(" Response Body = {}", response.getBody());
+			LOGGER.info(" Response Body = {}", response.getBody() != null ? (response.getBody() instanceof String ? response.getBody() : new Gson().toJson(response.getBody())) : response.getBody());
 			return response;
 		}catch(HttpClientErrorException ex) {
 			LOGGER.info(" Response StatusCode = {}", ex.getStatusCode());

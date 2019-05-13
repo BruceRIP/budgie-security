@@ -209,7 +209,7 @@ public class RegisterController {
 															.putHeaders(headers)
 															.requestParameters(applicationName, tokenType)
 															.callPOST(ClientResponse.class);
-			if(!clientResponse.getStatusCode().equals(HttpStatus.OK)) {
+			if(!clientResponse.getStatusCode().equals(HttpStatus.CREATED)) {
 				log.error("Accounts Create Client error: {}", clientResponse.getBody());
 				return new ResponseEntity<>(new ResponseMessage(clientResponse.getStatusCodeValue(), clientResponse.getBody().toString()), clientResponse.getStatusCode());
 			}
