@@ -78,12 +78,16 @@ public class RegisterController {
 	private String urlSendEmail;
 	@Value("${reporter.send.email.from}")
 	private String emailFrom;
-	@Value("${reporter.send.email.subject}")
-	private String emailSubject;
+	@Value("${reporter.send.email.subject.welcome}")
+	private String emailSubjectWelcome;
 	@Value("${register.email.link.home}")
 	private String linkHome;	
 	@Value("${accounts.account.activate.url}")
 	private String urlActivateAccount;		
+	@Value("${accounts.account.support.mailto}")
+	private String mailTo;
+	@Value("${reporter.send.email.subject.reset.password}")
+	private String emailSubjectResetPwd;
 	private static final String INSTANCE_NAME = "REGISTER-SECURITY";
 	
 	@ApiOperation(value = "Create account", notes = "Create an security account. It sends an email with access credentials")
@@ -116,12 +120,14 @@ public class RegisterController {
 			emailRequest.setAuthorizationToken(authorizationToken);
 			emailRequest.setFrom(emailFrom);
 			emailRequest.setTo(accountResponse.getBody().getEmail());
-			emailRequest.setSubject(emailSubject);
+			emailRequest.setSubject(emailSubjectWelcome);
 			emailRequest.setTemplateType(EmailTemplateType.ACTIVATE_ACCOUNT);
 			Map<String, String> custom = new LinkedHashMap<>();
 			custom.put("nickname", accountResponse.getBody().getNickname());			
 			custom.put("link_home", linkHome);
 			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID());
+			custom.put("mailto",mailTo);
+			
 			emailRequest.setCustom(custom);
 			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);			
 			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.CREATED);
@@ -165,12 +171,12 @@ public class RegisterController {
 			emailRequest.setAuthorizationToken(authorizationToken);
 			emailRequest.setFrom(emailFrom);
 			emailRequest.setTo(accountResponse.getBody().getEmail());
-			emailRequest.setSubject(emailSubject);
-			emailRequest.setTemplateType(EmailTemplateType.ACTIVATE_ACCOUNT);
+			emailRequest.setSubject(emailSubjectResetPwd);
+			emailRequest.setTemplateType(EmailTemplateType.RESET_PASSWORD);
 			Map<String, String> custom = new LinkedHashMap<>();
 			custom.put("nickname", accountResponse.getBody().getNickname());			
 			custom.put("link_home", linkHome);
-			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID());
+			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID() + "&type=reset");
 			emailRequest.setCustom(custom);
 			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);	
 			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.OK);			

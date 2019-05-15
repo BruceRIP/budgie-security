@@ -147,15 +147,7 @@ public class EmailSender{
 		VelocityEngine ve = new VelocityEngine();
 		try {
 			ve.init();
-			switch (templateType) {
-			case ACTIVATE_ACCOUNT:
-				return ve.getTemplate("src/main/resources/static/email-templates/activate_account.html", "UTF8");			
-			case CLIENT_CREDENTIALS:
-				return ve.getTemplate("src/main/resources/static/email-templates/client_credentials.html", "UTF8");
-			default:
-				LOGGER.warn("You must setting email template");
-				throw new BillersEmailException("Email template must be present");
-			}
+			return ve.getTemplate(templateType.getPath(), "UTF8");			
 		} catch (Exception e) {
 			LOGGER.error(e);
 			throw new BillersEmailException(e.getMessage());

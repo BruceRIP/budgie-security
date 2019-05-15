@@ -48,9 +48,8 @@ export class SecurityService {
   }
 
   activateAccount(code: string, id: string, pass: string, repass: string) {
-    const url = `accounts/activate?code=${code}`;
+    const url = `accounts/activate?code=${code}&billerID=${id}`;
     const activateAccountRequest = {
-      billerID: id,
       password: pass,
       repassword: repass
     };

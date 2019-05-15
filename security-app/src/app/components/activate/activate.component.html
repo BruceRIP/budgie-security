@@ -18,7 +18,7 @@
       <input class="form-control" type="password" name="repassword" placeholder="Password confirmation" #repassword/>
     </div>
     <div class="form-group">
-      <button (click)="activate(password.value, repassword.value);" class="btn btn-primary btn-block" type="submit">Activate</button>
+      <button (click)="activate(password.value, repassword.value);" class="btn btn-primary btn-block" type="submit">{{ type }}</button>
     </div>
     <div class="row">
       <div class="col">

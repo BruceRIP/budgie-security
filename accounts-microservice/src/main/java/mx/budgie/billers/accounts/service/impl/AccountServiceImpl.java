@@ -223,7 +223,7 @@ public class AccountServiceImpl implements AccountService{
 		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());
 		if(document != null) {
 			document.setActivationCode(AESCrypt.buildHashValue(account.toString()));
-			document.setAccountStatus(AccountStatus.TO_CONFIRM);
+//			document.setAccountStatus(AccountStatus.TO_CONFIRM);
 			if(!document.getEmail().equals(account.getEmail())) {
 				document.setEmail(account.getEmail());
 			}

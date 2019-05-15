@@ -84,5 +84,13 @@ public class AccountsConstants {
 	public static final String ACCOUNTS_CODE_13 = "${accounts.code.13}";
 	public static final String ACCOUNTS_MSG_CODE_13 = "${accounts.msg.code.13}";
 	public static final String ACCOUNTS_DES_CODE_13 = "${accounts.des.code.13}";
+	
+	public static final String ACCOUNTS_CODE_14 = "${accounts.code.14}";
+	public static final String ACCOUNTS_MSG_CODE_14 = "${accounts.msg.code.14}";
+	public static final String ACCOUNTS_DES_CODE_14 = "${accounts.des.code.14}";
+	
+	public static final String ACCOUNTS_CODE_15 = "${accounts.code.15}";
+	public static final String ACCOUNTS_MSG_CODE_15 = "${accounts.msg.code.15}";
+	public static final String ACCOUNTS_DES_CODE_15 = "${accounts.des.code.15}";
 }
 

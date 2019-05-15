@@ -132,6 +132,18 @@ public class AccountController {
 	private String instanceName;
 	@Value(AccountsConstants.ACCOUNTS_KEY_DEFAULT)
 	private String keyDefault;
+	@Value(AccountsConstants.ACCOUNTS_CODE_14)
+	private String accountsCode14;
+	@Value(AccountsConstants.ACCOUNTS_MSG_CODE_14)
+	private String accountsMSG14;
+	@Value(AccountsConstants.ACCOUNTS_DES_CODE_14)
+	private String accountsDesc14;
+	@Value(AccountsConstants.ACCOUNTS_CODE_15)
+	private String accountsCode15;
+	@Value(AccountsConstants.ACCOUNTS_MSG_CODE_15)
+	private String accountsMSG15;
+	@Value(AccountsConstants.ACCOUNTS_DES_CODE_15)
+	private String accountsDesc15;
 	@Value("${package.recover.by.id}")
 	private String packageEndpoint;
 	@Value(AccountsConstants.ACCOUNT_DEFAULT_PACKAGE)
@@ -270,7 +282,7 @@ public class AccountController {
 				LOGGER.warn("Accout with email '{}' not match for password", accountRequest.getEmail());
 				status = false;
 				description = accountsDesc13;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode15), accountsMSG15, accountsDesc15), HttpStatus.NOT_ACCEPTABLE);
 			}
 			LOGGER.info("Account [{}] was found ", accountRequest.getEmail());
 			return new ResponseEntity<>(new AccountVO(account.getBillerID(), account.getNickname(), account.getEmail(), account.getAccountStatus()), HttpStatus.OK);
@@ -304,11 +316,11 @@ public class AccountController {
 			}						
 			LOGGER.info("Trying to activate account");
 			accountVO = accountService.findAccountToActivate(code);
-			if(accountVO == null || !accountVO.getBillerID().equals(billerID) || accountRequest.getPassword() == null || accountRequest.getPassword() == null) {
+			if(accountVO == null || !accountVO.getBillerID().equals(billerID) || accountRequest.getPassword() == null || accountRequest.getPassword().isEmpty()) {
 				LOGGER.error("Accout not found to activate");
 				status = false;
 				description = accountsDesc06;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode06), accountsMSG06, accountsDesc06), HttpStatus.NOT_ACCEPTABLE);
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode14), accountsMSG14, accountsDesc14), HttpStatus.NOT_ACCEPTABLE);
 			}
 			if(!accountRequest.getPassword().equals(accountRequest.getRepassword())) {
 				LOGGER.error("Password not match");

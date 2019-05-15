@@ -15,18 +15,23 @@ export class ActivateComponent {
   email: string;
   id: string;
   code: string;
+  type: string;
   frontMessage = new FrontMessage();
 
   constructor(private activatedRoute: ActivatedRoute
             , private router: Router
             , private securityService: SecurityService
             , private cryptoService: CryptoService) {
+      this.type = 'Activate account';
       this.activatedRoute.queryParams.subscribe(( params: any) => {
       this.securityService.getAccountByCodeAndId(params.code, params.billerID)
                       .subscribe( (response: any) => {
                          this.email = response.email;
                          this.code = params.code;
                          this.id = params.billerID;
+                         if (params.type === 'reset') {
+                          this.type = 'Reset password';
+                         }
                       }, ( error: any ) => {
                         this.router.navigate(['/login']);
                         this.frontMessage.showAlert = true;
