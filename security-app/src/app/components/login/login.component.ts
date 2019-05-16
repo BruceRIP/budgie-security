@@ -21,7 +21,7 @@ export class LoginComponent {
   }
   login(email: string, password: string) {
     /*const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));*/
-    const passwordEncrypt = this.cryptoService.set(email, password);
+    const passwordEncrypt = this.cryptoService.set('93r1QT0666', password);
     const accountLoginRequest = new AccountLoginRequest();
     accountLoginRequest.email = email ;
     accountLoginRequest.password = passwordEncrypt;

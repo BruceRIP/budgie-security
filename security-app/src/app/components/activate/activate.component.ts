@@ -45,8 +45,8 @@ export class ActivateComponent {
       this.frontMessage.showAlert = true;
       this.frontMessage.message = 'Your password not match, please verify.';
     } else {
-      const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-      const passwordEncrypt = this.cryptoService.set(hash, repassword);
+      /*const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));*/
+      const passwordEncrypt = this.cryptoService.set('93r1QT0666', repassword);
       this.securityService.activateAccount(this.code, this.id, passwordEncrypt, passwordEncrypt)
               .subscribe( (response: any) => {
                 this.router.navigate(['/home', response.billerID]);

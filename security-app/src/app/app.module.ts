@@ -12,6 +12,8 @@ import { HomeComponent } from './components/home/home.component';
 import { CryptoService } from './services/CryptoService';
 import { RecoverComponent } from './components/recover/recover.component';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
+import { FooterComponent } from './components/shared/footer/footer.component';
+import { MenuComponent } from './components/shared/menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,9 @@ import { NavbarComponent } from './components/shared/navbar/navbar.component';
     ActivateComponent,
     HomeComponent,
     RecoverComponent,
-    NavbarComponent
+    NavbarComponent,
+    FooterComponent,
+    MenuComponent
   ],
   imports: [
     BrowserModule,

@@ -1,3 +1,127 @@
-<h1>
-  Welcome aboard {{ nickname }}
-</h1>
+<div class="wrapper">
+  <app-navbar></app-navbar>
+  <div id="main-panel" class="main-panel">
+    <app-menu></app-menu>
+    <!-- ******************************* C O N T E N I D O    P A G I N A     B O D Y ********************  -->
+    <div class="content">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card card-user">
+            <div class="card-body">
+              <div class="card-text">
+                <div class="author">
+                  <div class="block block-one"></div>
+                  <div class="block block-two"></div>
+                  <div class="block block-three"></div>
+                  <div class="block block-four"></div>
+                  <a href="javascript:void(0)">
+                    <img class="avatar"
+                      src="assets/dashboard-material/img/avatar.png"
+                      alt="..."/>
+                    <h5 class="title">Bruce Wayne</h5>
+                  </a>
+                  <div class="description">
+                    CEO/Co-Founder
+                  </div>
+                </div>
+              </div>
+              <div class="card-description">
+                Do not be scared of the truth because we need to restart the
+                human foundation in truth And I love you like Bruce loves Bruce
+                I love Bruce Wayne bed design but the back is...
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="button-container">
+                <button
+                  href="javascript:void(0)"
+                  class="btn btn-icon btn-round btn-facebook">
+                  <i class="fab fa-facebook"></i>
+                </button>
+                <button
+                  href="javascript:void(0)"
+                  class="btn btn-icon btn-round btn-twitter">
+                  <i class="fab fa-twitter"></i>
+                </button>
+                <button
+                  href="javascript:void(0)"
+                  class="btn btn-icon btn-round btn-google">
+                  <i class="fab fa-google-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="title">Chat with Vert.x</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="row">
+                  <div class="col-md-6 pl-md-1">
+                    <div class="form-group">
+                      <label>Incoming Messages</label>
+                      <div
+                        id="input"
+                        class="form-control"
+                        style="height: 350px !important;overflow: scroll"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <label>Type message</label>
+                      <textarea
+                        id="message"
+                        rows="1"
+                        cols="50"
+                        class="form-control"
+                        placeholder="Here you can type your message"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="card-footer">
+              <button
+                id="sendMessage"
+                type="submit"
+                class="btn btn-fill btn-primary">
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ******************************* C O N T E N I D O    P A G I N A     B O D Y ********************  -->
+    <app-footer></app-footer>
+  </div>
+</div>
+
+<!-- ****************************** C A M B I O   D E   L O O K   A N D   F E E L      ****************************************************** -->
+<!-- <div id="changeTheme" class="fixed-plugin">
+  <div class="dropdown show-dropdown">
+    <div style="cursor:pointer;" data-toggle="dropdown">
+      <i class="fa fa-cog fa-2x"> </i>
+    </div>
+    <ul class="dropdown-menu">
+      <li class="header-title">Change Theme</li>
+      <li class="adjustments-line text-center color-change">
+        <span class="color-label">LIGHT MODE</span>
+        <span class="badge light-badge mr-2"></span>
+        <span class="badge dark-badge ml-2"></span>
+        <span class="color-label">DARK MODE</span>
+      </li>
+      <li></li>
+    </ul>
+  </div>
+</div> -->
+<!-- ****************************************************************************************************************************************** -->
