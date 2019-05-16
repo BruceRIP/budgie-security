@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-menu',
@@ -7,9 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MenuComponent implements OnInit {
 
-  constructor() { }
+  billerID: string;
+
+  constructor(private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
+    this.activatedRoute.params.subscribe( params => {
+      this.billerID = params['id'];
+    });
   }
 
 }

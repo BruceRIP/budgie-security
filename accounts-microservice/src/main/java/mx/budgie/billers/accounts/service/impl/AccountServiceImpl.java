@@ -24,7 +24,6 @@ import mx.budgie.billers.accounts.mongo.constants.RepositoryConstants;
 import mx.budgie.billers.accounts.mongo.dao.SequenceDao;
 import mx.budgie.billers.accounts.mongo.documents.AccountAdministratorVO;
 import mx.budgie.billers.accounts.mongo.documents.AccountAuthorizationDocument;
-import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
 import mx.budgie.billers.accounts.mongo.repositories.AccountAdministratorRepository;
 import mx.budgie.billers.accounts.mongo.repositories.AccountPackagesRepository;
 import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
@@ -105,7 +104,7 @@ public class AccountServiceImpl implements AccountService{
 			accountAdmin.setDatePurchasedPackage(Date.from(Instant.now()));
 		}
 		Long incre = sequenceDao.getAccountSequenceNext();
-		String billerID = CommonsUtil.generateID();
+		String billerID = "dev-" + CommonsUtil.generateID();
 		accountDocument.setId(incre);
 		accountDocument.setBillerID(billerID);
 		accountDocument.setPassword(AESCrypt.buildPassword(billerID, DigestAlgorithms.SHA_256));

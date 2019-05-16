@@ -1,6 +1,6 @@
 .login-dark {
   height: 800px;
-  background: #475d62 url(/assets/img/wallpaper.jpg);
+  background: #f5f6fa url(/assets/img/wallpaper.jpg);
   background-size: cover;
   /*position: relative;*/
 }
@@ -16,14 +16,14 @@
 .login-dark .form {
   max-width: 520px;
   width: 90%;
-  background-color: #1e2833;
+  background-color: #f5f6fa;
   padding: 40px;
   border-radius: 4px;
   transform: translate(-50%,-50%);
   position: absolute;
   top: 50%;
   left: 50%;
-  color: #fff;
+  color: rgb(24,25,63);
   box-shadow: 3px 3px 4px rgb(0, 0, 0, 0.2);
 }
 
@@ -89,7 +89,7 @@ button {
 }
 
 button:hover {
-  color: #fff;
+  color: rgb(24,25,63);
   background-color: #365885;
   border-color: #365885;
 }

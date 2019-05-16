@@ -1,6 +1,6 @@
 .login-dark {
   height: 800px;
-  background: #475d62 url(/assets/img/wallpaper.jpg);
+  background: #f5f6fa url(/assets/img/wallpaper.jpg);
   background-size: cover;
   /*position: relative;*/
 }
@@ -16,7 +16,7 @@
 .login-dark .form {
   max-width: 520px;
   width: 90%;
-  background-color: #1e2833;
+  background-color: #f5f6fa;
   padding: 40px;
   border-radius: 4px;
   transform: translate(-50%,-50%);
@@ -33,7 +33,7 @@ body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #212529;
+  color: #495057;
   text-align: left;
   background-color: #fff;
 }
@@ -52,7 +52,7 @@ html{
   border-radius: 0;
   box-shadow: none;
   outline: none;
-  color: inherit;
+  /* color: inherit; */
 }
 
 .form-control:focus {
@@ -89,7 +89,7 @@ button {
 }
 
 button:hover {
-  color: #fff;
+  color: #495057;
   background-color: #365885;
   border-color: #365885;
 }
