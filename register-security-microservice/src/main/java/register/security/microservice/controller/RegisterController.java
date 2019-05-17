@@ -35,7 +35,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import mx.budgie.commons.client.EndpointClient;
 import mx.budgie.commons.email.EmailRequest;
-import mx.budgie.commons.email.SendEmail;
+import mx.budgie.commons.email.SendEmailComponent;
 import mx.budgie.commons.exception.EndpointException;
 import mx.budgie.commons.utils.EmailTemplateType;
 import register.security.microservice.loggers.LoggerTransaction;
@@ -57,7 +57,7 @@ import register.security.microservice.model.ResponseMessage;
 public class RegisterController {
 		
 	@Autowired
-	private SendEmail sendEmail;
+	private SendEmailComponent sendEmail;
 	@Value("${server.port}")
 	private String port;
 	@Value("${accounts.biller.id.recover}")
@@ -115,22 +115,25 @@ public class RegisterController {
 				return new ResponseEntity<>(new ResponseMessage(accountResponse.getStatusCodeValue(), accountResponse.getBody().getDescription()), accountResponse.getStatusCode());
 			}
 			
-			EmailRequest emailRequest = new EmailRequest();
-			emailRequest.setHeaders(headers);
-			emailRequest.setAuthorizationToken(authorizationToken);
-			emailRequest.setFrom(emailFrom);
-			emailRequest.setTo(accountResponse.getBody().getEmail());
-			emailRequest.setSubject(emailSubjectWelcome);
-			emailRequest.setTemplateType(EmailTemplateType.ACTIVATE_ACCOUNT);
-			Map<String, String> custom = new LinkedHashMap<>();
-			custom.put("nickname", accountResponse.getBody().getNickname());			
-			custom.put("link_home", linkHome);
-			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID());
-			custom.put("mailto",mailTo);
-			
-			emailRequest.setCustom(custom);
-			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);			
-			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.CREATED);
+			new Thread(() -> {
+				ThreadContext.push(Long.toString(transactionId));
+				EmailRequest emailRequest = new EmailRequest();
+				emailRequest.setHeaders(headers);
+				emailRequest.setAuthorizationToken(authorizationToken);
+				emailRequest.setFrom(emailFrom);
+				emailRequest.setTo(accountResponse.getBody().getEmail());
+				emailRequest.setSubject(emailSubjectWelcome);
+				emailRequest.setTemplateType(EmailTemplateType.ACTIVATE_ACCOUNT);
+				Map<String, String> custom = new LinkedHashMap<>();
+				custom.put("nickname", accountResponse.getBody().getNickname());			
+				custom.put("link_home", linkHome);
+				custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID());
+				custom.put("mailto",mailTo);				
+				emailRequest.setCustom(custom);
+				sendEmail.sendEmailRequest(urlSendEmail, emailRequest);
+				ThreadContext.clearStack();
+			}).start();
+			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.CREATED);			
 		} catch (EndpointException e) {
 			log.error("Create account error {}", e);
 			description = e.getMessage();
@@ -166,19 +169,23 @@ public class RegisterController {
 				log.error("oAuth Server error: {}", accountResponse.getBody().getDescription());
 				return new ResponseEntity<>(new ResponseMessage(accountResponse.getStatusCodeValue(), accountResponse.getBody().getDescription()), accountResponse.getStatusCode());
 			}
-			EmailRequest emailRequest = new EmailRequest();
-			emailRequest.setHeaders(headers);
-			emailRequest.setAuthorizationToken(authorizationToken);
-			emailRequest.setFrom(emailFrom);
-			emailRequest.setTo(accountResponse.getBody().getEmail());
-			emailRequest.setSubject(emailSubjectResetPwd);
-			emailRequest.setTemplateType(EmailTemplateType.RESET_PASSWORD);
-			Map<String, String> custom = new LinkedHashMap<>();
-			custom.put("nickname", accountResponse.getBody().getNickname());			
-			custom.put("link_home", linkHome);
-			custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID() + "&type=reset");
-			emailRequest.setCustom(custom);
-			sendEmail.sendEmailRequest(urlSendEmail, emailRequest);	
+			new Thread(() -> {
+				ThreadContext.push(Long.toString(transactionId));
+				EmailRequest emailRequest = new EmailRequest();
+				emailRequest.setHeaders(headers);
+				emailRequest.setAuthorizationToken(authorizationToken);
+				emailRequest.setFrom(emailFrom);
+				emailRequest.setTo(accountResponse.getBody().getEmail());
+				emailRequest.setSubject(emailSubjectResetPwd);
+				emailRequest.setTemplateType(EmailTemplateType.RESET_PASSWORD);
+				Map<String, String> custom = new LinkedHashMap<>();
+				custom.put("nickname", accountResponse.getBody().getNickname());			
+				custom.put("link_home", linkHome);
+				custom.put("link_activate_account", urlActivateAccount + "?code=" + accountResponse.getBody().getActivationCode() + "&billerID=" + accountResponse.getBody().getBillerID() + "&type=reset");
+				emailRequest.setCustom(custom);
+				sendEmail.sendEmailRequest(urlSendEmail, emailRequest);	
+				ThreadContext.clearStack();
+			}).start();
 			return new ResponseEntity<>(accountResponse.getBody(), HttpStatus.OK);			
 		} catch (EndpointException e) {
 			log.error("Reset password error {}", e);

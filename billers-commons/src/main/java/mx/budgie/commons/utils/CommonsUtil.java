@@ -183,6 +183,8 @@ public class CommonsUtil {
 			break;
 		case SHA_1:
 			finalSignature = DigestUtils.sha1Hex(signature);			
+			break;
+		default:
 			break;		
 		}
 		return finalSignature;

@@ -16,9 +16,9 @@ import mx.budgie.commons.exception.EndpointException;
  *
  */
 @Component
-public class SendEmail {
+public class SendEmailComponent {
 
-	private static final Logger LOGGER = LogManager.getLogger(SendEmail.class);
+	private static final Logger LOGGER = LogManager.getLogger(SendEmailComponent.class);
 	
 	public void sendEmailRequest(final String urlSendEmail, final EmailRequest emailRequest) {		
 		try {
@@ -29,7 +29,7 @@ public class SendEmail {
 															.callPOST(String.class);
 			LOGGER.info("Email Response: ", sendEmailResponse.getBody());
 		} catch (EndpointException e) {
-			LOGGER.error("We cant send email");
+			LOGGER.error("We cant send email {}", e);
 		}
 	}
 }

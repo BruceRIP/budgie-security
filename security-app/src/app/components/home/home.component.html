@@ -5,102 +5,241 @@
     <!-- ******************************* C O N T E N I D O    P A G I N A     B O D Y ********************  -->
     <div class="content">
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-12">
           <div class="card card-user">
-            <div class="card-body">
-              <div class="card-text">
-                <div class="author">
-                  <div class="block block-one"></div>
-                  <div class="block block-two"></div>
-                  <div class="block block-three"></div>
-                  <div class="block block-four"></div>
-                  <a href="javascript:void(0)">
-                    <img class="avatar"
-                      src="assets/dashboard-material/img/avatar.png"
-                      alt="..."/>
-                    <h5 class="title">Bruce Wayne</h5>
-                  </a>
-                  <div class="description">
-                    CEO/Co-Founder
-                  </div>
-                </div>
-              </div>
-              <div class="card-description">
-                Do not be scared of the truth because we need to restart the
-                human foundation in truth And I love you like Bruce loves Bruce
-                I love Bruce Wayne bed design but the back is...
-              </div>
-            </div>
-            <div class="card-footer">
-              <div class="button-container">
-                <button
-                  href="javascript:void(0)"
-                  class="btn btn-icon btn-round btn-facebook">
-                  <i class="fab fa-facebook"></i>
-                </button>
-                <button
-                  href="javascript:void(0)"
-                  class="btn btn-icon btn-round btn-twitter">
-                  <i class="fab fa-twitter"></i>
-                </button>
-                <button
-                  href="javascript:void(0)"
-                  class="btn btn-icon btn-round btn-google">
-                  <i class="fab fa-google-plus"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-8">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="title">Chat with Vert.x</h5>
-            </div>
-            <div class="card-body">
-              <form>
-                <div class="row">
-                  <div class="col-md-6 pl-md-1">
-                    <div class="form-group">
-                      <label>Incoming Messages</label>
-                      <div
-                        id="input"
-                        class="form-control"
-                        style="height: 350px !important;overflow: scroll"
-                      ></div>
+            <div class="row">
+              <div class="col-3">
+                <div class="card-body">
+                  <div class="card-text">
+                    <div class="author">
+                      <!-- div class="block block-one"></div>
+                      <div class="block block-two"></div>
+                      <div class="block block-three"></div>
+                      <div class="block block-four"></div> -->
+                      <a href="javascript:void(0)">
+                        <img
+                          class="avatar"
+                          src="assets/dashboard-material/img/avatar.png"
+                          alt="..."
+                        />
+                        <h5 class="title">Bruce Wayne</h5>
+                      </a>
+                      <div class="description">
+                        CEO/Co-Founder
+                      </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
+              <div class="col-9">
                 <div class="row">
-                  <div class="col-md-8">
-                    <div class="form-group">
-                      <label>Type message</label>
-                      <textarea
-                        id="message"
-                        rows="1"
-                        cols="50"
-                        class="form-control"
-                        placeholder="Here you can type your message"
-                      ></textarea>
+                  <div class="col-7"></div>
+                  <div class="col-5">
+                    <div class="card-body">
+                      <div class="card-text">
+                        <div class="author">
+                          <button
+                            class="btn btn-warning"
+                            data-toggle="modal"
+                            data-target="#createApplicationModal"
+                          >
+                            <em
+                              style="padding-right: 8px;"
+                              class="fa fa-plus"
+                            ></em
+                            >Create application
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </form>
-            </div>
-            <div class="card-footer">
-              <button
-                id="sendMessage"
-                type="submit"
-                class="btn btn-fill btn-primary">
-                Send
-              </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="modal fade modal-position-top"
+          id="createApplicationModal" tabindex="-1" role="dialog"
+          aria-labelledby="createApplicationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header modal-header-center">
+              <h3>Create application</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                  <div class="col-lg-8 col-md-8 col-sm-12">
+                  <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text" id="basic-addon3">Application name</span>
+                        </div>
+                      <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" style="display: inline-block;">
+                  </div>
+                </div>
+              </div>
+              <hr>
+
+              <div class="row">
+                  <div class="col-lg-3 col-md-12 col-sm-12">
+                      <div class="card text-center" style="cursor:pointer;">
+                          <div class="card-header">
+                              <img src="assets/img/desktop.png" class="rounded" width="50" height="50">
+                          </div>
+                          <div class="card-body">
+                              <h4>Single Page Web application</h4>
+                            <p class="card-text">A JavaScript front end application the uses an API.</p>
+                          </div>
+                          <div class="card-footer text-muted">
+                            AngularJS + NodeJS
+                          </div>
+                        </div>
+                  </div>
+                  <div class="col-lg-3 col-md-12 col-sm-12">
+                      <div class="card text-center" style="cursor:pointer;">
+                          <div class="card-header">
+                              <img src="assets/img/browser.png" class="rounded" width="50" height="50">
+                          </div>
+                          <div class="card-body">
+                              <h4>Traditional Web Application</h4>
+                            <p class="card-text">Traditional application. With (refresh_token).</p>
+                          </div>
+                          <div class="card-footer text-muted">
+                            Ej: Java, ASP.Net
+                          </div>
+                        </div>
+                  </div>
+                  <div class="col-lg-3 col-md-12 col-sm-12">
+                      <div class="card text-center" style="cursor:pointer;">
+                          <div class="card-header">
+                              <img src="assets/img/mobile.png" class="rounded" width="50" height="50">
+                          </div>
+                          <div class="card-body">
+                              <h4>Native SDK<br><br></h4>
+                            <p class="card-text">Mobile or Desktop, thats the runs natively in a device.</p>
+                          </div>
+                          <div class="card-footer text-muted">
+                            Ej: IOS SDK, Android
+                          </div>
+                        </div>
+                  </div>
+                  <div class="col-lg-3 col-md-12 col-sm-12">
+                      <div class="card text-center" style="cursor:pointer;">
+                          <div class="card-header">
+                              <img src="assets/img/servers.png" class="rounded" width="50" height="50">
+                          </div>
+                          <div class="card-body">
+                              <h4>Machine to Machine Applications</h4>
+                            <p class="card-text">CLI, Daemons or Services running on your backend.</p>
+                          </div>
+                          <div class="card-footer text-muted">
+                            Ej: Shell Script
+                          </div>
+                        </div>
+                  </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Send message</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Modal -->
+    <!-- <div
+      class="modal fade"
+      id="createApplicationModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="createApplicationModalTitle"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="row">
+              <div class="col-12">
+                <h3>Create application<span class="badge badge-secondary">New</span></h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                <span aria-hidden="true">&times;</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+              </div>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-4">
+                  <div class="card text-center">
+                      <div class="card-header">
+                        <h3>Web application</h3>
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Special title treatment</h5>
+                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      </div>
+                      <div class="card-footer text-muted">
+                        2 days ago
+                      </div>
+                    </div>
+              </div>
+              <div class="col-4">
+                  <div class="card text-center">
+                      <div class="card-header">
+                        <h3>Mobile Application</h3>
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Special title treatment</h5>
+                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      </div>
+                      <div class="card-footer text-muted">
+                        2 days ago
+                      </div>
+                    </div>
+              </div>
+              <div class="col-4">
+                  <div class="card text-center">
+                      <div class="card-header">
+                        <h3>REST API</h3>
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Special title treatment</h5>
+                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      </div>
+                      <div class="card-footer text-muted">
+                        2 days ago
+                      </div>
+                    </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
     <!-- ******************************* C O N T E N I D O    P A G I N A     B O D Y ********************  -->
     <app-footer></app-footer>
   </div>

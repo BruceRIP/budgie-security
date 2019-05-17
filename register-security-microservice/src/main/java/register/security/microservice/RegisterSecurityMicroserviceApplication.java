@@ -45,4 +45,5 @@ public class RegisterSecurityMicroserviceApplication {
 	            .description("List of all endpoints used in API");
 	       return builder.build();
 	   }
+	
 }
