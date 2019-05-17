@@ -1,12 +1,46 @@
 # budgie-security
-Budgie Security es un proyecto que permitir maneja y administra la autenticación y autorización de usuarios, roles y permisos para cualquier aplicación. Es un proyecto que utiliza oAuth 2.0 como protocolo de seguridad, lo que le da robustes y permite a muchas aplicaciones realizar una integración rapida y sencilla.
+Budgie Security es un proyecto que permite administrar la autenticación y autorización de usuarios, roles y permisos para cualquier aplicación. Es un proyecto que esta basado en oAuth 2.0 como protocolo de autenticación, lo que le da robustez y permite a aplicaciones de terceros obtener acceso limitado a recursos HTTP.
 
-Basado en un protocolo estandar para autorización enfocado en la simplicidad del desarrollo y proporciona flujo de autorización especificos.       
+Enfocado en la simplicidad del desarrollo y proporciona flujos de autorización específicos.    
 - Web
 - Mobile
 - Escritorio
 - API´s
-Proporciona funcionalida de autorización que permite a aplicaciones de terceros obtener accesso limitado a recursos HTTP.
+
 
 ![Flujo para solicitud de acceso](https://s3.amazonaws.com/billers-images/oauth_flow.png "Flujo oAuth")
 
+## Roles
+- Propietario del Recurso
+    
+    > Entidad capaz de otorgar acceso a un recurso.
+
+- Servidor de Recursos
+
+    > Servidor que aloja los recursos protegidos respondiendo a solicitudes con tokens de acceso.
+
+- Servidor de autorización
+
+    > Servidor que emite los tokens de acceso después de haber autenticado al propietario del recurso.
+
+- Cliente
+
+    > Aplicación que realiza peticiones a un recurso protegido.
+
+## Autorización
+Es la acción de otorgar privilegios y poder acceder a algunos recursos.
+Proteger los recursos de un sistema permitiendo que solo sean usados por consumidores a los que se les ha concedido la autorización.
+
+## Autenticación
+Capacidad de demostrar que un usuario o una aplicación es quien realmente dicha persona o aplicación asegura ser.
+
+# Flujo principal
+![Flujo para solicitud de acceso](https://s3.amazonaws.com/billers-images/autorization-flow.png "Flujo Principal")
+
+Descripción del flujo
+1. La **aplicación cliente** solicita autorización para acceder a los recursos del propietario de recursos.
+2. Si el **propietario de recursos** autoriza la solicitud, la aplicación cliente recibe la autorización.
+3. La aplicación cliente solicita al **servidor de autorización los tokens de acceso**, en este momento la aplicación cliente deberá presentar su identidad y la autorización otorgada.
+4. Si la identidad de la aplicación cliente es autenticada y autorizada, el **servidor de autorización generará y enviará token de acceso** a la aplicación cliente.
+5. La aplicación cliente solicita el recurso al **servidor de recursos** y presenta el token de acceso para autenticarse.
+6. Si el token de acceso es válido, el servidor de recursos proporciona.
