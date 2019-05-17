@@ -35,7 +35,7 @@ Proteger los recursos de un sistema permitiendo que solo sean usados por consumi
 Capacidad de demostrar que un usuario o una aplicación es quien realmente dicha persona o aplicación asegura ser.
 
 # Flujo principal
-![Flujo para solicitud de acceso](https://s3.amazonaws.com/billers-images/autorization-flow.png "Flujo Principal")
+![Flujo para solicitud de acceso](https://s3.amazonaws.com/billers-images/autorization_flow.png "Flujo Principal")
 
 Descripción del flujo
 1. La **aplicación cliente** solicita autorización para acceder a los recursos del propietario de recursos.
