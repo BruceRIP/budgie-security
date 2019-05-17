@@ -8,7 +8,7 @@ Enfocado en la simplicidad del desarrollo y proporciona flujos de autorización 
 - API´s
 
 
-![Flujo para solicitud de acceso](https://s3.amazonaws.com/billers-images/oauth_flow.png "Flujo oAuth")
+![Flujo para solicitud de acceso](https://s3.amazonaws.com/billers-images/oauth_flow_2.png "Flujo oAuth")
 
 ## Roles
 - Propietario del Recurso
