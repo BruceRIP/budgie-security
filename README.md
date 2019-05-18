@@ -44,4 +44,3 @@ Descripción del flujo
 4. Si la identidad de la aplicación cliente es autenticada y autorizada, el **servidor de autorización generará y enviará token de acceso** a la aplicación cliente.
 5. La aplicación cliente solicita el recurso al **servidor de recursos** y presenta el token de acceso para autenticarse.
 6. Si el token de acceso es válido, el servidor de recursos proporciona.
-
