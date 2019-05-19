@@ -21,6 +21,7 @@ public class ClientAuthenticationVO extends ResponseMessage {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private String applicationName;
 	private String clientId;
 	private String clientSecret;
 	private String accessToken;
@@ -37,6 +38,13 @@ public class ClientAuthenticationVO extends ResponseMessage {
 	private int refreshTokenValidity;
 	private Map<String, Object> additionalInformation;
 	
+	
+	public String getApplicationName() {
+		return applicationName;
+	}
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
 	public String getClientId() {
 		return clientId;
 	}

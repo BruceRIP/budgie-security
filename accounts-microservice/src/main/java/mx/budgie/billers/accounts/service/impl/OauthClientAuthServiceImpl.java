@@ -4,10 +4,12 @@
 package mx.budgie.billers.accounts.service.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -49,10 +51,10 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	private String defaultDigest;
 	
 	@Override
-	public TokensResponse saveClient(final String applicationName, final String tokenType) {
+	public TokensResponse saveClient(final String billerID, final String applicationName, final String tokenType) {
 		final TokensResponse tokens = new TokensResponse();
 		final String defaultKey = keyDefault;
-		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByName(applicationName);
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByBillerIDAndName(billerID, applicationName);
 		if(oauthClientDocument != null) {
 			LOGGER.info("Client was found");
 			oauthClientDocument.setName(applicationName);
@@ -62,6 +64,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 		}else {
 			LOGGER.info("Client NOT found");
 			oauthClientDocument = new OauthClientDetailsDocument();
+			oauthClientDocument.setBillerID(billerID);
 			oauthClientDocument.setName(applicationName);
 			oauthClientDocument.setClientId(AESCrypt.buildPassword(applicationName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
 			oauthClientDocument.setClientSecret(BCrypt.hashpw(applicationName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
@@ -94,7 +97,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			oauthClientDocument.setAuthorities(authorities);
 			oauthClientDocument.setAccessTokenValidity(86400);
 			oauthClientDocument.setRefreshTokenValidity(43200);
-			oauthClientDocument.setAutoApprove(true);
+			oauthClientDocument.setAutoApprove(false);
 			oauthClientDetailsRepository.save(oauthClientDocument);
 		}
 		tokens.setAccessToken(oauthClientDocument.getAuthenticationToken());
@@ -135,8 +138,8 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	}
 
 	@Override
-	public boolean deleteClientByName(final String clientName) {
-		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByName(clientName);
+	public boolean deleteClientByName(final String billerID, final String clientName) {
+		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByBillerIDAndName(billerID, clientName);
 		if(oauthClientDocument == null) {
 			oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientName);
 			if(oauthClientDocument != null) {
@@ -148,7 +151,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 	}
 
 	@Override
-	public ClientAuthenticationVO updateClient(ClientAuthenticationVO clientVO, final boolean delete) {
+	public ClientAuthenticationVO updateClient(final String billerID, final ClientAuthenticationVO clientVO, final boolean delete) {
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientVO.getClientId());
 		if(oauthClientDocument != null) {
 			oauthClientDocument = clientAuthenticationBuilder.buildDocumentFromSource(oauthClientDocument, clientVO, delete);
@@ -171,6 +174,39 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			return oauthClientDocument.getClientId();
 		}
 		return null;
+	}
+
+	@Override
+	public List<ClientAuthenticationVO> findClientByBillerID(String billerID) {
+		List<OauthClientDetailsDocument> oauthClientDocumentList = oauthClientDetailsRepository.findOauthClientByBillerID(billerID);
+		List<ClientAuthenticationVO> clientsList = new ArrayList<>();
+		if(oauthClientDocumentList != null && !oauthClientDocumentList.isEmpty()) {
+			for(OauthClientDetailsDocument oauthClientDocument: oauthClientDocumentList) {
+				ClientAuthenticationVO vo = new ClientAuthenticationVO();
+				vo.setApplicationName(oauthClientDocument.getName());
+				vo.setClientId(oauthClientDocument.getClientId());
+				vo.setClientSecret(oauthClientDocument.getClientSecret());
+				vo.setAccessToken(oauthClientDocument.getAuthenticationToken());
+				vo.setAdditionalInformation(oauthClientDocument.getAdditionalInformation());
+				vo.setAccessTokenValidity(oauthClientDocument.getAccessTokenValidity());
+				vo.setAuthorities(oauthClientDocument.getAuthorities());
+				vo.setAuthorizationGrantTypes(oauthClientDocument.getAuthorizationGrantTypes());
+				vo.setRefreshTokenValidity(oauthClientDocument.getRefreshTokenValidity());
+				vo.setRedirectUris(oauthClientDocument.getRedirectUris());
+				vo.setResourceIds(oauthClientDocument.getResourceIds());
+				vo.setScope(oauthClientDocument.getScope());
+				if(oauthClientDocument.getTokenAuthentication() != null){
+					vo.setAdditionalInformation(new LinkedHashMap<>());
+					vo.getAdditionalInformation().put("access_token", oauthClientDocument.getTokenAuthentication().getAccessToken());
+					vo.getAdditionalInformation().put("refresh_token", oauthClientDocument.getTokenAuthentication().getRefreshTokenAuth());
+					vo.getAdditionalInformation().put("token_type", oauthClientDocument.getTokenAuthentication().getTokenTypeAuth());
+					vo.getAdditionalInformation().put("expiresIn", oauthClientDocument.getTokenAuthentication().getExpiresIn());
+					vo.getAdditionalInformation().put("scopes", oauthClientDocument.getTokenAuthentication().getScopes());
+				}		
+				clientsList.add(vo);
+			}
+		}
+		return clientsList;
 	}
 
 }

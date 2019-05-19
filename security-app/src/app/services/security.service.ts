@@ -6,8 +6,18 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class SecurityService {
 
-  constructor(private httpClient: HttpClient) { }
+  /* private userLoggedStatus = JSON.parse(localStorage.getItem('userLoggedIn') || 'false'); */
 
+  constructor(private httpClient: HttpClient) {  }
+
+  /* setUserLoggedIn(value: boolean) {
+    this.userLoggedStatus = value;
+    localStorage.setItem('userLoggedIn', 'true');
+  }
+
+  getUserLoggedIn() {
+    return JSON.parse(localStorage.getItem('userLoggedIn') || this.userLoggedStatus.toString());
+  } */
   callPOST(query: string, data: any) {
     const url = `/budgie/${query}`;
     const transactionId = this.getTransactionId();
@@ -66,4 +76,5 @@ export class SecurityService {
     };
     return this.callPOST(`register/reset`, accountRequest);
   }
+
 }

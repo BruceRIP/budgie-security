@@ -26,6 +26,8 @@ public class OauthClientDetailsDocument implements Serializable{
 	// Identificador numerico
 	@Id
 	private long id;
+	// Asociado a un cliente de la plataforma
+	private String billerID;
 	// Nombre del cliente. Asignado al momento de crear la cuenta de cliente
 	private String name;
 	// Fecha de expiracion del token de accesso (authenticationToken)
@@ -61,6 +63,12 @@ public class OauthClientDetailsDocument implements Serializable{
 
 	private Map<String, Object> additionalInformation;
 	
+	public String getBillerID() {
+		return billerID;
+	}
+	public void setBillerID(String billerID) {
+		this.billerID = billerID;
+	}
 	public long getId() {
 		return id;
 	}

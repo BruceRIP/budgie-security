@@ -4,6 +4,7 @@
 package mx.budgie.billers.accounts.controller;
 
 import java.util.Calendar;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -86,7 +87,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Create authentication tokens for a client that will consume API", notes = "It must be present in all transactions")
 	@PostMapping(value= AccountPaths.CLIENT_CREATE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<?> createClient(@RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> createClient(final @PathVariable String billerID, @RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -96,7 +97,7 @@ public class ClientAuthenticationController {
 			ThreadContext.push(Long.toString(transactionId));
 			LOGGER.info("Creating client '{}' ", applicationName);
 			TokensResponse tokenResonse = null;			
-			tokenResonse = oauthClientAuthService.saveClient(applicationName, tokenType);
+			tokenResonse = oauthClientAuthService.saveClient(billerID, applicationName, tokenType);
 			if(null != tokenResonse){
 				LOGGER.info("Client was created successfully for '{}'", applicationName);
 				return new ResponseEntity<>(tokenResonse, HttpStatus.CREATED);
@@ -131,9 +132,32 @@ public class ClientAuthenticationController {
 		}		
 	}
 	
+	@ApiOperation(value = "Get all applications by budgieID", notes = "it is necessary to provide the client name")
+	@GetMapping(value=AccountPaths.GET_ALL_CLIENT_BY_BUDGIE_ID, produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResponseEntity<?> recoverAllClients(final @PathVariable String budgieID, final @RequestHeader("transactionId") long transactionId){
+		//------------------------------------------------------
+		Calendar startTime = Calendar.getInstance();
+		boolean flag = true;
+		String message = AccountsConstants.SUCCESSFUL;
+		//------------------------------------------------------
+		try{			
+			ThreadContext.push(Long.toString(transactionId));									
+			LOGGER.info("Looking for client with Name '{}'", budgieID);
+			List<ClientAuthenticationVO> client = oauthClientAuthService.findClientByBillerID(budgieID);
+			if(null != client){
+				LOGGER.info("Client was found with budgieID '{}'", budgieID);
+				return new ResponseEntity<>(client, HttpStatus.OK);
+			}
+			return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCode04), accountsMSG04), HttpStatus.NOT_ACCEPTABLE);
+		}finally{
+			LoggerTransaction.printTransactionalLog(instanceName, port, startTime, Calendar.getInstance(), transactionId, "CLIENT_RECOVER", flag, message);
+			ThreadContext.clearStack();
+		}		
+	}
+	
 	@ApiOperation(value = "Delete tokens of a client", notes = "it is necessary to provide the client name")
 	@DeleteMapping(value=AccountPaths.CLIENT_DELETE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<?> deleteClient(final @PathVariable String clientID, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> deleteClient(final @PathVariable String billerID, final @PathVariable String clientID, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -142,7 +166,7 @@ public class ClientAuthenticationController {
 		try{			
 			ThreadContext.push(Long.toString(transactionId));											
 			LOGGER.info("Removing client '{}'", clientID);				
-			if(oauthClientAuthService.deleteClientByName(clientID)){
+			if(oauthClientAuthService.deleteClientByName(billerID, clientID)){
 				LOGGER.info("Client '{}' was removed successfully", clientID);
 				return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCodeSuccess), accountsMSGSuccess), HttpStatus.OK);
 			}			
@@ -155,7 +179,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Update tokens of a client", notes = "it is necessary to provide the client information")
 	@RequestMapping(value= AccountPaths.CLIENT_UPDATE, method= {RequestMethod.PUT, RequestMethod.DELETE},consumes=MediaType.APPLICATION_JSON_VALUE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<?> updateClient(final HttpServletRequest request, final @PathVariable String clientID, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> updateClient(final HttpServletRequest request, final @PathVariable String billerID, final @PathVariable String clientID, final @RequestBody ClientAuthenticationVO client, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -165,7 +189,7 @@ public class ClientAuthenticationController {
 			ThreadContext.push(Long.toString(transactionId));
 			LOGGER.info("Updating client '{}' ", clientID);
 			client.setClientId(clientID);
-			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(client, "DELETE".equals(request.getMethod()));
+			ClientAuthenticationVO clientVO = oauthClientAuthService.updateClient(billerID, client, "DELETE".equals(request.getMethod()));
 			if(null != clientVO){
 				return new ResponseEntity<>(clientVO, HttpStatus.OK);
 			}

@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { CryptoService } from 'src/app/services/CryptoService';
 import { AccountLoginRequest } from '../../model/AccountRequest';
 import { FrontMessage } from 'src/app/model/FrontMessage';
+import { BillerAccount } from 'src/app/model/BillerAccount';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ import { FrontMessage } from 'src/app/model/FrontMessage';
 export class LoginComponent {
 
   frontMessage = new FrontMessage();
+  billerAccount = new BillerAccount();
 
   constructor(private securityService: SecurityService
             , private router: Router
@@ -27,11 +29,17 @@ export class LoginComponent {
     accountLoginRequest.password = passwordEncrypt;
     this.securityService.login(accountLoginRequest)
       .subscribe( (response: any) => {
-          this.router.navigate(['/home', response.billerID]);
+        this.billerAccount.billerID = response.billerID;
+        this.billerAccount.email = response.email;
+        this.billerAccount.nickname = response.nickname;
+        this.billerAccount.isLogged = true;
+        localStorage.setItem('accountSession', JSON.stringify(this.billerAccount));
+        this.router.navigate(['/home', response.billerID]);
       }, (error: any) => {
         this.frontMessage.showAlert = true;
-        this.frontMessage.message = error.error.message;
+        this.frontMessage.message = error.error.description;
       });
   }
+
 }
 

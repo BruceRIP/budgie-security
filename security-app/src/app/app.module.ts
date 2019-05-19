@@ -14,6 +14,7 @@ import { RecoverComponent } from './components/recover/recover.component';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { MenuComponent } from './components/shared/menu/menu.component';
+import { AuthGuard } from './services/auth.guard';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { MenuComponent } from './components/shared/menu/menu.component';
     HttpClientModule,
     RouterModule.forRoot(ROUTES)
   ],
-  providers: [CryptoService],
+  providers: [CryptoService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

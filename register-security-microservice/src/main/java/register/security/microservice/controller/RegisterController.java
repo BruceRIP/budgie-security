@@ -275,38 +275,37 @@ public class RegisterController {
 		// ------------------------------------------------------------------
 		String clientId = null;
 		Map<String, String> headers = new HashMap<>();	
-		headers.put("transactionId", String.valueOf(transactionId));
-		headers.put("Content-Type", "application/json");
+		headers.put("transactionId", String.valueOf(transactionId));		
 		try {
 			ThreadContext.push(Long.toString(transactionId));
 			ResponseEntity<AccountReponse> accountsResponse = new EndpointClient(String.format("%s", urlGetAccount))
 																.putAuthorizationToken(authorizationToken)
 																.putHeaders(headers)
 																.requestParameters(billerID)
-																.callPOST(AccountReponse.class);
+																.callGET(AccountReponse.class);
 			if(!accountsResponse.getStatusCode().equals(HttpStatus.OK)) {
 				log.error("Accounts Get Account error: {}", accountsResponse.getBody());
 				return new ResponseEntity<>(new ResponseMessage(accountsResponse.getStatusCodeValue(), accountsResponse.getBody().toString()), accountsResponse.getStatusCode());
 			}
-			
+			headers.put("Content-Type", "application/json");
 			ResponseEntity<ClientResponse> clientResponse = new EndpointClient(String.format("%s", urlCreateClient))
-																.putHeaders(headers)
-																.requestParameters(applicationName, tokenType)
+																.putAuthorizationToken(authorizationToken)
+																.putHeaders(headers)																
+																.requestParameters(billerID, applicationName, tokenType)
 																.callPOST(ClientResponse.class);
-			if(!clientResponse.getStatusCode().equals(HttpStatus.OK)) {
-				log.error("Accounts Create Client error: {}", clientResponse.getBody());
+			if(!clientResponse.getStatusCode().equals(HttpStatus.CREATED)) {
+				log.error("Create Client error: {}", clientResponse.getBody());
 				throw new EndpointException(clientResponse.getBody().toString());
 			}
-			clientId = clientResponse.getBody().getClientId(); 
 			
-			ResponseEntity<AccessTokenResponse> accessTokenResponse = new EndpointClient(String.format("%s", urlCreateAccessToken))
-										.putBasicAuthorization(clientResponse.getBody().getClientAccessToken())
-										.requestParameters(clientResponse.getBody().getClientId(), clientResponse.getBody().getClientSecret())
-										.callPOST(AccessTokenResponse.class);
-			if(!accessTokenResponse.getStatusCode().equals(HttpStatus.OK)) {
-				log.error("oAuth Server error: {}", accessTokenResponse.getBody());
-				throw new EndpointException(accessTokenResponse.getBody().toString());
-			}			
+//			ResponseEntity<AccessTokenResponse> accessTokenResponse = new EndpointClient(String.format("%s", urlCreateAccessToken))
+//										.putBasicAuthorization(clientResponse.getBody().getClientAccessToken())
+//										.requestParameters(clientResponse.getBody().getClientId(), clientResponse.getBody().getClientSecret())
+//										.callPOST(AccessTokenResponse.class);
+//			if(!accessTokenResponse.getStatusCode().equals(HttpStatus.OK)) {
+//				log.error("oAuth Server error: {}", accessTokenResponse.getBody());
+//				throw new EndpointException(accessTokenResponse.getBody().toString());
+//			}
 
 //			SendEmailRequest emailRequest = new SendEmailRequest();
 //			emailRequest.setFrom(emailFrom);
@@ -331,7 +330,8 @@ public class RegisterController {
 //															.requestBody(emailRequest)
 //															.callPOST(String.class);
 //			log.info("Email Response: ", sendEmailResponse.getBody());
-			return new ResponseEntity<>(new ResponseMessage(201, HttpStatus.CREATED.getReasonPhrase()), HttpStatus.CREATED);
+			clientResponse.getBody().setClientAccessToken(null);
+			return new ResponseEntity<>(clientResponse.getBody(), HttpStatus.CREATED);
 		} catch (EndpointException e) {
 			log.error("Create client error {}", e);
 			removeClient(clientId, headers);

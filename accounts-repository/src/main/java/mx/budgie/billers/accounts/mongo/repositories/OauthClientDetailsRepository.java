@@ -3,6 +3,8 @@
  */
 package mx.budgie.billers.accounts.mongo.repositories;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +18,7 @@ import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
 @Repository
 public interface OauthClientDetailsRepository extends MongoRepository<OauthClientDetailsDocument, Integer>{
 
-	public OauthClientDetailsDocument findOauthClientByName(final String name);
+	public OauthClientDetailsDocument findOauthClientByBillerIDAndName(final String billerID, final String name);
 	
 	public OauthClientDetailsDocument findOauthClientByClientId(final String clientId);
 	
@@ -27,5 +29,7 @@ public interface OauthClientDetailsRepository extends MongoRepository<OauthClien
 	public OauthClientDetailsDocument findOauthClientByTokenAuthenticationAccessToken(final String tokenAuthentication);
 	
 	public OauthClientDetailsDocument findOauthClientByTokenAuthenticationRefreshTokenAuth(final String refreshToken);
+	
+	public List<OauthClientDetailsDocument> findOauthClientByBillerID(final String billerID);
 	
 }

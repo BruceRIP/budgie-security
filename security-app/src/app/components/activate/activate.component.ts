@@ -4,6 +4,7 @@ import { SecurityService } from '../../services/security.service';
 import bcrypt from 'bcryptjs';
 import { CryptoService } from '../../services/CryptoService';
 import { FrontMessage } from '../../model/FrontMessage';
+import { BillerAccount } from 'src/app/model/BillerAccount';
 
 @Component({
   selector: 'app-activate',
@@ -17,6 +18,7 @@ export class ActivateComponent {
   code: string;
   type: string;
   frontMessage = new FrontMessage();
+  billerAccount = new BillerAccount();
 
   constructor(private activatedRoute: ActivatedRoute
             , private router: Router
@@ -49,6 +51,11 @@ export class ActivateComponent {
       const passwordEncrypt = this.cryptoService.set('93r1QT0666', repassword);
       this.securityService.activateAccount(this.code, this.id, passwordEncrypt, passwordEncrypt)
               .subscribe( (response: any) => {
+                this.billerAccount.billerID = response.billerID;
+                this.billerAccount.email = response.email;
+                this.billerAccount.nickname = response.nickname;
+                this.billerAccount.isLogged = true;
+                localStorage.setItem('accountSession', JSON.stringify(this.billerAccount));
                 this.router.navigate(['/home', response.billerID]);
               }, ( error: any ) => {
                 this.frontMessage.showAlert = true;

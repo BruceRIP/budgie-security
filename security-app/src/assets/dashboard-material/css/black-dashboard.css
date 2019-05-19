@@ -17292,7 +17292,7 @@ Copyright (c) 2015 Daniel Eden
 
 .card {
   background: #27293d;
-  border-width: 5px;
+  border-width: 1px;
   position: relative;
   width: 100%;
   height: 100%;
@@ -17809,4 +17809,24 @@ Copyright (c) 2015 Daniel Eden
 
 .modal-position-top {
   top: -150px;
+}
+
+#web-application-card:hover {
+  border-color: #050506;
+  border-width: 1px;
+}
+
+#traditional-application-card:hover {
+  border-color: #050506;
+  border-width: 1px;
+}
+
+#mobile-application-card:hover {
+  border-color: #050506;
+  border-width: 1px;
+}
+
+#api-application-card:hover {
+  border-color: #050506;
+  border-width: 1px;
 }

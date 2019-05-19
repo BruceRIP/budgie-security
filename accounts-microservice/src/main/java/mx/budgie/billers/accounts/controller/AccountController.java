@@ -276,7 +276,7 @@ public class AccountController {
 				LOGGER.warn("Accout with email '{}' is inactive", accountRequest.getEmail());
 				status = false;
 				description = accountsDesc13;
-				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13, accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
+				return new ResponseEntity<>(buildResponseMessage(Integer.valueOf(accountsCode13), accountsMSG13 + account.getAccountStatus(), accountsDesc13), HttpStatus.NOT_ACCEPTABLE);
 			}
 			if (!account.getPassword().equals(accountRequest.getPassword())) {
 				LOGGER.warn("Accout with email '{}' not match for password", accountRequest.getEmail());
