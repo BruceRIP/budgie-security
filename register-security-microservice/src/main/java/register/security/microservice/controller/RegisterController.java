@@ -111,7 +111,7 @@ public class RegisterController {
 													.requestBody(account)
 													.callPOST(AccountReponse.class);
 			if(!accountResponse.getStatusCode().equals(HttpStatus.CREATED)) {
-				log.error("oAuth Server error: {}", accountResponse.getBody().getDescription());
+				log.error("Account response warn: {}", accountResponse.getBody().getDescription());
 				return new ResponseEntity<>(new ResponseMessage(accountResponse.getStatusCodeValue(), accountResponse.getBody().getDescription()), accountResponse.getStatusCode());
 			}
 			
@@ -238,7 +238,7 @@ public class RegisterController {
 			}
 			clientResponse.getBody().setAccessToken(accessTokenResponse.getBody().getAccessToken());
 			clientResponse.getBody().setExpiresIn(accessTokenResponse.getBody().getExpiresIn());
-			clientResponse.getBody().setScope(accessTokenResponse.getBody().getScope());
+			clientResponse.getBody().setScopeAccessToken(accessTokenResponse.getBody().getScopeAccessToken());
 			clientResponse.getBody().setTokenType(accessTokenResponse.getBody().getTokenType());
 			return new ResponseEntity<>(clientResponse.getBody(), HttpStatus.CREATED);
 		} catch (EndpointException e) {

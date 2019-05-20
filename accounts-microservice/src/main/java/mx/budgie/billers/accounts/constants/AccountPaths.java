@@ -29,7 +29,7 @@ public class AccountPaths {
 	public static final String CLIENT_CREATE = "/authentication/{billerID}";
 	public static final String CLIENT_DELETE = "/authentication/{billerID}/{clientID}";
 	public static final String CLIENT_UPDATE = "/authentication/config/{billerID}/{clientID}";	
-	public static final String CLIENT_RECOVER_BY_NAME = "/authentication/{clientId}";
+	public static final String CLIENT_RECOVER_BY_CLIENT_ID = "/authentication/{clientId}";
 	public static final String GET_ALL_CLIENT_BY_BUDGIE_ID = "/authentication/{budgieID}/all";
 	
 	public static final String ACCOUNT_DASHBOARD_INFO = "/dashboard/{billerID}";

@@ -99,8 +99,9 @@ public class ClientAuthenticationController {
 			TokensResponse tokenResonse = null;			
 			tokenResonse = oauthClientAuthService.saveClient(billerID, applicationName, tokenType);
 			if(null != tokenResonse){
+				ClientAuthenticationVO clientResponse = oauthClientAuthService.findClientByClientId(tokenResonse.getClientId());
 				LOGGER.info("Client was created successfully for '{}'", applicationName);
-				return new ResponseEntity<>(tokenResonse, HttpStatus.CREATED);
+				return new ResponseEntity<>(clientResponse, HttpStatus.CREATED);
 			}
 			return new ResponseEntity<>(new ResponseMessage(Integer.valueOf(accountsCode666), accountsMSG666), HttpStatus.NOT_ACCEPTABLE);
 		}finally{
@@ -110,7 +111,7 @@ public class ClientAuthenticationController {
 	}
 	
 	@ApiOperation(value = "Get tokens of a client", notes = "it is necessary to provide the client name")
-	@GetMapping(value=AccountPaths.CLIENT_RECOVER_BY_NAME, produces=MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value=AccountPaths.CLIENT_RECOVER_BY_CLIENT_ID, produces=MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<?> recoverClient(final @PathVariable String clientId, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();

@@ -28,4 +28,14 @@ github:
     clientAuthenticationScheme: form
   resource:
     userInfoUri: https://api.github.com/user
+budgie:
+  client:
+    clientId: d39f4bdf5d3c72fa45a0992fbf1e3af2
+    clientSecret: 5aae211eab1aa5b7d917e5820f7d1e432aa22f34166c047ecf7570f4fcb9dd79af96bd8b9d2c4bc7ca3226201b648876
+    accessTokenUri: http://localhost:8880/budgie/oauth/access_token
+    userAuthorizationUri: http://localhost:8880/budgie/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: http://localhost:8880/budgie/user
+    
     

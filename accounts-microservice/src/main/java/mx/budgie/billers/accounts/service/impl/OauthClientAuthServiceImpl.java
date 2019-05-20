@@ -16,7 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import mx.budgie.billers.accounts.builder.ClientAuthenticationBuilder;
@@ -25,7 +24,6 @@ import mx.budgie.billers.accounts.mongo.dao.SequenceDao;
 import mx.budgie.billers.accounts.mongo.documents.OauthClientDetailsDocument;
 import mx.budgie.billers.accounts.mongo.repositories.OauthClientDetailsRepository;
 import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
-import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
 import mx.budgie.billers.accounts.service.ClientAuthService;
 import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 import mx.budgie.billers.accounts.vo.TokensResponse;
@@ -58,16 +56,16 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 		if(oauthClientDocument != null) {
 			LOGGER.info("Client was found");
 			oauthClientDocument.setName(applicationName);
-			oauthClientDocument.setClientId(AESCrypt.buildPassword(applicationName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
-			oauthClientDocument.setClientSecret(BCrypt.hashpw(applicationName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
+			oauthClientDocument.setClientId(AESCrypt.buildClientId(applicationName));
+			oauthClientDocument.setClientSecret(AESCrypt.buildClientSecret(applicationName));
 			oauthClientDocument.setAuthenticationToken(AESCrypt.encryptKeyAndEncodeBase64(oauthClientDocument.getClientId() + ":" + oauthClientDocument.getClientSecret(), defaultKey));
 		}else {
 			LOGGER.info("Client NOT found");
 			oauthClientDocument = new OauthClientDetailsDocument();
 			oauthClientDocument.setBillerID(billerID);
 			oauthClientDocument.setName(applicationName);
-			oauthClientDocument.setClientId(AESCrypt.buildPassword(applicationName, DigestAlgorithms.getDigestAlgorithm(defaultDigest)));
-			oauthClientDocument.setClientSecret(BCrypt.hashpw(applicationName +  Calendar.getInstance().getTimeInMillis(), BCrypt.gensalt()));
+			oauthClientDocument.setClientId(AESCrypt.buildClientId(applicationName));
+			oauthClientDocument.setClientSecret(AESCrypt.buildClientSecret(applicationName));
 			oauthClientDocument.setAuthenticationToken(AESCrypt.encryptKeyAndEncodeBase64(oauthClientDocument.getClientId() + ":" + oauthClientDocument.getClientSecret(), defaultKey));		
 			long incre = sequenceDao.getClientAuthSequenceNext();
 			oauthClientDocument.setId(incre);
@@ -87,7 +85,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			oauthClientDocument.setScope(scope);
 			Set<String> grant = new HashSet<>();
 			grant.add("client_credentials");			
-			if(tokenType != null) {
+			if(tokenType != null && !tokenType.isEmpty()) {
 				grant.add(tokenType);
 			}
 			oauthClientDocument.setAuthorizationGrantTypes(grant);
@@ -98,8 +96,8 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			oauthClientDocument.setAccessTokenValidity(86400);
 			oauthClientDocument.setRefreshTokenValidity(43200);
 			oauthClientDocument.setAutoApprove(false);
-			oauthClientDetailsRepository.save(oauthClientDocument);
 		}
+		oauthClientDetailsRepository.save(oauthClientDocument);
 		tokens.setAccessToken(oauthClientDocument.getAuthenticationToken());
 		tokens.setClientId(oauthClientDocument.getClientId());
 		tokens.setClientSecret(oauthClientDocument.getClientSecret());
@@ -113,6 +111,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 		OauthClientDetailsDocument oauthClientDocument = oauthClientDetailsRepository.findOauthClientByClientId(clientId);
 		if(oauthClientDocument != null) {
 			ClientAuthenticationVO vo = new ClientAuthenticationVO();
+			vo.setApplicationName(oauthClientDocument.getName());
 			vo.setClientId(oauthClientDocument.getClientId());
 			vo.setClientSecret(oauthClientDocument.getClientSecret());
 			vo.setAccessToken(oauthClientDocument.getAuthenticationToken());
@@ -122,8 +121,10 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 			vo.setAuthorizationGrantTypes(oauthClientDocument.getAuthorizationGrantTypes());
 			vo.setRefreshTokenValidity(oauthClientDocument.getRefreshTokenValidity());
 			vo.setRedirectUris(oauthClientDocument.getRedirectUris());
+			oauthClientDocument.getResourceIds().remove("auth-security");
 			vo.setResourceIds(oauthClientDocument.getResourceIds());
 			vo.setScope(oauthClientDocument.getScope());
+			vo.setAutoApprove(oauthClientDocument.isAutoApprove());
 			if(oauthClientDocument.getTokenAuthentication() != null){
 				vo.setAdditionalInformation(new LinkedHashMap<>());
 				vo.getAdditionalInformation().put("access_token", oauthClientDocument.getTokenAuthentication().getAccessToken());
@@ -187,14 +188,16 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 				vo.setClientId(oauthClientDocument.getClientId());
 				vo.setClientSecret(oauthClientDocument.getClientSecret());
 				vo.setAccessToken(oauthClientDocument.getAuthenticationToken());
-				vo.setAdditionalInformation(oauthClientDocument.getAdditionalInformation());
 				vo.setAccessTokenValidity(oauthClientDocument.getAccessTokenValidity());
+				vo.setAdditionalInformation(oauthClientDocument.getAdditionalInformation());
 				vo.setAuthorities(oauthClientDocument.getAuthorities());
 				vo.setAuthorizationGrantTypes(oauthClientDocument.getAuthorizationGrantTypes());
 				vo.setRefreshTokenValidity(oauthClientDocument.getRefreshTokenValidity());
 				vo.setRedirectUris(oauthClientDocument.getRedirectUris());
+				oauthClientDocument.getResourceIds().remove("auth-security");
 				vo.setResourceIds(oauthClientDocument.getResourceIds());
 				vo.setScope(oauthClientDocument.getScope());
+				vo.setAutoApprove(oauthClientDocument.isAutoApprove());
 				if(oauthClientDocument.getTokenAuthentication() != null){
 					vo.setAdditionalInformation(new LinkedHashMap<>());
 					vo.getAdditionalInformation().put("access_token", oauthClientDocument.getTokenAuthentication().getAccessToken());
@@ -202,7 +205,7 @@ public class OauthClientAuthServiceImpl implements ClientAuthService{
 					vo.getAdditionalInformation().put("token_type", oauthClientDocument.getTokenAuthentication().getTokenTypeAuth());
 					vo.getAdditionalInformation().put("expiresIn", oauthClientDocument.getTokenAuthentication().getExpiresIn());
 					vo.getAdditionalInformation().put("scopes", oauthClientDocument.getTokenAuthentication().getScopes());
-				}		
+				}				
 				clientsList.add(vo);
 			}
 		}

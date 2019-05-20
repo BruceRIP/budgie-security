@@ -45,12 +45,25 @@ public class SocialLoginApplication extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.antMatcher("/**").authorizeRequests().antMatchers("/", "/login**", "/webjars/**").permitAll().anyRequest()
-				.authenticated().and().exceptionHandling()
-				.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")).and().logout()
-				.logoutSuccessUrl("/").permitAll().and().csrf()
-				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-				.addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
+		http
+			.antMatcher("/**")
+			.authorizeRequests()
+			.antMatchers("/", "/login**", "/webjars/**")
+			.permitAll()
+			.anyRequest()
+			.authenticated()
+			.and()
+			.exceptionHandling()
+			.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
+			.and()
+			.logout()
+			.logoutSuccessUrl("/")
+			.permitAll()
+			.and()
+			.csrf()
+			.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+			.and()
+			.addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
 	}
 
 	@Configuration
@@ -58,7 +71,11 @@ public class SocialLoginApplication extends WebSecurityConfigurerAdapter {
 	protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
-			http.antMatcher("/me").authorizeRequests().anyRequest().authenticated();
+			http
+			.antMatcher("/me")
+			.authorizeRequests()
+			.anyRequest()
+			.authenticated();
 		}
 	}
 
@@ -73,12 +90,19 @@ public class SocialLoginApplication extends WebSecurityConfigurerAdapter {
 	public ClientResources facebook() {
 		return new ClientResources();
 	}
-
+	
+	@Bean
+	@ConfigurationProperties("budgie")
+	public ClientResources budgie() {
+		return new ClientResources();
+	}
+	
 	private Filter ssoFilter() {
 		CompositeFilter filter = new CompositeFilter();
 		List<Filter> filters = new ArrayList<>();
 		filters.add(ssoFilter(facebook(), "/login/facebook"));
 		filters.add(ssoFilter(github(), "/login/github"));
+		filters.add(ssoFilter(budgie(), "/login/budgie"));
 		filter.setFilters(filters);
 		return filter;
 	}

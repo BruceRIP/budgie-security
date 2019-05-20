@@ -216,4 +216,11 @@ public class AESCrypt {
 		return null;
 	}
 	
+	public static String buildClientId(final String value) {
+		return buildPassword(value + System.currentTimeMillis(), DigestAlgorithms.MD5);		
+	}
+	
+	public static String buildClientSecret(final String value) {
+		return buildPassword(value + System.currentTimeMillis(), DigestAlgorithms.SHA_384);		
+	}
 }

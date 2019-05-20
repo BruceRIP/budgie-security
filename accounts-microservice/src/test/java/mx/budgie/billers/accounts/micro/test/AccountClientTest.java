@@ -4,20 +4,25 @@
 package mx.budgie.billers.accounts.micro.test;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.client.RestTemplate;
 
 import mx.budgie.billers.accounts.constants.AccountPaths;
+import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
+import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
 
 /**
  * @author bruno-rivera
@@ -162,5 +167,17 @@ public class AccountClientTest {
 				System.out.println("\t email: " + map.get("email"));
 			}
 			System.out.println("********************************************************************************");
+	}
+	
+	@Test
+	public void createClientAndSecret() {
+		String clientId = AESCrypt.buildPassword("spring-test" + System.currentTimeMillis(), DigestAlgorithms.getDigestAlgorithm(DigestAlgorithms.MD5.name()));
+		System.out.println("ClientId: " + clientId);
+		System.out.println("Total length: " + clientId.length());
+		String clientId2 = AESCrypt.buildPassword("spring-test", DigestAlgorithms.getDigestAlgorithm(DigestAlgorithms.MD5.name()));
+		System.out.println("ClientId2: " + clientId2);
+		System.out.println("Are equal?: " + clientId.equals(clientId2));
+		String clientSecret = AESCrypt.buildPassword("spring-test" + System.currentTimeMillis(), DigestAlgorithms.getDigestAlgorithm(DigestAlgorithms.SHA_256.name()));
+		System.out.println("ClientSecret: " + clientSecret);
 	}
 }

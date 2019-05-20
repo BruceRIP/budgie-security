@@ -44,7 +44,7 @@ public class GlobalAuthenticationSSO extends WebSecurityConfigurerAdapter {
 			.anyRequest()
 			.authenticated()
 			.and()
-			.formLogin()
+			.formLogin()			
 			.permitAll();
 	}
 

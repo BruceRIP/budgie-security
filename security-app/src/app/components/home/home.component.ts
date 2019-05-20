@@ -13,7 +13,6 @@ export class HomeComponent implements OnInit {
 
   billerID: string;
   applicationsClient: ApplicationClient[] = [];
-  appClient = new ApplicationClient();
   frontMessage = new FrontMessage();
   applicationType: string;
 
@@ -44,19 +43,15 @@ export class HomeComponent implements OnInit {
 
   registerApplication(name: string) {
     this.registerApplicationsService.register(this.billerID, name)
-        .subscribe( (response: any) => {
-            this.appClient.clientId = response.clientId;
-            this.appClient.clientSecret = response.clientSecret;
-            this.appClient.applicationName = name;
-            if (localStorage.getItem('applicationsRegistered') == null) {
-              localStorage.setItem('applicationsRegistered', JSON.stringify(this.appClient));
+        .subscribe( (response: ApplicationClient) => {
+          if (localStorage.getItem('applicationsRegistered') == null) {
+              localStorage.setItem('applicationsRegistered', JSON.stringify(response));
             } else {
               this.applicationsClient = JSON.parse(localStorage.getItem('applicationsRegistered'));
-              this.applicationsClient.push(this.appClient);
+              this.applicationsClient.push(response);
               localStorage.setItem('applicationsRegistered', JSON.stringify(this.applicationsClient));
               this.applicationsClient = JSON.parse(localStorage.getItem('applicationsRegistered'));
             }
-
         }, (error: any) => {
           this.frontMessage.showAlert = true;
           this.frontMessage.message = error.error.message;

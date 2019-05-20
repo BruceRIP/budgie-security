@@ -31,5 +31,5 @@ public class AccessTokenResponse implements Serializable{
 	@JsonProperty(value = "expires_in")
 	private Long expiresIn;
 	@JsonProperty(value = "scope")
-	private String scope;
+	private String scopeAccessToken;
 }
