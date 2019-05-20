@@ -19,7 +19,7 @@ public class UserController {
 
 	private static final Logger LOGGER = LogManager.getLogger(UserController.class);
 			
-	@GetMapping(path = "/user/me")
+	@GetMapping(path = "/user")
 	public Principal user(Principal principal) {
 		LOGGER.info(" *--- Getting principal information after authenticated ---*");
 		return principal;
