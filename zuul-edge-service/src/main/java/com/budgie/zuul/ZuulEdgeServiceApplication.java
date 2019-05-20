@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 import com.budgie.zuul.filters.FlowPostFilter;
 import com.budgie.zuul.filters.FlowPreFilter;
@@ -62,12 +61,7 @@ public class ZuulEdgeServiceApplication {
 			.antMatchers(requestMatchers)
 			.permitAll()
 			.antMatchers("/**")
-			.authenticated()
-			.and()
-			.formLogin()
-			.loginPage("/login.html")
-			.permitAll().and().logout().permitAll().and().exceptionHandling()
-			.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
+			.authenticated();
 		}
 	}
 }
