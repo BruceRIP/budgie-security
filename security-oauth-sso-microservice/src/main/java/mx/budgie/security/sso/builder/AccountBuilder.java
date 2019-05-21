@@ -34,14 +34,16 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 		account.setNickname(document.getNickname());
 		account.setPassword(document.getPassword());
 		account.setPhoneNumber(document.getPhoneNumber());
-		account.setRegisterLocation(new GeolocalizationVO(document.getRegisterLocation().getLatitude(),document.getRegisterLocation().getLongitude()));
+		if(document.getRegisterLocation() != null) {
+			account.setRegisterLocation(new GeolocalizationVO(document.getRegisterLocation().getLatitude(),document.getRegisterLocation().getLongitude()));			
+		}
 		account.setRoles(document.getRoles());
 		account.setRegistrationDevice(document.getRegistrationDevice());
 		account.setAccountStatus(document.getAccountStatus());
 //		account.setAccessToken(document.getAccessToken());
 //		if(document.getTokensAuthentication() != null){
 //			account.setClientAuthentication((String)document.getTokensAuthentication().getAdditionalInformation().get("clientAuthentication"));
-//		}		
+//		}
 		return account;
 	}
 }

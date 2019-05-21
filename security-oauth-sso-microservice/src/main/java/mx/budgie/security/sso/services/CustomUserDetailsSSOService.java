@@ -42,7 +42,7 @@ public class CustomUserDetailsSSOService implements UserDetailsService{
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		LOGGER.info("--- Looking for user from User by username {} ---", username);
 		Assert.notNull(accountRepository, "Account Repository can't null");
-		AccountAuthorizationDocument document = accountRepository.findByNickname(username);
+		AccountAuthorizationDocument document = accountRepository.findByEmail(username);
 		if(document != null){
 			AccountVO account = accountBuilder.buildSourceFromDocument(document);
 			if(null != account){

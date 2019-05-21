@@ -53,9 +53,9 @@ public class AuthorizationServerSSO extends AuthorizationServerConfigurerAdapter
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-		endpoints.authenticationManager(authenticationManager)
-		.tokenStore(customTokenStore)
-		.setClientDetailsService(customClientDetailService);
+		endpoints.authenticationManager(authenticationManager);
+//		.tokenStore(customTokenStore)
+//		.setClientDetailsService(customClientDetailService);
 	}
 
 }
