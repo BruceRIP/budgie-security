@@ -1,12 +1,8 @@
 server:
   port: 3099
 security:
-  oauth2:
-    client:
-      client-id: acme
-      client-secret: acmesecret
-      scope: read,write
-      auto-approve-scopes: '.*'
+  basic:
+    enabled: false
       
 facebook:
   client:
@@ -28,14 +24,12 @@ github:
     clientAuthenticationScheme: form
   resource:
     userInfoUri: https://api.github.com/user
-budgie:
+budgie:  
   client:
-    clientId: 6a119766aff380e537f834385a5fcb45
-    clientSecret: ca11b642f7221e6e30ade05c45077a16d2c8cb396ffda069b737d35cb5ca1df5021fba024cfc1f909f0d5616dce7e30d
+    clientId: e2f47e32a98d6c49944ba6bfd0411001
+    clientSecret: 5054a8a8ae67fd1aba007666936a140f7cff53fbe5da5a2886320660ffe3cbf23033f6af9342944412e3510970881bd6
     accessTokenUri: http://localhost:3004/auth-server/oauth/token
     userAuthorizationUri: http://localhost:3004/auth-server/oauth/authorize
-#    useCurrentUri: false      
-    clientAuthenticationScheme: form
   resource:
     userInfoUri: http://localhost:3004/auth-server/user
     

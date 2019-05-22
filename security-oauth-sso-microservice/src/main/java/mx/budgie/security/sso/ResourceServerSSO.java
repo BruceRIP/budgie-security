@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
  * @company Budgie Software
  * @author bruce rip
  * @date Jun 15, 2017
+ * EnableResourceServer Agrega el filtro de OAuth2AuthenticationProcessingFilter
  */
 @Configuration
 @EnableResourceServer

@@ -19,6 +19,7 @@ import mx.budgie.security.sso.constants.SecurityConstants;
  * @company Budgie Software
  * @author bruce rip
  * @date Jun 15, 2017
+ * Aqui es donde todas las configuraciones con repecto a la web, flujo de login tiene que ir
  */
 @Configuration
 @Order(1)
@@ -42,12 +43,18 @@ public class WebSecurityConfigurationSSO extends WebSecurityConfigurerAdapter {
 			.anyRequest()
 			.authenticated()
 			.and()
-			.formLogin()			
-			.permitAll();
+			.formLogin()
+			.loginPage("/login")
+			.permitAll()
+			.and()
+			.csrf()
+			.disable();
 	}
-
+	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService);
 	}
+	
+	
 }

@@ -72,7 +72,7 @@ public class SocialLoginApplication extends WebSecurityConfigurerAdapter {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			http
-			.antMatcher("/me")
+			.antMatcher("/user")
 			.authorizeRequests()
 			.anyRequest()
 			.authenticated();
