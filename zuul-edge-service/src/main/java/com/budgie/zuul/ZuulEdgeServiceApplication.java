@@ -9,7 +9,6 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -45,11 +44,7 @@ public class ZuulEdgeServiceApplication {
 		
 	@Configuration
 	@RefreshScope
-	@EnableResourceServer
-	@EnableGlobalMethodSecurity(
-			  prePostEnabled = true, // enables Spring Security pre/post annotations
-			  securedEnabled = true, // property determines if the @Secured annotation should be enabled
-			  jsr250Enabled = true) // property allows us to use the @RoleAllowed annotation
+	@EnableResourceServer	
 	public class ResourcesConfiguration extends ResourceServerConfigurerAdapter {
 
 		@Value("${budgie.billers.web.security.authorize.matches}")

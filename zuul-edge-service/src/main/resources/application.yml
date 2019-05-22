@@ -24,12 +24,7 @@ eureka:
   
 # Todas las peticiones que lleguen con /oauth-server o /sso-server/ se derivan al endpoint del servicio cuyo indentificador se registro en eureka
 zuul:   
-  routes:  
-    oauth-server:
-      sensitiveHeaders:
-      path: /oauth-server/**
-      service-id: SECURITY-OAUTH-MICROSERVICE      
-      strip-prefix: false
+  routes:      
     sso-server:  
       sensitiveHeaders:
       path: /auth-server/**

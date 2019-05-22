@@ -48,7 +48,7 @@ public class SocialLoginApplication extends WebSecurityConfigurerAdapter {
 		http
 			.antMatcher("/**")
 			.authorizeRequests()
-			.antMatchers("/", "/login**", "/webjars/**")
+			.antMatchers("/", "/login**")
 			.permitAll()
 			.anyRequest()
 			.authenticated()
@@ -111,8 +111,7 @@ public class SocialLoginApplication extends WebSecurityConfigurerAdapter {
 		OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
 		OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
 		filter.setRestTemplate(template);
-		UserInfoTokenServices tokenServices = new UserInfoTokenServices(client.getResource().getUserInfoUri(),
-				client.getClient().getClientId());
+		UserInfoTokenServices tokenServices = new UserInfoTokenServices(client.getResource().getUserInfoUri(), client.getClient().getClientId());
 		tokenServices.setRestTemplate(template);
 		filter.setTokenServices(tokenServices);
 		return filter;

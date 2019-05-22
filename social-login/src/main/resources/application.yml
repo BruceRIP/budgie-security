@@ -30,12 +30,13 @@ github:
     userInfoUri: https://api.github.com/user
 budgie:
   client:
-    clientId: d39f4bdf5d3c72fa45a0992fbf1e3af2
-    clientSecret: 5aae211eab1aa5b7d917e5820f7d1e432aa22f34166c047ecf7570f4fcb9dd79af96bd8b9d2c4bc7ca3226201b648876
-    accessTokenUri: http://localhost:8880/budgie/oauth/access_token
-    userAuthorizationUri: http://localhost:8880/budgie/oauth/authorize
+    clientId: 6a119766aff380e537f834385a5fcb45
+    clientSecret: ca11b642f7221e6e30ade05c45077a16d2c8cb396ffda069b737d35cb5ca1df5021fba024cfc1f909f0d5616dce7e30d
+    accessTokenUri: http://localhost:3004/auth-server/oauth/token
+    userAuthorizationUri: http://localhost:3004/auth-server/oauth/authorize
+#    useCurrentUri: false      
     clientAuthenticationScheme: form
   resource:
-    userInfoUri: http://localhost:8880/budgie/user
+    userInfoUri: http://localhost:3004/auth-server/user
     
     

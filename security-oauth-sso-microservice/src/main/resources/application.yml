@@ -12,4 +12,3 @@ logging:
 
 server:  
   context-path: /auth-server
-  
