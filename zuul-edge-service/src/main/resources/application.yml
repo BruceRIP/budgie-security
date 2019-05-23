@@ -11,7 +11,7 @@ spring:
 security:
   oauth2:
     resource:
-      user-info-uri: http://localhost:3004/auth-server/user
+      user-info-uri: http://localhost:3004/auth-server/hello
       
 # Discovery Server Access
 eureka:
@@ -25,9 +25,14 @@ eureka:
 # Todas las peticiones que lleguen con /oauth-server o /sso-server/ se derivan al endpoint del servicio cuyo indentificador se registro en eureka
 zuul:   
   routes:      
-    sso-server:  
+    auth-server:  
       sensitiveHeaders:
       path: /auth-server/**
+      service-id: SECURITY-OAUTH-MICROSERVICE
+      strip-prefix: false
+    sso-server:  
+      sensitiveHeaders:
+      path: /auth-sso-server/**
       service-id: SECURITY-OAUTH-SSO-MICROSERVICE
       strip-prefix: false
     accounts:  

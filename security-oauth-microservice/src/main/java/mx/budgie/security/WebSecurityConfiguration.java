@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mx.budgie.security.sso;
+package mx.budgie.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import mx.budgie.security.sso.constants.SecurityConstants;
+import mx.budgie.security.constants.SecurityConstants;
 
 /**
  * @company Budgie Software
@@ -25,7 +25,7 @@ import mx.budgie.security.sso.constants.SecurityConstants;
  */
 @Configuration
 @Order(1)
-public class WebSecurityConfigurationSSO extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	@Qualifier(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
@@ -44,14 +44,7 @@ public class WebSecurityConfigurationSSO extends WebSecurityConfigurerAdapter {
 			.and()
 			.authorizeRequests()
 			.anyRequest()
-			.authenticated()
-			.and()
-			.formLogin()
-			.loginPage("/login")
-			.permitAll()
-			.and()
-			.csrf()
-			.disable();
+			.authenticated();					
 	}
 	
 	@Override

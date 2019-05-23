@@ -28,9 +28,9 @@ budgie:
   client:
     clientId: e2f47e32a98d6c49944ba6bfd0411001
     clientSecret: 5054a8a8ae67fd1aba007666936a140f7cff53fbe5da5a2886320660ffe3cbf23033f6af9342944412e3510970881bd6
-    accessTokenUri: http://localhost:3004/auth-server/oauth/token
-    userAuthorizationUri: http://localhost:3004/auth-server/oauth/authorize
+    accessTokenUri: http://localhost:3004/auth-sso-server/oauth/token
+    userAuthorizationUri: http://localhost:3004/auth-sso-server/oauth/authorize
   resource:
-    userInfoUri: http://localhost:3004/auth-server/user
+    userInfoUri: http://localhost:3004/auth-sso-server/user
     
     

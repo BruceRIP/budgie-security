@@ -39,7 +39,7 @@ public class AccountAuthorizationDocument implements Serializable{
     private Date lastAccess;    
     private Date datePurchasedPackage;
     private String activationCode;
-    private String clientIdUsed;
+    private String tokenClientIdUsed;
 
     public AccountAuthorizationDocument() {
     }    
@@ -69,12 +69,12 @@ public class AccountAuthorizationDocument implements Serializable{
 		this.datePurchasedPackage = datePurchasedPackage;
 	}
 
-	public String getClientIdUsed() {
-		return clientIdUsed;
+	public String getTokenClientIdUsed() {
+		return tokenClientIdUsed;
 	}
 
-	public void setClientIdUsed(String clientIdUsed) {
-		this.clientIdUsed = clientIdUsed;
+	public void setTokenClientIdUsed(String clientIdUsed) {
+		this.tokenClientIdUsed = clientIdUsed;
 	}
 
 	public Long getId() {

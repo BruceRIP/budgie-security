@@ -114,7 +114,7 @@ public class AccountBuilder extends AbstractBuilder<AccountVO, AccountAuthorizat
 		billerAccount.setAccountStatus(AccountStatus.REGISTER);
 		billerAccount.setLastAccess(Date.from(Instant.now()));
 		billerAccount.setRegisterDate(Date.from(Instant.now()));
-		billerAccount.setClientIdUsed(clientAuthentication.replaceFirst("bearer" + " ", ""));
+		billerAccount.setTokenClientIdUsed(clientAuthentication.replaceFirst("bearer" + " ", ""));
 		Set<String> roles = new HashSet<>();
 		roles.add("USER");
 		billerAccount.setRoles(roles);

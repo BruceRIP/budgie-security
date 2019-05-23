@@ -1,24 +1,22 @@
 /**
  * 
  */
-package mx.budgie.security.sso;
-
-import javax.annotation.PostConstruct;
+package mx.budgie.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import mx.budgie.security.sso.constants.SecurityConstants;
+import mx.budgie.security.constants.SecurityConstants;
 
 /**
  * Configuracion para la creacion de tokens de autenticacion :
@@ -30,11 +28,11 @@ import mx.budgie.security.sso.constants.SecurityConstants;
  */
 @Configuration
 @EnableAuthorizationServer
-public class AuthorizationServerSSO extends AuthorizationServerConfigurerAdapter {
+public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
 
 	@Autowired
-	private AuthorizationEndpoint authorizationEndpoint;
-	
+	@Qualifier(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
+	private UserDetailsService userDetailsService;
 	@Autowired
 	@Qualifier(SecurityConstants.SERVICE_CUSTOM_CLIENT_DETAIL)
 	private ClientDetailsService customClientDetailService;
@@ -64,12 +62,8 @@ public class AuthorizationServerSSO extends AuthorizationServerConfigurerAdapter
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-		endpoints.authenticationManager(authenticationManager);	
+		endpoints.authenticationManager(authenticationManager)	
+		.tokenStore(customTokenStore);
 	}
 
-	@PostConstruct
-	public void init() {
-		authorizationEndpoint.setUserApprovalPage("forward:/oauth/custom_confirm_access");
-		this.authorizationEndpoint.setErrorPage("forward:/oauth/custom_error");
-	}
 }

@@ -26,6 +26,8 @@ public class BudgieSecuritySSOApplication {
         @Override
         public void addViewControllers(ViewControllerRegistry registry) {
             registry.addViewController("/login").setViewName("login.html");
+//            registry.addViewController("/oauth/custom_confirm_access").setViewName("approval.html");
+//            registry.addViewController("/oauth/custom_error").setViewName("error.html");
             registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
         }
     }
