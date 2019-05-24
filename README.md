@@ -44,3 +44,10 @@ Descripción del flujo
 4. Si la identidad de la aplicación cliente es autenticada y autorizada, el **servidor de autorización generará y enviará token de acceso** a la aplicación cliente.
 5. La aplicación cliente solicita el recurso al **servidor de recursos** y presenta el token de acceso para autenticarse.
 6. Si el token de acceso es válido, el servidor de recursos proporciona.
+
+# Documentación
+
+SSO Spring oAuth [SSO](https://www.baeldung.com/sso-spring-security-oauth2)
+EnableResourceServer vs EnableOAuth2Sso [Docuemtación](https://www.baeldung.com/spring-security-oauth2-enable-resource-server-vs-enable-oauth2-sso)
+Modificar la página de aprovación [autoapproval=true](http://programandonet.com/questions/48800/spring-oauth2-pagina-personalizada-de-oauth-approval-en-oauth-authorize)
+Partes de oAuth2 [AuthorizationServer](https://docs.spring.io/spring-security-oauth2-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security-oauth2-authorization-server)
