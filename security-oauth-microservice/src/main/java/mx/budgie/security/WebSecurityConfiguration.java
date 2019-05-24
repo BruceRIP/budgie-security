@@ -6,12 +6,11 @@ package mx.budgie.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -24,7 +23,8 @@ import mx.budgie.security.constants.SecurityConstants;
  * Aqui es donde todas las configuraciones con repecto a la web, flujo de login tiene que ir
  */
 @Configuration
-@Order(1)
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -32,7 +32,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private UserDetailsService userDetailsService;
 	@Value("${budgie.billers.web.security.authorize.matches}")
 	private String[] authorizeMatches;
-	
 
 	/**
 	 * CSRF is activate by default when using WebSecurityConfigurerAdapter
@@ -44,18 +43,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 			.authorizeRequests()
 			.anyRequest()
-			.authenticated();					
+			.authenticated()
+			.and()
+			.formLogin()
+			.permitAll();
 	}
-	
+
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService);
 	}
-	
-	@Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-	
 }

@@ -12,7 +12,7 @@ export class RegisterApplicationsService {
     const url = `/budgie/${query}`;
     const transactionId = this.getTransactionId();
     const headers = new HttpHeaders({
-      'Authorization': 'bearer 1dd8103c-4690-4bcf-8654-0cf0a97ce77a',
+      'Authorization': 'bearer 1dd8103c-4690-4bcf-8654-0cf0a97ce77b',
       'Content-Type': 'application/json',
       'transactionId': transactionId
     });
@@ -23,7 +23,7 @@ export class RegisterApplicationsService {
     const url = `/budgie/${query}`;
     const transactionId = '123456789';
     const headers = new HttpHeaders({
-      'Authorization': 'bearer 1dd8103c-4690-4bcf-8654-0cf0a97ce77a',
+      'Authorization': 'bearer 1dd8103c-4690-4bcf-8654-0cf0a97ce77b',
       'transactionId': transactionId
     });
     return this.httpClient.get(url, {headers});

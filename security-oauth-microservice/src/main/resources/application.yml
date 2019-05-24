@@ -11,4 +11,4 @@ logging:
       security: DEBUG
       
 server:  
-  context-path: /oauth-server
+  context-path: /auth-server
