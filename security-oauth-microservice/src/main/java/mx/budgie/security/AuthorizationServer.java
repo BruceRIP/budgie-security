@@ -6,7 +6,6 @@ package mx.budgie.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -32,10 +31,7 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
 
 	@Autowired
 	@Qualifier(SecurityConstants.SERVICE_CUSTOM_TOKEN_STORE)
-	private TokenStore customTokenStore;
-
-	@Autowired
-	private AuthenticationManager authenticationManager;
+	private TokenStore customTokenStore;	
 
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -45,13 +41,12 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
 	@Override
 	public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
 		oauthServer.tokenKeyAccess("permitAll()")
-		.checkTokenAccess("isAuthenticated()");
+					.checkTokenAccess("isAuthenticated()");
 	}
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-		endpoints.authenticationManager(authenticationManager)
-		.tokenStore(customTokenStore)
-		.setClientDetailsService(customClientDetailService);
+		endpoints.tokenStore(customTokenStore)
+					.setClientDetailsService(customClientDetailService);
 	}
 }

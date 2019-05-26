@@ -11,7 +11,8 @@ spring:
 security:
   oauth2:
     resource:
-      user-info-uri: http://localhost:3001/auth-server/hello
+#      user-info-uri: http://localhost:3001/auth-server/hello
+      user-info-uri: http://localhost:3004/auth-sso-server/user
       
 # Discovery Server Access
 eureka:

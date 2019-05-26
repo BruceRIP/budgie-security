@@ -73,11 +73,11 @@ public class ApprovalController {
 
 	private static String CSRF = "<input type='hidden' name='${_csrf.parameterName}' value='${_csrf.token}' />";
 
-	private static String DENIAL = "<form id='denialForm' name='denialForm' action='${path}/oauth/authorize' method='post'><input name='user_oauth_approval' value='false' type='hidden'/>%csrf%<label><input name='deny' value='Deny' type='submit'/></label></form>";
+	private static String DENIAL = "<form id='denialForm' name='denialForm' action='/auth-sso-server/oauth/authorize' method='post'><input name='user_oauth_approval' value='false' type='hidden'/>%csrf%<label><input name='deny' value='Deny' type='submit'/></label></form>";
 
 	private static String TEMPLATE = "<html><body><h1>Custom OAuth Approval, You need to specify your approval</h1>"
 			+ "<p>Do you authorize '${authorizationRequest.clientId}' to access your protected resources?</p>"
-			+ "<form id='confirmationForm' name='confirmationForm' action='${path}/oauth/authorize' method='post'><input name='user_oauth_approval' value='true' type='hidden'/>%csrf%%scopes%<label><input name='authorize' value='Authorize' type='submit'/></label></form>"
+			+ "<form id='confirmationForm' name='confirmationForm' action='/auth-sso-server/oauth/authorize' method='post'><input name='user_oauth_approval' value='true' type='hidden'/>%csrf%%scopes%<label><input name='authorize' value='Authorize' type='submit'/></label></form>"
 			+ "%denial%</body></html>";
 
 	private static String SCOPE = "<li><div class='form-group'>%scope%: <input type='radio' name='%key%'"
