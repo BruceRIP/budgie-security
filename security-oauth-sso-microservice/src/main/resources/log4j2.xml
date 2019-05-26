@@ -3,13 +3,13 @@
 <Appenders>  
   <Console name="console-log" target="SYSTEM_OUT">
     <PatternLayout>
-    	<pattern>%d{DATE}-%-5level %x %c{1} - %m%n</pattern>
+    	<pattern>%d{DATE}-%-5level %c{1} - %m%n</pattern>
     </PatternLayout>
   </Console>       
   <RollingFile name="trace" fileName="logs/security-oauth-sso-microservice/trace.log"
   		filePattern="logs/security-oauth-sso-microservice/backup/trace-%d{yyyy-MM-dd}.log">
   	<PatternLayout>
-    	<pattern>%d{DATE}-%-5level %x %c{1} - %m%n</pattern>
+    	<pattern>%d{DATE}-%-5level %c{1} - %m%n</pattern>
     </PatternLayout>
     <Policies>
     	<TimeBasedTriggeringPolicy interval="1" modulate="true" />

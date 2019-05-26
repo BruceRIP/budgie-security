@@ -3,7 +3,7 @@ banner:
         
 spring:
   application:
-     name: security-oauth-microservice  # Service registers under this name
+     name: security-oauth-microservice
   
 logging:
   level:
