@@ -28,12 +28,29 @@
                 <tr>
                     <td colspan='2'><input name="submit" type="submit" value="Submit" /></td>
                 </tr>
-<!--                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> -->
+<!--                 <tr> -->
+<!--                 	<td colspan='2'><input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/></td> -->
+<!--             	</tr> -->
             </table>
         </form>
 	</div>
 	<script type="text/javascript" src="/auth-sso-server/webjars/jquery/jquery.min.js"></script>
 	<script type="text/javascript" src="/auth-sso-server/webjars/bootstrap/js/bootstrap.min.js"></script>
 <!-- 	<script type="text/javascript" src="/auth-sso-server/webjars/js-cookie/js.cookie.js"></script>	 -->
+	<script type="text/javascript">
+		$.ajaxSetup({
+			beforeSend : function(xhr, settings) {
+			  if (settings.type == 'POST' || settings.type == 'PUT'
+			      || settings.type == 'DELETE') {
+			    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+			        .test(settings.url))) {
+			      // Only send the token to relative URLs i.e. locally.
+			      xhr.setRequestHeader("X-XSRF-TOKEN",
+			          Cookies.get('XSRF-TOKEN'));
+			    }
+			  }
+			}
+		});
+	</script>
 </body>
 </html>

@@ -24,7 +24,7 @@ import mx.budgie.security.sso.constants.SecurityConstants;
  * Aqui es donde todas las configuraciones con repecto a la web, flujo de login tiene que ir
  */
 @Configuration
-@Order(1)
+@Order(200)
 public class WebSecurityConfigurationSSO extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -42,16 +42,22 @@ public class WebSecurityConfigurationSSO extends WebSecurityConfigurerAdapter {
 		http.requestMatchers()
 			.antMatchers(authorizeMatches)
 			.and()
-			.authorizeRequests()
+			.authorizeRequests()		
+			.antMatchers(authorizeMatches)
+			.permitAll()						
 			.anyRequest()
 			.authenticated()
 			.and()
 			.formLogin()
 			.loginPage("/login")
+			.and()
+			.logout()
+			.logoutSuccessUrl("/")
 			.permitAll()
 			.and()
 			.csrf()
 			.disable();
+//			.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 	}
 	
 	@Override
