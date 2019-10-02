@@ -125,6 +125,7 @@ public class CommonsUtil {
 	public static Map<String, String> createHead(){
 		Map<String, String> transactionId = new LinkedHashMap<>();
 		transactionId.put("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
+		transactionId.put("transactionId", String.valueOf(CommonsUtil.getTransactionId(1l)));
 		return transactionId;
 	}
 	

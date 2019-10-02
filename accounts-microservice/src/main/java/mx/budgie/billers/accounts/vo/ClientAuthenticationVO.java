@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import mx.budgie.billers.accounts.response.ResponseMessage;
 
 /**
@@ -24,6 +26,7 @@ public class ClientAuthenticationVO extends ResponseMessage {
 	private String applicationName;
 	private String clientId;
 	private String clientSecret;
+	@JsonProperty(value="clientAccessToken")
 	private String accessToken;
 	private Date expirationDate;
 	private String tokenType;

@@ -2,13 +2,16 @@ package mx.budgie.security.sso;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import mx.budgie.security.sso.controller.ClientResources;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
@@ -29,4 +32,17 @@ public class BudgieSecuritySSOApplication {
             registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
         }
     }
+	
+	@Bean
+	@ConfigurationProperties("github")
+	public ClientResources github() {
+		return new ClientResources();
+	}
+
+	@Bean
+	@ConfigurationProperties("facebook")
+	public ClientResources facebook() {
+		return new ClientResources();
+	}
+	
 }

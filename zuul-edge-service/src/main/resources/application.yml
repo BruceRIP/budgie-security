@@ -11,8 +11,8 @@ spring:
 security:
   oauth2:
     resource:
-#      user-info-uri: http://localhost:3001/auth-server/hello
-      user-info-uri: http://localhost:3004/auth-sso-server/user
+      user-info-uri: http://localhost:3001/auth-server/hello
+#      user-info-uri: http://localhost:3004/auth-sso-server/user
       
 # Discovery Server Access
 eureka:
@@ -23,7 +23,7 @@ eureka:
     hostname: localhost
     instance-id: ${spring.application.name}:${server.port}        
   
-# Todas las peticiones que lleguen con /oauth-server o /sso-server/ se derivan al endpoint del servicio cuyo indentificador se registro en eureka
+# Todas las peticiones que lleguen con /billers se derivan al endpoint del servicio cuyo indentificador se registro en eureka
 zuul:   
   routes:      
     auth-server:  

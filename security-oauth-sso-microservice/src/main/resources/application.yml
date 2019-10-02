@@ -12,3 +12,27 @@ logging:
 
 server:  
   context-path: /auth-sso-server
+security:
+  basic:
+    enabled: false
+      
+facebook:
+  client:
+    clientId: 592238277963265
+    clientSecret: 415d0968519dcd8976142af5033f3be2
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me
+github:
+  client:
+    clientId: 0a3ea91f2bc344511e38
+    clientSecret: 82563ebb11f863d456e53d2d60aaef45ac0fb2fa
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user

@@ -87,7 +87,7 @@ public class ClientAuthenticationController {
 	
 	@ApiOperation(value = "Create authentication tokens for a client that will consume API", notes = "It must be present in all transactions")
 	@PostMapping(value= AccountPaths.CLIENT_CREATE, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<?> createClient(final @PathVariable String billerID, @RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
+	public @ResponseBody ResponseEntity<?> createClient(@RequestParam("applicationName") String applicationName,@RequestParam(required = false, name = "tokenType") String tokenType, final @RequestHeader("transactionId") long transactionId){
 		//------------------------------------------------------
 		Calendar startTime = Calendar.getInstance();
 		boolean flag = true;
@@ -97,7 +97,7 @@ public class ClientAuthenticationController {
 			ThreadContext.push(Long.toString(transactionId));
 			LOGGER.info("Creating client '{}' ", applicationName);
 			TokensResponse tokenResonse = null;			
-			tokenResonse = oauthClientAuthService.saveClient(billerID, applicationName, tokenType);
+			tokenResonse = oauthClientAuthService.saveClient(null, applicationName, tokenType);
 			if(null != tokenResonse){
 				ClientAuthenticationVO clientResponse = oauthClientAuthService.findClientByClientId(tokenResonse.getClientId());
 				LOGGER.info("Client was created successfully for '{}'", applicationName);
