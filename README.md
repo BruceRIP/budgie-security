@@ -1,3 +1,4 @@
+![](https://billers-images.s3.amazonaws.com/Budgie_horizontal_blanco-size.png)
 # budgie-security
 Budgie Security es un proyecto que permite administrar la autenticación y autorización de usuarios, roles y permisos para cualquier aplicación. Es un proyecto que esta basado en oAuth 2.0 como protocolo de autenticación, lo que le da robustez y permite a aplicaciones de terceros obtener acceso limitado a recursos HTTP.
 
