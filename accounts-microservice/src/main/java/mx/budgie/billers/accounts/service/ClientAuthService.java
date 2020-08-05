@@ -3,8 +3,10 @@
  */
 package mx.budgie.billers.accounts.service;
 
+import java.util.List;
+
+import mx.budgie.billers.accounts.vo.ClientAuthenticationVO;
 import mx.budgie.billers.accounts.vo.TokensResponse;
-import mx.budgie.billers.accounts.vo.ClientAuthVO;
 
 /**
  * @company Budgie Software
@@ -13,14 +15,18 @@ import mx.budgie.billers.accounts.vo.ClientAuthVO;
  */
 public interface ClientAuthService {
 
-	public TokensResponse saveClient(final String clientName);
+	public TokensResponse saveClient(final String billerID, final String applicationName, final String tokenType);
 	
-	public ClientAuthVO findClientByClientId(final String name);
+	public ClientAuthenticationVO findClientByClientId(final String name);
 	
-	public boolean deleteClientByName(final String name);
+	public List<ClientAuthenticationVO> findClientByBillerID(final String billerID);
 	
-	public ClientAuthVO updateClient(final ClientAuthVO clientVO);
+	public boolean deleteClientByName(final String billerID, final String name);
+	
+	public ClientAuthenticationVO updateClient(final String billerID, final ClientAuthenticationVO clientVO, final boolean deleted);
 	
 	public boolean validateAuthenticationClient(final String username, final String password);
+	
+	public String findClientIdByToken(final String token);
 	
 }

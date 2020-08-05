@@ -51,7 +51,10 @@ public class FlowPostFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();  
 		HttpServletResponse response = RequestContext.getCurrentContext().getResponse();
 		LOGGER.info("FLOW-POST Filter: " + String.format("response's content type is %s", response.getStatus()));
-		List<String> urlQueryParam = ctx.getRequestQueryParams().get("redirect");
+		List<String> urlQueryParam = null;
+		if(ctx.getRequestQueryParams() != null) {
+			urlQueryParam = ctx.getRequestQueryParams().get("redirect");
+		}
 		if(response.getStatus() != 200 || urlQueryParam == null || urlQueryParam.isEmpty()) {
 			InputStream responseBody = ctx.getResponseDataStream();			
 			String result = ZuulUtil.getStringFromInputStream(responseBody);

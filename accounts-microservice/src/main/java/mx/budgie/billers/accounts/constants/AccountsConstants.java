@@ -40,6 +40,8 @@ public class AccountsConstants {
 	public static final String ACCOUNT_DEFAULT_PACKAGE = "${account.default.packge}";
 	public static final String ACCOUNT_HTTP_BASIC_AUTH_ENABLED = "${account.http.basic.auth.enabled}";
 	public static final String ACCOUNT_NEED_VALIDATE_NICKNAME = "${account.need.validate.nickname}";
+	public static final String ACCOUNT_NEED_VALIDATE_AUTHORIZATION = "${account.need.validate.authorization.header}";
+	public static final String ACCOUNT_NEED_VALIDATE_CLIENT_ID = "${account.need.validate.authorization.clientid}";
 	
 	/**
 	 * Error and Success codes
@@ -82,5 +84,13 @@ public class AccountsConstants {
 	public static final String ACCOUNTS_CODE_13 = "${accounts.code.13}";
 	public static final String ACCOUNTS_MSG_CODE_13 = "${accounts.msg.code.13}";
 	public static final String ACCOUNTS_DES_CODE_13 = "${accounts.des.code.13}";
+	
+	public static final String ACCOUNTS_CODE_14 = "${accounts.code.14}";
+	public static final String ACCOUNTS_MSG_CODE_14 = "${accounts.msg.code.14}";
+	public static final String ACCOUNTS_DES_CODE_14 = "${accounts.des.code.14}";
+	
+	public static final String ACCOUNTS_CODE_15 = "${accounts.code.15}";
+	public static final String ACCOUNTS_MSG_CODE_15 = "${accounts.msg.code.15}";
+	public static final String ACCOUNTS_DES_CODE_15 = "${accounts.des.code.15}";
 }
 

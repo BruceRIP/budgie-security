@@ -2,31 +2,65 @@ banner:
   location: classpath:static/banner.txt
 
 server:
-  port: 8080
+  context-path: /budgie  
   
 spring:
   application:
     name: zuul-edge-service
 
+security:
+  oauth2:
+    resource:
+      user-info-uri: http://localhost:3001/auth-server/hello
+#      user-info-uri: http://localhost:3004/auth-sso-server/user
+      
 # Discovery Server Access
 eureka:
   client:
     serviceUrl:
-      #defaultZone: http://localhost:8761/eureka/
-      defaultZone: http://budgie.billers:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
   instance:
-    #hostname: localhost
-    hostname: budgie.billers
+    hostname: localhost
     instance-id: ${spring.application.name}:${server.port}        
   
 # Todas las peticiones que lleguen con /billers se derivan al endpoint del servicio cuyo indentificador se registro en eureka
 zuul:   
-  routes:
-    billers:
+  routes:      
+    auth-server:  
       sensitiveHeaders:
-      path: /**
-      service-id: SECURITY-OAUTH-MICROSERVICE      
-      strip-prefix: true
+      path: /auth-server/**
+      service-id: SECURITY-OAUTH-MICROSERVICE
+      strip-prefix: false
+    sso-server:  
+      sensitiveHeaders:
+      path: /auth-sso-server/**
+      service-id: SECURITY-OAUTH-SSO-MICROSERVICE
+      strip-prefix: false
+    accounts:  
+      sensitiveHeaders:
+      path: /accounts/**
+      service-id: ACCOUNTS-MICROSERVICE
+      strip-prefix: false
+    clients:
+      sensitiveHeaders:
+      path: /clients/**
+      service-id: ACCOUNTS-MICROSERVICE
+      strip-prefix: false
+    reporter:
+      sensitiveHeaders:
+      path: /reporter/**
+      service-id: REPORTER-MICROSERVICE
+      strip-prefix: false
+    packages:
+      sensitiveHeaders:
+      path: /packages/**
+      service-id: PACKAGES-MICROSERVICE
+      strip-prefix: false
+    register-security:
+      sensitiveHeaders:
+      path: /register/**
+      service-id: REGISTER-SECURITY-MICROSERVICE
+      strip-prefix: false
   ribbon-isolation-strategy: THREAD
 
 hystrix.command.default.execution.timeout.enabled: false          

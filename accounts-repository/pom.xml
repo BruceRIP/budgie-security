@@ -27,6 +27,7 @@
 		<hibernate.validator.version>5.4.1.Final</hibernate.validator.version>
 		<apache.commons.version>1.4</apache.commons.version>
 		<log4j2.disruptor.version>3.3.0</log4j2.disruptor.version>
+		<budgie.commons.version>0.2-ALPHA</budgie.commons.version>
 	</properties>
 
 	<dependencies>
@@ -69,6 +70,11 @@
 			<groupId>com.lmax</groupId>
 			<artifactId>disruptor</artifactId>
 			<version>${log4j2.disruptor.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mx.budgie.commons</groupId>
+			<artifactId>budgie-commons</artifactId>
+			<version>${budgie.commons.version}</version>
 		</dependency>
 	</dependencies>
 

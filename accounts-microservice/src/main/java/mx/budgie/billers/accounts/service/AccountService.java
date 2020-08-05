@@ -3,7 +3,9 @@
  */
 package mx.budgie.billers.accounts.service;
 
-import mx.budgie.billers.accounts.vo.AccountRequestVO;
+import java.util.Set;
+
+import mx.budgie.billers.accounts.vo.AccountRequest;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
 
@@ -14,7 +16,7 @@ import mx.budgie.billers.accounts.vo.PackageVO;
  */
 public interface AccountService {
 
-	public AccountVO createAccount(final AccountRequestVO account, final String clientAuthentication, PackageVO packageVO);
+	public AccountVO createAccount(final AccountRequest account, final String clientAuthentication, PackageVO packageVO);
 	
 	public AccountVO findAccountByBillerID(final String billerID);
 	
@@ -25,4 +27,10 @@ public interface AccountService {
 	public AccountVO updateAccount(final AccountVO account);
 	
 	public void deleteAccount(final String email);
+	
+	public AccountVO findAccountToActivate(final String accountReference);
+	
+	public AccountVO updateRoles(final String billerID, final Set<String> params, boolean deleted);
+	
+	public AccountVO resendActivationCode(final AccountVO account);
 }

@@ -1,0 +1,277 @@
+<div class="wrapper">
+  <app-navbar></app-navbar>
+  <div id="main-panel" class="main-panel">
+    <app-menu></app-menu>
+    <!-- ******************************* C O N T E N I D O    P A G I N A     B O D Y ********************  -->
+    <div class="content">
+      <div class="row">
+        <div class="col-12">
+          <div class="card card-user">
+            <div class="row">
+              <div class="col-3">
+                <div class="card-body">
+                  <div class="card-text">
+                    <div class="author">
+                      <a href="javascript:void(0)">
+                        <img
+                          class="avatar"
+                          src="assets/dashboard-material/img/avatar.png"
+                          alt="..."
+                        />
+                        <h5 class="title">Bruce Wayne</h5>
+                      </a>
+                      <div class="description">
+                        CEO/Co-Founder
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-9">
+                <div class="row">
+                  <div class="col-7"></div>
+                  <div class="col-5">
+                    <div class="card-body">
+                      <div class="card-text">
+                        <div class="author">
+                          <button
+                            class="btn btn-warning"
+                            data-toggle="modal"
+                            data-target="#createApplicationModal"
+                          >
+                            <em
+                              style="padding-right: 8px;"
+                              class="fa fa-plus"
+                            ></em
+                            >Create application
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-10">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let applicationClient of applicationsClient">
+                  <div class="row">
+                    <div class="col-lg-2" style="text-align: right;">
+                      <img
+                        src="assets/img/desktop.png"
+                        alt="..."
+                        width="60"
+                        height="60" />
+                    </div>
+                    <div class="col-lg-10">
+                      <label>Name: {{ applicationClient.applicationName }}</label><hr />
+                      <label>Client Id: {{ applicationClient.clientId }}</label><hr />
+                      <label>Client Secret: {{ applicationClient.clientSecret }}</label><hr />
+                      <label>Client Secret: {{ applicationClient.clientSecret }}</label><hr />
+                      <label>Resource Id´s: {{ applicationClient.resourceIds}}</label><hr />
+                      <label>Scope: {{ applicationClient.scope }}</label><hr />
+                      <label>Grant Types: {{ applicationClient.authorizationGrantTypes }}</label><hr />
+                      <label>Redirect Uri´s: {{ applicationClient.redirectUris }}</label><hr />
+                      <label>Authorities: {{ applicationClient.authorities }}</label><hr />
+                      <label>Auto Approve: {{ applicationClient.autoApprove }}</label><hr />
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade modal-position-top"
+    id="createApplicationModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="createApplicationModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header modal-header-center">
+          <h3>Create application</h3>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon3"
+                    >Application name</span
+                  >
+                </div>
+                <input
+                  name="applicationName"
+                  #applicationName
+                  type="text"
+                  class="form-control"
+                  aria-label="Username"
+                  aria-describedby="basic-addon1"
+                  style="display: inline-block;"
+                />
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <div class="row">
+            <div class="col-lg-3 col-md-12 col-sm-12">
+              <div
+                id="web-application-card"
+                class="card text-center"
+                style="cursor:pointer;"
+                (click)="selectApplication('webApplication')"
+              >
+                <div class="card-header">
+                  <img
+                    src="assets/img/desktop.png"
+                    class="rounded"
+                    width="50"
+                    height="50"
+                  />
+                </div>
+                <div class="card-body">
+                  <h4>Single Page Web application</h4>
+                  <p class="card-text">
+                    A JavaScript front end application the uses an API.
+                  </p>
+                </div>
+                <div class="card-footer text-muted">
+                  AngularJS + NodeJS
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-12 col-sm-12">
+              <div
+                id="traditional-application-card"
+                class="card text-center"
+                style="cursor:pointer;"
+                (click)="selectApplication('traditionalApplication')"
+              >
+                <div class="card-header">
+                  <img
+                    src="assets/img/browser.png"
+                    class="rounded"
+                    width="50"
+                    height="50"
+                  />
+                </div>
+                <div class="card-body">
+                  <h4>Traditional Web Application</h4>
+                  <p class="card-text">
+                    Traditional application. With (refresh_token).
+                  </p>
+                </div>
+                <div class="card-footer text-muted">
+                  Ej: Java, ASP.Net
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-12 col-sm-12">
+              <div
+                id="mobile-application-card"
+                class="card text-center"
+                style="cursor:pointer;"
+                (click)="selectApplication('mobileApplication')"
+              >
+                <div class="card-header">
+                  <img
+                    src="assets/img/mobile.png"
+                    class="rounded"
+                    width="50"
+                    height="50"
+                  />
+                </div>
+                <div class="card-body">
+                  <h4>Native SDK<br /><br /></h4>
+                  <p class="card-text">
+                    Mobile or Desktop, thats the runs natively in a device.
+                  </p>
+                </div>
+                <div class="card-footer text-muted">
+                  Ej: IOS SDK, Android
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-12 col-sm-12">
+              <div
+                id="api-application-card"
+                class="card text-center"
+                style="cursor:pointer;"
+                (click)="selectApplication('apiApplication')"
+              >
+                <div class="card-header">
+                  <img
+                    src="assets/img/servers.png"
+                    class="rounded"
+                    width="50"
+                    height="50"
+                  />
+                </div>
+                <div class="card-body">
+                  <h4>Machine to Machine Applications</h4>
+                  <p class="card-text">
+                    CLI, Daemons or Services running on your backend.
+                  </p>
+                </div>
+                <div class="card-footer text-muted">
+                  Ej: Shell Script
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="registerApplication(applicationName.value)"
+            data-dismiss="modal">
+            Accept
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ******************************* C O N T E N I D O    P A G I N A     B O D Y ********************  -->
+  <app-footer></app-footer>
+</div>
+
+<!-- ****************************** C A M B I O   D E   L O O K   A N D   F E E L      ****************************************************** -->
+<!-- <div id="changeTheme" class="fixed-plugin">
+  <div class="dropdown show-dropdown">
+    <div style="cursor:pointer;" data-toggle="dropdown">
+      <i class="fa fa-cog fa-2x"> </i>
+    </div>
+    <ul class="dropdown-menu">
+      <li class="header-title">Change Theme</li>
+      <li class="adjustments-line text-center color-change">
+        <span class="color-label">LIGHT MODE</span>
+        <span class="badge light-badge mr-2"></span>
+        <span class="badge dark-badge ml-2"></span>
+        <span class="color-label">DARK MODE</span>
+      </li>
+      <li></li>
+    </ul>
+  </div>
+</div> -->
+<!-- ****************************************************************************************************************************************** -->

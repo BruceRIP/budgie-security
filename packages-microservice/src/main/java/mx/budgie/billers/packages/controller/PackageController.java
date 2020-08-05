@@ -45,57 +45,57 @@ public class PackageController {
 	@PostMapping(value=PackagesConstants.PACKAGE_CREATE
 			,consumes=MediaType.APPLICATION_JSON_UTF8_VALUE
 			,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<Object> createPackage(@RequestBody @Valid PackageVO packageVO){				
+	public @ResponseBody ResponseEntity<?> createPackage(@RequestBody @Valid PackageVO packageVO){				
 		boolean flag = service.createPackage(packageVO);
 		JSONObject json = new JSONObject();
 		try {
 			if(flag){			
 				json.put("code", 200);
 				json.put("message", "Successful");
-				return new ResponseEntity<Object>(json.toString(), HttpStatus.OK);
+				return new ResponseEntity<>(json.toString(), HttpStatus.OK);
 			}
 			json.put("code", 200);
 			json.put("message", "Successful");
 		}catch(JSONException e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<Object>(json.toString(), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ApiOperation(value = "Get all package of billers", notes = "Get all packages")
 	@GetMapping(value=PackagesConstants.PACKAGE_RECOVER			
 			,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<Object> findAllPackages(){
+	public @ResponseBody ResponseEntity<?> findAllPackages(){
 		List<PackageVO> packagesList = service.findPackages();
-		return new ResponseEntity<Object>(packagesList, HttpStatus.OK);
+		return new ResponseEntity<>(packagesList, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Get a specific package of billers", notes = "Get package by package id")
 	@GetMapping(value=PackagesConstants.PACKAGE_RECOVER_BY_ID
 			,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<Object> findPackage(final @PathVariable("packageID") Integer packageID){
+	public @ResponseBody ResponseEntity<?> findPackage(final @PathVariable("packageID") Integer packageID){
 		PackageVO packageVO = service.findPackageByID(packageID);
-		return new ResponseEntity<Object>(packageVO, HttpStatus.OK);
+		return new ResponseEntity<>(packageVO, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Update a specific package of billers", notes = "It needs the package object ")	
 	@PutMapping(value=PackagesConstants.PACKAGE_UPDATE
 			,consumes=MediaType.APPLICATION_JSON_UTF8_VALUE
 			,produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public @ResponseBody ResponseEntity<Object> updatePackage(@RequestBody @Valid UpdatePackageVO packageVO){				
+	public @ResponseBody ResponseEntity<?> updatePackage(@RequestBody @Valid UpdatePackageVO packageVO){				
 		boolean flag = service.updatePackage(packageVO);
 		JSONObject json = new JSONObject();
 		try {
 			if(flag){			
 				json.put("code", 200);
 				json.put("message", "Successful");
-				return new ResponseEntity<Object>(json.toString(), HttpStatus.OK);
+				return new ResponseEntity<>(json.toString(), HttpStatus.OK);
 			}
 			json.put("code", 200);
 			json.put("message", "Successful");
 		}catch(JSONException e) {
 			e.printStackTrace();
 		}
-		return new ResponseEntity<Object>(json.toString(), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(json.toString(), HttpStatus.BAD_REQUEST);
 	}
 }

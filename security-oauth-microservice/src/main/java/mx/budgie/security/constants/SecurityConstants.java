@@ -10,10 +10,10 @@ package mx.budgie.security.constants;
  */
 public class SecurityConstants {
 
+	private SecurityConstants() {}
 	public static final String SERVICE_CUSTOM_USER_DETAIL = "customUserDetailsService";
 	public static final String SERVICE_CUSTOM_CLIENT_DETAIL = "customClientDetailsService";
-	public static final String SERVICE_OWN_CLIENT_DETAIL = "ownClientDetailsService";
-	public static final String SERVICE_CUSTOM_TOKEN_STORE = "tokenStoreService";
+	public static final String SERVICE_CUSTOM_TOKEN_STORE = "customTokenStoreService";
 	public static final String SERVICE_ACCOUNT = "accountService";
 	
 	public static final String YML_APP_FILE = "classpath:application.yml";

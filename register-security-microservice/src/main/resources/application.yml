@@ -1,0 +1,3 @@
+spring:
+  application:
+     name: register-security-microservice  # Service registers under this name

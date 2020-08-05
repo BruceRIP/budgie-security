@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -18,33 +20,43 @@ import mx.budgie.billers.accounts.mongo.documents.AccountStatus;
  * @date Jun 25, 2017
  */
 @JsonInclude(Include.NON_NULL)
-public class AccountVO extends AccountRequestVO implements Serializable {
+public class AccountVO extends AccountRequest implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String billerID;	
+	private Long id;
+	private String billerID;
 	private Set<String> roles;
-	private String accessToken;
+	private String accessToken;	
 	private AccountStatus accountStatus;
 	private Date registerDate;
 	private Date lastAccess;	
 	private String view;
-	private String purchasedPackage;	
+	private String purchasedPackage;
+	@JsonIgnore
 	private int totalBills;
+	@JsonIgnore
 	private int totalFreeBills;
+	@JsonIgnore
 	private int totalRegisteredCustomer;
+	@JsonIgnore
 	private int totalActiveSession;
-	private Date packageExpirationDate;
-	private Date datePurchasedPackage;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
+	private Date expirationPackageDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:SS")
+	private Date purchasedPackageDate;
+	private String activationCode;
+	@JsonIgnore
+	private String temporaryPassword;
 
 	public AccountVO() {
 
 	}	
 
-	public AccountVO(String billerID, String accessToken, String nickname, String email, String view, String purchasedPackage
-			, int totalBills,int totalFreeBills, int totalRegisteredCustomer, int totalActiveSession, Date packageExpirationDate, Date datePurchasedPackage) {
+	public AccountVO(String billerID, String accessToken, String nickname, String email, String password, String view, String purchasedPackage
+			, int totalBills,int totalFreeBills, int totalRegisteredCustomer, int totalActiveSession, Date expirationPackageDate, Date purchasedPackageDate, AccountStatus status) {
 		this.billerID = billerID;
 		this.accessToken = accessToken;		
 		this.setNickname(nickname);
@@ -55,8 +67,10 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.totalFreeBills = totalFreeBills;
 		this.totalRegisteredCustomer = totalRegisteredCustomer;
 		this.totalActiveSession = totalActiveSession;
-		this.packageExpirationDate = packageExpirationDate;
-		this.datePurchasedPackage = datePurchasedPackage;
+		this.expirationPackageDate = expirationPackageDate;
+		this.purchasedPackageDate = purchasedPackageDate;
+		this.temporaryPassword = password;
+		this.accountStatus = status;
 	}
 
 	public AccountVO(String billerID, String nickname, String email) {
@@ -71,14 +85,41 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.billerID = billerID;
 		this.setNickname(nickname);
 		this.setEmail(email);
-		this.setAccountStatus(accountStatus);
+		this.accountStatus = accountStatus;
 	}
-	public Date getDatePurchasedPackage() {
-		return datePurchasedPackage;
+	
+	public AccountVO(String billerID, String nickname, String email, AccountStatus accountStatus, Set<String> roles) {
+		super();
+		this.billerID = billerID;
+		this.setNickname(nickname);
+		this.setEmail(email);
+		this.accountStatus = accountStatus;
+		this.roles = roles;
+	}
+	
+	public AccountVO(String billerID, String nickname, String email, AccountStatus accountStatus, String activationCode) {
+		super();
+		this.billerID = billerID;
+		this.setNickname(nickname);
+		this.setEmail(email);
+		this.accountStatus = accountStatus;
+		this.activationCode = activationCode;
+	}
+	
+	public Long getId() {
+		return id;
 	}
 
-	public void setDatePurchasedPackage(Date datePurchasedPackage) {
-		this.datePurchasedPackage = datePurchasedPackage;
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public Date getPurchasedPackageDate() {
+		return purchasedPackageDate;
+	}
+
+	public void setPurchasedPackageDate(Date packagePurchasedDate) {
+		this.purchasedPackageDate = packagePurchasedDate;
 	}
 	public String getBillerID() {
 		return billerID;
@@ -102,14 +143,6 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
-	}
-
-	public AccountStatus getAccountStatus() {
-		return accountStatus;
-	}
-
-	public void setAccountStatus(AccountStatus accountStatus) {
-		this.accountStatus = accountStatus;
 	}
 
 	public Date getRegisterDate() {
@@ -160,12 +193,12 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 		this.totalActiveSession = totalActiveSession;
 	}
 
-	public Date getPackageExpirationDate() {
-		return packageExpirationDate;
+	public Date getExpirationPackageDate() {
+		return expirationPackageDate;
 	}
 
-	public void setPackageExpirationDate(Date packageExpirationDate) {
-		this.packageExpirationDate = packageExpirationDate;
+	public void setExpirationPackageDate(Date expirationPackageDate) {
+		this.expirationPackageDate = expirationPackageDate;
 	}
 
 	public int getTotalFreeBills() {
@@ -182,6 +215,30 @@ public class AccountVO extends AccountRequestVO implements Serializable {
 
 	public void setTotalRegisteredCustomer(int totalRegisteredCustomer) {
 		this.totalRegisteredCustomer = totalRegisteredCustomer;
-	}	
+	}
+
+	public String getActivationCode() {
+		return activationCode;
+	}
+
+	public void setActivationCode(String activateAccount) {
+		this.activationCode = activateAccount;
+	}
+
+	public String getTemporaryPassword() {
+		return temporaryPassword;
+	}
+
+	public void setTemporaryPassword(String temporaryPassword) {
+		this.temporaryPassword = temporaryPassword;
+	}
+
+	public AccountStatus getAccountStatus() {
+		return accountStatus;
+	}
+
+	public void setAccountStatus(AccountStatus accountStatus) {
+		this.accountStatus = accountStatus;
+	}
 
 }

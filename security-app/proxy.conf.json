@@ -1,0 +1,7 @@
+{
+  "/budgie/*":{
+    "target":"http://localhost:8880",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

@@ -30,7 +30,7 @@ import mx.budgie.security.vo.UserVO;
 @Service(SecurityConstants.SERVICE_CUSTOM_USER_DETAIL)
 public class CustomUserDetailsService implements UserDetailsService{
 
-	private final Logger LOGGER = LogManager.getLogger(getClass());	
+	private static final Logger LOGGER = LogManager.getLogger(CustomUserDetailsService.class);	
 	@Autowired
 	@Qualifier(RepositoryConstants.MONGO_BILLER_ACCOUNT_REPOSITORY)
 	private AccountsRepository accountRepository;

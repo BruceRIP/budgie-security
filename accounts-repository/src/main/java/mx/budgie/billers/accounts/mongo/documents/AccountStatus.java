@@ -11,6 +11,7 @@ public enum AccountStatus {
 	
 	REGISTER,
 	ACTIVE,
+	TO_CONFIRM,
 	INACTIVE;
 	
 	public static boolean validateStatus(final String value) {		

@@ -16,12 +16,14 @@ public class BillersEmailException extends BillersResponseException{
 	
 	public BillersEmailException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
+	public BillersEmailException(String message) {
+		super(99, message, message);
+	}
+	
 	public BillersEmailException(int code, String message, String description) {
 		super(code, message, description);
-		// TODO Auto-generated constructor stub
 	}
 	
 }

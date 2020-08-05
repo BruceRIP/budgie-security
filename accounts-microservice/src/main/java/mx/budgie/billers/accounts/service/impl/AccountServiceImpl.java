@@ -6,6 +6,9 @@ package mx.budgie.billers.accounts.service.impl;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,9 +30,10 @@ import mx.budgie.billers.accounts.mongo.repositories.AccountsRepository;
 import mx.budgie.billers.accounts.mongo.utils.AESCrypt;
 import mx.budgie.billers.accounts.mongo.utils.DigestAlgorithms;
 import mx.budgie.billers.accounts.service.AccountService;
-import mx.budgie.billers.accounts.vo.AccountRequestVO;
+import mx.budgie.billers.accounts.vo.AccountRequest;
 import mx.budgie.billers.accounts.vo.AccountVO;
 import mx.budgie.billers.accounts.vo.PackageVO;
+import mx.budgie.commons.utils.CommonsUtil;
 
 /**
  * @company Budgie Software
@@ -56,11 +60,11 @@ public class AccountServiceImpl implements AccountService{
 	private AccountAdministratorRepository accountAdminRepository;
 	
 	@Override
-	public AccountVO createAccount(final AccountRequestVO account, final String clientAuthentication, PackageVO packageVO) {
+	public AccountVO createAccount(final AccountRequest account, final String clientAuthentication, PackageVO packageVO) {
 		Assert.notNull(accountRepository, "Account object can't be null");			
 		AccountAuthorizationDocument accountDocument = accountBuilder.createDocumentFromSource(account, clientAuthentication);				
 		Calendar cal = Calendar.getInstance();
-		AccountAdministratorVO accountAdmin = new AccountAdministratorVO();;
+		AccountAdministratorVO accountAdmin = new AccountAdministratorVO();
 		if(null != packageVO) {
 			LOGGER.info("Creationg account plan with [{}]", packageVO.getNamePackage());
 			cal.add(Calendar.DAY_OF_YEAR, packageVO.getTotalActiveDays());
@@ -80,7 +84,7 @@ public class AccountServiceImpl implements AccountService{
 			accountAdmin.setDatePurchasedPackage(Date.from(Instant.now()));
 			accountAdmin.setTotalActiveSessions(0);
 		}else {
-			LOGGER.info("Creationg account plan from hardcode");
+			LOGGER.info("Creating account plan from hardcode");
 			cal.setTime(new Date());
 			cal.add(Calendar.DAY_OF_YEAR, 30);
 			accountDocument.setPurchasedPackage("PAQUETE BÁSICO");
@@ -99,12 +103,16 @@ public class AccountServiceImpl implements AccountService{
 			accountAdmin.setPackageExpirationDate(cal.getTime());
 			accountAdmin.setDatePurchasedPackage(Date.from(Instant.now()));
 		}
-		long incre = sequenceDao.getAccountSequenceNext();
-		String billerID = AESCrypt.buildHashValue(account.getNickname() + incre, DigestAlgorithms.SHA_1);
+		Long incre = sequenceDao.getAccountSequenceNext();
+		String billerID = "dev-" + CommonsUtil.generateID();
+		accountDocument.setId(incre);
 		accountDocument.setBillerID(billerID);
-		accountAdmin.setBillerID(billerID);
+		accountDocument.setPassword(AESCrypt.buildPassword(billerID, DigestAlgorithms.SHA_256));
+		accountAdmin.setId(incre);
+		accountAdmin.setBillerID(billerID);		
+		accountDocument.setActivationCode(AESCrypt.buildHashValue(accountAdmin.toString()));
 		LOGGER.info("Creating account for [: '" + billerID + "'] and Nickname ['" + account.getNickname() + "']");
-		AccountAuthorizationDocument saveDocument = accountRepository.insert(accountDocument);
+		AccountAuthorizationDocument saveDocument = accountRepository.save(accountDocument);
 		accountAdminRepository.save(accountAdmin);
 		if(null != saveDocument){
 			return accountBuilder.buildSourceFromDocument(saveDocument);
@@ -153,9 +161,21 @@ public class AccountServiceImpl implements AccountService{
 
 	@Override
 	public AccountVO updateAccount(final AccountVO account) {
-		AccountAuthorizationDocument document = accountBuilder.buildDocumentFromSource(account);
-		AccountAuthorizationDocument doc = accountRepository.save(document);
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());		
 		if(null != document){
+			if(!document.getPassword().equals(account.getPassword())) {
+				document.setPassword(account.getPassword());
+			}
+			if(!document.getAccountStatus().equals(account.getAccountStatus())) {
+				document.setAccountStatus(account.getAccountStatus());				
+			}
+			if(document.getActivationCode() != null && !document.getActivationCode().equals(account.getActivationCode())) {
+				document.setActivationCode(account.getActivationCode());
+			}
+			if(document.getNickname() != null && !document.getNickname().equals(account.getNickname())) {
+				document.setNickname(account.getNickname());
+			}
+			AccountAuthorizationDocument doc = accountRepository.save(document);
 			return accountBuilder.buildSourceFromDocument(doc);
 		}
 		return null;
@@ -166,5 +186,56 @@ public class AccountServiceImpl implements AccountService{
 		LOGGER.info("Removing account by email [{}]", email);
 		accountRepository.deleteByEmail(email);
 	}
-	
+
+	@Override
+	public AccountVO findAccountToActivate(final String accountReference) {
+		AccountAuthorizationDocument documet = accountRepository.findByActivationCode(accountReference);
+		if(documet != null) {
+			return accountBuilder.buildSourceFromDocument(documet);
+		}
+		return null;
+	}
+
+	@Override
+	public AccountVO updateRoles(final String billerID, final Set<String> rolesParams, boolean deleted) {
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(billerID);
+		if(null != document){
+			Iterator<String> roles = rolesParams.iterator();
+			if(deleted) {				
+				document.getRoles().removeIf(x -> rolesParams.contains(x));
+			}else {
+				if(document.getRoles() == null) {
+					document.setRoles(new HashSet<>());
+				}
+				while(roles.hasNext()) {
+					document.getRoles().add(roles.next());
+				}
+			}
+			AccountAuthorizationDocument doc = accountRepository.save(document);
+			return accountBuilder.buildSourceFromDocument(doc);
+		}
+		return null;
+	}
+
+	@Override
+	public AccountVO resendActivationCode(AccountVO account) {
+		AccountAuthorizationDocument document = accountRepository.findByBillerID(account.getBillerID());
+		if(document != null) {
+			document.setActivationCode(AESCrypt.buildHashValue(account.toString()));
+//			document.setAccountStatus(AccountStatus.TO_CONFIRM);
+			if(!document.getEmail().equals(account.getEmail())) {
+				document.setEmail(account.getEmail());
+			}
+			if(!document.getNickname().equals(account.getNickname())) {
+				document.setNickname(account.getNickname());
+			}
+			if(!document.getPassword().equals(account.getPassword())) {
+				document.setPassword(account.getPassword());
+			}
+			AccountAuthorizationDocument doc = accountRepository.save(document);
+			return accountBuilder.buildSourceFromDocument(doc);
+		}
+		return null;
+	}
+		
 }

@@ -26,6 +26,8 @@ public class OauthClientDetailsDocument implements Serializable{
 	// Identificador numerico
 	@Id
 	private long id;
+	// Asociado a un cliente de la plataforma
+	private String billerID;
 	// Nombre del cliente. Asignado al momento de crear la cuenta de cliente
 	private String name;
 	// Fecha de expiracion del token de accesso (authenticationToken)
@@ -54,10 +56,19 @@ public class OauthClientDetailsDocument implements Serializable{
 	private int accessTokenValidity;
 	// Periodo de validez del token de refresh, cuando expira el token de acceso es necesario enviar el refresh token para generar uno nuevo (Milisegundos)
 	private int refreshTokenValidity;
-	private Map<String, Object> additionalInformation;
+	// Indica si lo debe aprovar automaticamente o si debe preguntar primero antes de autorizar
 	private boolean autoApprove;
 	// Guarda los token generados para el cliente por el Servidor de Autorizacion
 	private TokenAuthentication tokenAuthentication;
+
+	private Map<String, Object> additionalInformation;
+	
+	public String getBillerID() {
+		return billerID;
+	}
+	public void setBillerID(String billerID) {
+		this.billerID = billerID;
+	}
 	public long getId() {
 		return id;
 	}

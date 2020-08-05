@@ -23,11 +23,18 @@ public class AccountAdministratorVO extends AdministratorAccount{
 	 */
 	private static final long serialVersionUID = 1L;
 	@Id
+	private Long id;
 	private String billerID;	
     @JsonIgnore
     private List<Sessions> sessions = new ArrayList<>();
     	
 
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public List<Sessions> getSessions() {
 		return sessions;
 	}

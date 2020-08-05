@@ -4,6 +4,8 @@
 package mx.budgie.billers.accounts.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import mx.budgie.billers.accounts.response.ResponseMessage;
 
@@ -12,6 +14,7 @@ import mx.budgie.billers.accounts.response.ResponseMessage;
  * @author brucewayne
  * @date Jun 28, 2017
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokensResponse extends ResponseMessage{
 	
 	/**
@@ -20,6 +23,7 @@ public class TokensResponse extends ResponseMessage{
 	private static final long serialVersionUID = 1L;
 	private String clientId;	
 	private String clientSecret;
+	@JsonProperty(value="clientAccessToken")
 	private String accessToken;
 	@JsonIgnore
 	private String key;
