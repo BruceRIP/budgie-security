@@ -17,7 +17,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 
 		<junit.test.version>4.12</junit.test.version>
-		<spring.version>5.0.8.RELEASE</spring.version>
+		<spring.version>5.3.18</spring.version>
 		<apache.httpcomponents.version>4.5.6</apache.httpcomponents.version>
 		<org.json.version>20170516</org.json.version>
 		<log4j2.disruptor.version>3.4.2</log4j2.disruptor.version>
